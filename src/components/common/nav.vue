@@ -9,7 +9,7 @@
             <el-submenu index="2">
                 <template slot="title">工作台</template>
                 <el-menu-item index="/source" @click="goTo">数据源管理</el-menu-item>
-                <el-menu-item index="2-3">Chart管理</el-menu-item>
+                <el-menu-item index="/charts" @click="goTo">Chart管理</el-menu-item>
                 <el-menu-item index="2-3">模版管理</el-menu-item>
             </el-submenu>
             <el-menu-item index="3">关于我们</el-menu-item>
