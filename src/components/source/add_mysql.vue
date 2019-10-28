@@ -8,7 +8,9 @@
                 <el-step title="连接MySQL"></el-step>
                 <el-step title="选择数据表"></el-step>
             </el-steps>
-            <el-form class="thedata-info" ref="form" v-show="addMysqlStep==0" :model="mysqlInfo" label-width="120px">
+            <el-form ref="form" v-show="addMysqlStep===0" :model="mysqlInfo" label-width="120px"
+                     style="width: 400px;"
+                     size="mini">
                 <el-form-item label="数据源名称">
                     <el-input v-model="mysqlInfo.name"></el-input>
                 </el-form-item>
@@ -25,17 +27,20 @@
                     <el-input v-model="mysqlInfo.port"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" style="width: 200px;margin-left: 60px;" @click="next">下一步</el-button>
+                    <el-button type="primary" style="width: 200px;" @click="next">下一步</el-button>
                 </el-form-item>
             </el-form>
-            <el-form v-show="addMysqlStep==1" :model="mysqlInfo" label-width="120px">
+            <el-form v-show="addMysqlStep===1" :model="mysqlInfo" label-width="120px" size="mini"
+            style="width: 400px;">
                 <el-form-item label="库 & 表">
                     <el-cascader :options="options" filterable
                                  v-model="dbTable" separator="." style="width: 100%;"></el-cascader>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="info" style="width: 120px;margin-left: 30px;" @click="previous">上一步</el-button>
-                    <el-button :loading="lding" :disabled="!canSave" type="primary" style="width: 120px;margin-left: 60px;" @click="save">保存</el-button>
+                    <el-button type="info" style="width: 100px;" @click="previous">上一步</el-button>
+                    <el-button :loading="lding" :disabled="!canSave" type="primary"
+                               style="width: 100px;margin-left: 30px;" @click="save">保存
+                    </el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -266,9 +271,9 @@
                 this.addMysqlStep--;
             },
             save() {
-                this.mysqlInfo.db = this.dbTable[0]
-                this.mysqlInfo.table = this.dbTable[1]
-                console.log(this.mysqlInfo)
+                this.mysqlInfo.db = this.dbTable[0];
+                this.mysqlInfo.table = this.dbTable[1];
+                console.log(this.mysqlInfo);
                 this.$router.replace({name: 'source'})
             },
         }
@@ -276,7 +281,7 @@
 </script>
 
 <style scoped>
-    .thedata-title{
+    .thedata-title {
         font-size: 18px;
         color: #909399;
         position: relative;
