@@ -12,4 +12,28 @@
   text-align: center;
   color: #2c3e50;
 }
+
+li{
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+ul{
+    margin: 0px;
+    padding: 0px;
+}
+
+::-webkit-scrollbar{
+    width: 4px;
+    height: 8px;
+    position: fixed;
+}
+::-webkit-scrollbar-button{
+    display: none;
+}
+::-webkit-scrollbar-thumb{
+    background-color: hsla(220,4%,58%,.5);
+    border-radius: 4px;
+}
 </style>

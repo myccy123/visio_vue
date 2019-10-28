@@ -5,7 +5,6 @@
 </template>
 
 <script>
-    import commonNav from '@/components/common/nav'
     import CommonNav from "../common/nav";
     export default {
         name: "home",
