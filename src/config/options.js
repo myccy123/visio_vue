@@ -21,6 +21,9 @@ export default {
         {
             name: '表格', value: 'table', icon: '/img/data-table.png'
         },
+        {
+            name: '自定义', value: 'diy', icon: '/img/diy-chart.png'
+        },
     ],
     CHART_TYPES: {
         line: [
@@ -29,7 +32,10 @@ export default {
             {name: '基础折线图', value: 'line', icon: '/img/line-basic-default.png'},
             {name: '基础折线图', value: 'line', icon: '/img/line-basic-default.png'},
             {name: '基础折线图', value: 'line', icon: '/img/line-basic-default.png'}
-            ]
+            ],
+        diy: [
+            {name: '单轴散点图', value: 'diy', icon: '/img/scatter-single-axis.jpg'},
+        ],
     },
     THEME: [{label: '', value: ''},],
     FILTER: [

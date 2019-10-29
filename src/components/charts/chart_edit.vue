@@ -48,12 +48,13 @@
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
-                    <el-tab-pane id="flt" label="数据筛选" name="second" style="height: 70px; overflow: auto;">
-                        <!--                        <el-button class="add-filter" type="primary" icon="el-icon-plus" plain size="mini"-->
-                        <!--                                   @click="addFilter"></el-button>-->
+                    <el-tab-pane id="flt" label="数据筛选" name="second"
+                                 :disabled="chartCate==='diy'"
+                                 style="height: 70px; overflow: auto;">
+                        <el-button class="add-filter" type="primary" icon="el-icon-plus" plain size="mini"
+                                   @click="addFilter"></el-button>
                         <el-form v-for="(item,idx) in formOptions.filter" :inline="true" :model="item" size="mini"
-                                 label-width="60px" @mouseover.native="showDelbtn(idx)"
-                                 @mouseleave.native="hideDelbtn(idx)">
+                                 label-width="60px">
                             <el-form-item label="数据项">
                                 <el-select class="data-filter" :loading="colOptions.length == 0" v-model="item.col"
                                            placeholder="请选择" @change="changeCol(item.col,idx)">
@@ -75,8 +76,6 @@
                                     <el-input class="data-filter" v-model="item.val"
                                               @blur="checkChart"></el-input>
                                 </el-form-item>
-                                <i :id="'del-filter-btn-'+idx" class="el-icon-circle-close-outline del-filter"
-                                   @click="delFilter(idx)"></i>
                             </template>
                             <template v-else>
                                 <el-form-item label="开始">
@@ -89,9 +88,9 @@
                                                     @change="checkChart" placeholder="选择日期时间" style="width: 150px;">
                                     </el-date-picker>
                                 </el-form-item>
-                                <i :id="'del-filter-btn-'+idx" class="el-icon-circle-close-outline del-filter"
-                                   @click="delFilter(idx)"></i>
                             </template>
+                            <i :id="'del-filter-btn-'+idx" class="el-icon-circle-close del-filter"
+                               @click="delFilter(idx)"></i>
                         </el-form>
                     </el-tab-pane>
                     <el-tab-pane label="高级设置" name="third">
@@ -118,13 +117,6 @@
                     </el-tab-pane>
                     <el-tab-pane label="自定义开发" name="fourth">
                         <el-form ref="form" :inline="true" :model="currDemo" size="mini" label-width="80px">
-                            <el-form-item label="样例">
-                                <el-select class="data-order" v-model="currDemo" @change="renderDemo" placeholder="请选择">
-                                    <el-option v-for="demo in demoOptions" :key="demo.value"
-                                               :value="demo.value" :label="demo.label">
-                                    </el-option>
-                                </el-select>
-                            </el-form-item>
                             <el-form-item style="margin-left: 30px;">
                                 <el-button type="info" plain @click="showDemoCode = true">查看代码</el-button>
                             </el-form-item>
@@ -135,24 +127,33 @@
                         <el-dialog title="代码示例" :visible.sync="showDemoCode" width="800px" top="50px" @open="highlight"
                                    modal="false">
                             <div class="demo-code">
-                                <pre><code class="javascript">[[demoCode]]</code></pre>
+                                <pre><code class="javascript">{{demoCode}}</code></pre>
                             </div>
                         </el-dialog>
                         <el-dialog title="编辑代码" :visible.sync="showEditCode" width="800px" top="50px" modal="false">
                             <div class="edit-code">
-                                <el-input type="textarea" autosize="true" v-model="demoCode"
-                                          style="min-height: 100px;"></el-input>
+                                <el-input type="textarea" v-model="formOptions.diy.code"></el-input>
                             </div>
                             <span slot="footer">
-                                        <el-button @click="showEditCode = false">取 消</el-button>
-                                        <el-button type="primary" @click="runCode">运 行</el-button>
-                                    </span>
+                                <el-button @click="showEditCode = false" size="mini">取 消</el-button>
+                                <el-button type="primary" @click="runCode" size="mini">运 行</el-button>
+                            </span>
                         </el-dialog>
                     </el-tab-pane>
                 </el-tabs>
+                <div class="board">
+                </div>
+                <div style="text-align: center;margin-top: 20px;">
+                    <span>
+                    <el-button type="primary" :disabled="false" @click="checkChart(1)"
+                               style="width: 200px;">生成图表</el-button>
+                    <el-button type="info" plain @click="showChsrcDialog"
+                               style="width: 200px;margin-left: 80px;">切换数据源</el-button>
+                    </span>
+                </div>
             </div>
             <div class="right-side">
-
+                <h2 class="h2-title">度量与维度</h2>
             </div>
         </div>
 
@@ -192,6 +193,22 @@
                     userid: '',
                 }
             }
+        },
+        mounted() {
+
+        },
+        methods: {
+            addFilter() {
+                this.formOptions.filter.push(
+                    {col: '', opt: '', val: '', bgndate: '', enddate: '', filterType: 'val'}
+                )
+            },
+            delFilter(idx) {
+                this.formOptions.filter.splice(idx, 1)
+                if (this.formOptions.filter.length == 0) {
+                    this.addFilter()
+                }
+            },
         }
     }
 </script>
@@ -215,7 +232,6 @@
     .right-side {
         height: 100%;
         width: 250px;
-        background-color: #6b6fce;
     }
 
     .main {
@@ -305,8 +321,7 @@
     .chart-config {
         width: 90%;
         height: 125px;
-        margin: auto;
-        margin-top: 10px;
+        margin: 10px auto auto;
         padding: 0 10px 10px 10px;
         border: 1px solid #79aec8;
         border-radius: 2px;
@@ -315,10 +330,36 @@
     .data-filter {
         width: 150px;
     }
+
+    .board {
+        height: calc(100% - 300px);
+        width: calc(90% + 20px);
+        margin: 10px auto;
+        border: 1px solid #79aec8;
+    }
+
+    .add-filter {
+        position: absolute;
+        right: 5px;
+    }
+
+    .del-filter {
+        height: 5px;
+        width: 5px;
+        display: inline-block;
+        top: 5px;
+        cursor: pointer;
+        color: red;
+        position: relative;
+        left: -5px;
+    }
 </style>
 
 <style>
     .el-tabs__item {
         font-size: 12px !important;
+    }
+    .el-textarea__inner {
+        min-height: 300px!important;
     }
 </style>
