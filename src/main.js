@@ -12,7 +12,7 @@ Vue.use(ElementUI);
 
 const globalBus = new Vue();
 
-axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = false;
 Vue.prototype.$axios = axios;
 Vue.prototype.$bus = globalBus;
 Vue.prototype.$api = urls;

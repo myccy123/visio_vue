@@ -27,17 +27,31 @@ export default {
     ],
     CHART_TYPES: {
         line: [
-            {name: '基础折线图', value: 'line', icon: '/img/line-basic-default.png'},
-            {name: '基础折线图', value: 'line', icon: '/img/line-basic-default.png'},
-            {name: '基础折线图', value: 'line', icon: '/img/line-basic-default.png'},
-            {name: '基础折线图', value: 'line', icon: '/img/line-basic-default.png'},
-            {name: '基础折线图', value: 'line', icon: '/img/line-basic-default.png'}
-            ],
+            {name: '基础折线图', value: 'lineBasic', icon: '/img/line-basic-default.png'},
+        ],
         diy: [
-            {name: '单轴散点图', value: 'diy', icon: '/img/scatter-single-axis.jpg'},
+            {
+                name: '单轴散点图',
+                value: 'diy',
+                icon: '/img/transparent-bar3d.jpg',
+                json: '/json/bar-3d.json'
+            },
+            {
+                name: '关系图',
+                value: 'diy',
+                icon: '/img/graph-circular-layout.jpg',
+                json: '/json/graph-circular-layout.json'
+            },
         ],
     },
-    THEME: [{label: '', value: ''},],
+    THEME: [
+        {label: 'dark', value: 'dark'},
+        {label: 'infographic', value: 'infographic'},
+        {label: 'macarons', value: 'macarons'},
+        {label: 'roma', value: 'roma'},
+        {label: 'shine', value: 'shine'},
+        {label: 'vintage', value: 'vintage'},
+    ],
     FILTER: [
         {label: '=', value: 'eq'},
         {label: '!=', value: 'ne'},
@@ -54,7 +68,15 @@ export default {
     DEMO: [{label: '升序', value: 'asc'}, {label: '降序', value: 'desc'},],
     UPDATE: [
         {label: '实时', value: '0'},
-        {label: '5min', value: '5'},
-        {label: '30min', value: '30'},
-        {label: '1day', value: '3600'},],
+        {label: '5 min', value: '5'},
+        {label: '30 min', value: '30'},
+        {label: '1 day', value: '1440'},
+    ],
+    SUM_TYPE: [
+        {label: 'SUM', value: 'sum'},
+        {label: 'COUNT', value: 'count'},
+        {label: 'AVG', value: 'avg'},
+        {label: 'MAX', value: 'max'},
+        {label: 'MIN', value: 'min'},
+    ],
 };

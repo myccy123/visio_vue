@@ -3,7 +3,7 @@
         <common-nav></common-nav>
         <source-list></source-list>
         <div class="src-info">
-            <h2 class="src-name" style="padding-top: 8px;">我的数据源</h2>
+            <h2 class="src-name" style="padding-top: 8px;text-align: center;">我的数据源</h2>
             <el-form :model="srcInfo" label-width="120px" size="mini">
                 <el-form-item label="数据源名称">
                     <el-input v-model="srcInfo.name"></el-input>

@@ -6,8 +6,10 @@
         <el-tag v-for="src in sources"
                 :key="src.id"
                 closable
+                style="text-align: center;"
+                @close="delSource(src.id)"
                 class="source-tag">
-            {{ src.name }}
+            {{ src.data_name }}
         </el-tag>
 
         <el-dialog
@@ -30,47 +32,38 @@
         name: "source_list",
         data() {
             return {
-                sources: [
-                    {
-                        name: "我人我",
-                        id: 1,
-                        type: "mysql"
-                    },
-                    {
-                        name: "我人我人人人 我基本原则基本原则工工枯苛中华人民共和国我",
-                        id: 2,
-                        type: "mysql"
-                    },
-                    {
-                        name: "我人我",
-                        id: 3,
-                        type: "mysql"
-                    },
-                    {
-                        name: "我人我",
-                        id: 4,
-                        type: "mysql"
-                    },
-                    {
-                        name: "我人我",
-                        id: 5,
-                        type: "mysql"
-                    },
-                    {
-                        name: "我人我",
-                        id: 6,
-                        type: "mysql"
-                    }
-                ],
+                sources: [],
                 showDialog: false,
             };
         },
+        mounted() {
+            this.getSource()
+        },
         methods: {
+            getSource() {
+                this.$axios.post(this.$api.sourceList, {userid: 'yujiahao'}).then((res) => {
+                    if (res.data.code === '00') {
+                        this.sources = []
+                        this.sources = res.data.data
+                    }
+                }).catch((err) => {
+
+                })
+            },
             addSource() {
                 this.showDialog = true
             },
+            delSource(srcid) {
+                this.$axios.post(this.$api.delSource, {id: srcid}).then((res) => {
+                    if (res.data.code === '00') {
+                        this.getSource()
+                    }
+                }).catch((err) => {
+
+                })
+            },
             addMySQL() {
-                this.$router.push('add/mysql')
+                this.$router.push({name: 'addMysql'})
             },
         }
     };
@@ -89,6 +82,7 @@
         font-size: 18px;
         color: #909399;
         position: relative;
+        text-align: center;
     }
 
     .add-btn {
