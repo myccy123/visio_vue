@@ -31,19 +31,71 @@ export default {
         ],
         diy: [
             {
-                name: '单轴散点图',
+                name: '3D柱图',
                 value: 'diy',
                 icon: '/img/transparent-bar3d.jpg',
+                type: 'bar3d',
                 json: '/json/bar-3d.json'
             },
             {
                 name: '关系图',
                 value: 'diy',
                 icon: '/img/graph-circular-layout.jpg',
+                type: 'rel',
                 json: '/json/graph-circular-layout.json'
+            },
+            {
+                name: '地理热力图',
+                value: 'diy',
+                icon: '/img/heatmap-bmap.jpg',
+                type: 'beatMap',
+                json: '/json/beat-map.json'
+            },
+            {
+                name: '百度地图',
+                value: 'diy',
+                icon: '/img/effectScatter-bmap.jpg',
+                type: 'mapPot',
+                json: '/json/map_pot.json'
+            },
+            {
+                name: '路线图',
+                value: 'diy',
+                icon: '/img/map-line.png',
+                type: 'mapLine',
+                json: '/json/map-line.json'
             },
         ],
     },
+    CATE_OPTIONS: [
+        {
+            label: '全部', value: 'all'
+        },
+        {
+            label: '折线图', value: 'line'
+        },
+        {
+            label: '面积图', value: 'area'
+        },
+        {
+            label: '垂直柱图', value: 'column'
+        },
+        {
+            label: '水平柱图', value: 'bar'
+        },
+        {
+            label: '饼图', value: 'pie'
+        },
+        {
+            label: '散点图', value: 'scatter'
+        },
+        {
+            label: '表格', value: 'table'
+        },
+        {
+            label: '自定义', value: 'diy'
+        },
+    ],
     THEME: [
         {label: 'dark', value: 'dark'},
         {label: 'infographic', value: 'infographic'},

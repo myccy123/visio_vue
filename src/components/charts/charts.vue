@@ -3,7 +3,7 @@
         <common-nav></common-nav>
         <el-radio-group v-model="chartCate" size="mini"
                         @change="chartList"
-                        style="margin: 20px 0 0 30%; float: left;">
+                        style="margin: 20px 0 15px 30%; float: left;">
             <el-radio-button label="all">全部</el-radio-button>
             <el-radio-button label="line">折线图</el-radio-button>
             <el-radio-button label="bar">柱图</el-radio-button>
@@ -16,13 +16,19 @@
                    style="margin: 20px 0 0 50px;float: left;" @click="addChart">add
         </el-button>
 
-        <el-row :gutter="20" style="clear: both;">
-            <el-col v-for="chart in charts" :sm="6" :md="6" :lg="4" style="margin-top: 20px;">
-                <div class="chart-box" :id="chart.id">
-                    <img class="chart-img" :src="chart.icon">
+        <div style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:flex-start;">
+            <div v-for="chart in charts" class="chart-box" :id="chart.id">
+                <img class="chart-img" :src="chart.icon">
+                <div class="mask">
+                    <div class="btn-box">
+                        <p style="">id : {{chart.id}}</p>
+                        <el-button size="mini" type="primary" class="btns" @click="preview(chart.id)">预览</el-button>
+                        <el-button size="mini" type="warning" class="btns" @click="editChart(chart.id)">编辑</el-button>
+                        <el-button size="mini" type="danger" class="btns" @click="delChart(chart.id)">删除</el-button>
+                    </div>
                 </div>
-            </el-col>
-        </el-row>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -40,13 +46,6 @@
             }
         },
         mounted() {
-            this.$nextTick(() => {
-                let boxes = document.querySelectorAll('.chart-box');
-                for (let item of boxes) {
-                    item.style.height = item.style.width;
-                }
-            });
-
             this.chartList(this.chartCate)
         },
         methods: {
@@ -59,19 +58,31 @@
                     console.log(err)
                 })
             },
-            renderChart(id, dom) {
-                this.$axios.post(this.$api.getChart, {id: id}).then((res) => {
-                    if (res.data.code === '00') {
-                        let myChart = echarts.init(dom);
-                        myChart.setOption(res.data.data.chartOptions);
-                        myChart.resize()
-                    }
-                }).catch((err) => {
-                    console.log(err)
-                })
+            preview(id) {
+                window.open("http://127.0.0.1:8000/preview/chart/?id=" + id, "_blank");
             },
             addChart() {
                 this.$router.push({name: 'chartEdit'})
+            },
+            editChart(id) {
+                this.$router.push({name: 'chartEdit', query: {id: id}})
+            },
+            delChart(id) {
+                this.$confirm('是否删除该图表?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.$axios.post(this.$api.delChart, {id: id}).then((res) => {
+                        if (res.data.code === '00') {
+                            this.chartList(this.chartCate)
+                        }
+                    }).catch((err) => {
+                        console.log(err)
+                    })
+                }).catch(() => {
+
+                });
             }
         }
     }
@@ -81,8 +92,11 @@
     .chart-box {
         cursor: pointer;
         overflow: hidden;
-        height: 240px;
-        line-height: 240px;
+        width: 250px;
+        height: 250px;
+        line-height: 250px;
+        margin: 5px;
+        position: relative;
         box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
     }
 
@@ -96,4 +110,48 @@
         object-fit: contain;
         vertical-align: middle;
     }
+
+    .mask {
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+
+    .mask:hover {
+        height: 100%;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        opacity: 1;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+
+    .btn-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+    }
+
+    .btn-box p {
+        height: 30px;
+        line-height: 30px;
+        color: #fff;
+        text-align: center;
+        margin: 0 0 10px 0;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .btns {
+        display: block;
+        width: 100px;
+        margin: 4px auto 4px auto !important;
+        z-index: 100;
+    }
+
 </style>

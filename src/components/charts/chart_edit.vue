@@ -88,7 +88,7 @@
                                     </el-date-picker>
                                 </el-form-item>
                             </template>
-                            <i :id="'del-filter-btn-'+idx" class="el-icon-circle-close del-btn"
+                            <i class="el-icon-circle-close del-btn"
                                @click="delFilter(idx)"></i>
                         </el-form>
                     </el-tab-pane>
@@ -176,7 +176,7 @@
             </div>
             <div class="right-side">
                 <h2 class="h2-title">度量与维度</h2>
-                <div class="dim">
+                <div class="dim" v-show="showX">
                     <el-form :model="formOptions.chartConfig.x" size="mini" label-width="60px"
                              style="padding: 10px 10px 0px 10px;">
                         <el-form-item label="X轴">
@@ -190,7 +190,7 @@
                         </el-form-item>
                     </el-form>
                 </div>
-                <div class="dim">
+                <div class="dim" v-show="showLegend">
                     <el-form :model="formOptions.chartConfig.x" size="mini" label-width="60px"
                              style="padding: 10px 10px 0px 10px;">
                         <el-form-item label="多例" style="text-align: left;">
@@ -210,7 +210,7 @@
                         </el-form-item>
                     </el-form>
                 </div>
-                <div class="dim">
+                <div class="dim" v-show="showY">
                     <el-form v-for="(item, idx) in formOptions.chartConfig.y" :model="item" size="mini"
                              label-width="60px"
                              style="padding: 10px 10px 5px 10px;position: relative;">
@@ -237,6 +237,43 @@
                                @click="addY" :disabled="formOptions.chartConfig.legend.isLegend"
                                style="margin-bottom: 10px;"></el-button>
                 </div>
+                <div class="dim" v-show="showLatLng">
+                    <el-form :model="formOptions.chartConfig" size="mini" label-width="60px"
+                             style="padding: 10px 10px 0px 10px;">
+                        <el-form-item label="经度">
+                            <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lat"
+                                       placeholder="请选择"
+                                       @change="genChart">
+                                <el-option v-for="col in colOptions" :value="col.colname"
+                                           :key="col.colname" :label="col.coldesc">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="纬度">
+                            <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lng"
+                                       placeholder="请选择"
+                                       @change="genChart">
+                                <el-option v-for="col in colOptions" :value="col.colname"
+                                           :key="col.colname" :label="col.coldesc">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form>
+                </div>
+                <div class="dim" v-show="showData">
+                    <el-form :model="formOptions.chartConfig" size="mini" label-width="60px"
+                             style="padding: 10px 10px 0px 10px;">
+                        <el-form-item label="数据">
+                            <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.data"
+                                       placeholder="请选择"
+                                       @change="genChart">
+                                <el-option v-for="col in colOptions" :value="col.colname"
+                                           :key="col.colname" :label="col.coldesc">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form>
+                </div>
             </div>
         </div>
     </div>
@@ -246,7 +283,10 @@
     import CommonNav from "../common/nav";
     import options from "../../config/options"
     import echarts from "echarts"
+    import 'echarts/map/js/china'
+    import 'echarts/map/js/world'
     import 'echarts-gl';
+    import 'echarts/extension/bmap/bmap'
     import lodash from 'lodash';
     import ResizeObserver from 'resize-observer-polyfill';
 
@@ -277,14 +317,20 @@
                         y: [
                             {yAxis: '', sum: 'sum'},
                         ],
+                        z: [
+                            {zAxis: '', sum: 'sum'},
+                        ],
                         legend: {
                             isLegend: false,
                             legendAxis: ''
-                        }
+                        },
+                        lat: '',
+                        lng: '',
+                        data: '',
                     },
                     moreConfig: {static: '0', sort: 'asc'},
                     filter: [{col: '', opt: '', val: '', bgndate: '', enddate: '', filterType: 'val'}],
-                    diy: {code: '', example: ''},
+                    diy: {code: '', example: '', diyType: ''},
                     id: '',
                     srcid: '',
                     userid: 'yujiahao',
@@ -292,6 +338,26 @@
                     chartType: 'lineBasic',
                     isSave: false,
                 }
+            }
+        },
+        created() {
+            if(this.$route.query.id) {
+                this.showSourceList = false;
+                this.$axios.post(this.$api.getChart, {id: this.$route.query.id}).then((res) => {
+                    if (res.data.code === '00') {
+                        let opt = res.data.data.formOptions;
+                        opt.isSave = false;
+                        this.formOptions = opt;
+                        this.getCols();
+                        echarts.dispose(document.getElementById('chart'));
+                        let myChart = echarts.init(document.getElementById('chart'));
+                        myChart.setOption(res.data.data.chartOptions);
+                        myChart.resize();
+                        this.chart = myChart;
+                    }
+                }).catch((err) => {
+
+                })
             }
         },
         mounted() {
@@ -302,14 +368,14 @@
                     }
                 })
             });
-            observer.observe(document.getElementById('chart'))
+            observer.observe(document.getElementById('chart'));;
             this.getSource()
         },
         methods: {
             getSource() {
                 this.$axios.post(this.$api.sourceList, {userid: 'yujiahao'}).then((res) => {
                     if (res.data.code === '00') {
-                        this.sourceList = []
+                        this.sourceList = [];;
                         this.sourceList = res.data.data
                     }
                 }).catch((err) => {
@@ -339,7 +405,7 @@
             filterColChange(v, idx) {
                 for (let i = 0; i < this.colOptions.length; i++) {
                     if (this.colOptions[i].colname == v && this.colOptions[i].coltype.search("date") != -1) {
-                        this.formOptions.filter[idx].filterType = 'date'
+                        this.formOptions.filter[idx].filterType = 'date';;
                         return
                     } else {
                         this.formOptions.filter[idx].filterType = 'val'
@@ -348,12 +414,16 @@
             },
             switchChart(type) {
                 this.formOptions.chartType = type.value;
+                echarts.dispose(document.getElementById('chart'));
                 if (type.value === 'diy') {
+                    this.formOptions.diy.diyType = type.type
                     this.$axios.get(type.json).then((res) => {
                         this.formOptions.diy.example = JSON.stringify(res.data);
                         this.formOptions.diy.code = JSON.stringify(res.data);
                         this.genChart()
                     })
+                } else{
+                    this.formOptions.diy.diyType = ''
                 }
             },
             addY() {
@@ -402,9 +472,26 @@
             },
             saveChart() {
                 this.formOptions.isSave = true;
-                this.formOptions.baseConfig.icon = this.chart.getDataURL()
+                this.formOptions.baseConfig.icon = this.chart.getDataURL();;
                 this.genChart()
             }
+        },
+        computed: {
+            showX() {
+                return ['lineBasic'].indexOf(this.formOptions.chartType) != -1
+            },
+            showLegend() {
+                return ['lineBasic'].indexOf(this.formOptions.chartType) != -1
+            },
+            showY() {
+                return ['lineBasic'].indexOf(this.formOptions.chartType) != -1
+            },
+            showLatLng() {
+                return ['beatMap', 'mapLine'].indexOf(this.formOptions.diy.diyType) != -1
+            },
+            showData() {
+                return ['beatMap', 'mapLine'].indexOf(this.formOptions.diy.diyType) != -1
+            },
         }
     }
 </script>

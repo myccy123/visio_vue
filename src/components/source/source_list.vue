@@ -8,6 +8,7 @@
                 closable
                 style="text-align: center;"
                 @close="delSource(src.id)"
+                @click="selectSource(src)"
                 class="source-tag">
             {{ src.data_name }}
         </el-tag>
@@ -43,7 +44,7 @@
             getSource() {
                 this.$axios.post(this.$api.sourceList, {userid: 'yujiahao'}).then((res) => {
                     if (res.data.code === '00') {
-                        this.sources = []
+                        this.sources = [];
                         this.sources = res.data.data
                     }
                 }).catch((err) => {
@@ -53,14 +54,25 @@
             addSource() {
                 this.showDialog = true
             },
+            selectSource(src) {
+                this.$bus.$emit('currSource', src)
+            },
             delSource(srcid) {
-                this.$axios.post(this.$api.delSource, {id: srcid}).then((res) => {
-                    if (res.data.code === '00') {
-                        this.getSource()
-                    }
-                }).catch((err) => {
+                this.$confirm('是否删除该数据源?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.$axios.post(this.$api.delSource, {id: srcid}).then((res) => {
+                        if (res.data.code === '00') {
+                            this.getSource()
+                        }
+                    }).catch((err) => {
 
-                })
+                    })
+                }).catch(() => {
+
+                });
             },
             addMySQL() {
                 this.$router.push({name: 'addMysql'})
