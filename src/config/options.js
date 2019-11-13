@@ -65,6 +65,13 @@ export default {
                 type: 'mapLine',
                 json: '/json/map-line.json'
             },
+            {
+                name: '路线图',
+                value: 'diy',
+                icon: '/img/map_line2.png',
+                type: 'mapLine',
+                json: '/json/map-line2.json'
+            },
         ],
     },
     CATE_OPTIONS: [

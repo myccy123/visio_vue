@@ -8,7 +8,7 @@ import chartEdit from './components/charts/chart_edit'
 import templateList from './components/template/template_list'
 import templateEdit from './components/template/template_edit'
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 export default new VueRouter({
   routes: [

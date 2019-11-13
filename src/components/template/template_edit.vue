@@ -14,8 +14,8 @@
             </el-select>
             <div v-for="chart in charts" class="chart-box"
                  draggable="true"
-                 @dragstart="dragChart($event, chart)"
-                 @dragend="dragend">
+                 @dragstart="dragStart($event, chart)"
+                 @dragend="dragEnd">
                 <img :src="chart.icon">
             </div>
         </div>
@@ -57,13 +57,11 @@
                         :margin="margin"
                         :auto-size="true"
                         :use-css-transforms="true"
-                        :style="{border: '1px dashed #79aec8', 'background-color': templateConfig.backgroundColor}"
-                >
+                        :style="{border: '1px dashed #79aec8', 'background-color': templateConfig.backgroundColor}">
 
                     <grid-item v-for="item in layout" class="box"
-                               @dragover.native.prevent
-                               @drop.native="dropDown"
                                @resized="rerefshBox(item)"
+
                                dragAllowFrom=".move-btn"
                                :x="item.x"
                                :y="item.y"
@@ -71,8 +69,23 @@
                                :h="item.h"
                                :i="item.i"
                                :key="item.i">
-                        <div :id="item.i" style="height: 100%; width: 100%;" class="box-div">
-
+                        <div :id="item.i" style="height: 100%; width: 100%;">
+                            <div v-for="(row, i) in item.charts" :style="{height: 100/item.charts.length + '%'}"
+                                 style="display: flex;justify-content:space-around;">
+                                <div v-for="(col, j) in row"
+                                     :style="{height: '100%', width: 100/row.length + '%'}"
+                                     @dragover.native.prevent
+                                     @drop.native="dropDown"
+                                     style="position: relative;">
+                                    <div :id="col.id" class="box-div" style="height: 100%;z-index: 2"></div>
+                                    <div class="arrow-box">
+                                        <i @click="addLeft(item, i, j)" class="el-icon-arrow-left arrow-btn"></i>
+                                        <i @click="addRight(item, i, j)" class="el-icon-arrow-right arrow-btn"></i>
+                                        <i @click="addDown(item, i, j)" class="el-icon-arrow-down arrow-btn"></i>
+                                        <i @click="addUp(item, i, j)" class="el-icon-arrow-up arrow-btn"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="tool-box">
                             <i class="el-icon-setting refresh-btn" @click="rerefshBox(item)"></i>
@@ -83,7 +96,6 @@
                     </grid-item>
                 </grid-layout>
             </div>
-
         </div>
     </div>
 </template>
@@ -112,12 +124,14 @@
                     width: '',
                     height: ''
                 },
-                layout: [{"x": 0, "y": 0, "w": 4, "h": 6, "i": "0", chart: null}],
+                layout: [{"x": 0, "y": 0, "w": 4, "h": 6, "i": "0", charts: [[{id: 10000, chart: null}]]}],
                 cols: 30,
                 rowHeight: 30,
                 margin: [10, 10], //[left-right, top-bottom]
                 maxId: 0,
-                cateOptions: opt.CATE_OPTIONS
+                maxChartId: 10000,
+                cateOptions: opt.CATE_OPTIONS,
+                tmp: [1],
             }
         },
         computed: {
@@ -145,20 +159,34 @@
             },
             addBox() {
                 this.maxId++;
-                this.layout.push({"x": 0, "y": 0, "w": 4, "h": 6, "i": this.maxId, chart: null})
+                this.maxChartId++;
+                this.layout.push({
+                    "x": 0,
+                    "y": 0,
+                    "w": 4,
+                    "h": 6,
+                    "i": this.maxId,
+                    charts: [[{id: this.maxChartId, chart: null}]]
+                })
             },
             delBox(item) {
                 this.layout.splice(this.layout.indexOf(item), 1)
+            },
+            delChart(idx) {
+                this.tmp.splice(idx, 1);
+                if (this.tmp.length === 0) {
+                    this.tmp.push(1)
+                }
             },
             rerefshBox(item) {
                 if (item.chart) {
                     item.chart.resize()
                 }
             },
-            dragChart(e, chart) {
+            dragStart(e, chart) {
                 e.dataTransfer.setData('chartid', chart.id);
             },
-            dragend(e) {
+            dragEnd(e) {
                 e.dataTransfer.clearData();
             },
             getElementbyClass(el, className) {
@@ -169,14 +197,15 @@
                 }
             },
             dropDown(e) {
+                console.log(e)
                 let domId = this.getElementbyClass(e.target, 'box-div').id;
                 let chartid = e.dataTransfer.getData('chartid');
                 this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
                     if (res.data.code === '00') {
                         echarts.dispose(document.getElementById(domId));
                         let myChart = echarts.init(document.getElementById(domId));
-                        for(let f of res.data.data.functions) {
-                            eval('res.data.data.chartOptions' + f.name + '='+ f.fun)
+                        for (let f of res.data.data.functions) {
+                            eval('res.data.data.chartOptions' + f.name + '=' + f.fun)
                         }
                         myChart.setOption(res.data.data.chartOptions);
                         this.setChart(parseInt(domId), myChart)
@@ -205,7 +234,23 @@
                     rowHeight: this.rowHeight
                 };
                 console.log(temp)
-            }
+            },
+            addLeft(item, i, j) {
+                this.maxChartId++;
+                item.charts[i].splice(j, 0, {id: this.maxChartId, chart: null})
+            },
+            addRight(item, i, j) {
+                this.maxChartId++;
+                item.charts[i].splice(j + 1, 0, {id: this.maxChartId, chart: null})
+            },
+            addUp(item, i, j) {
+                this.maxChartId++;
+                item.charts.splice(i, 0, [{id: this.maxChartId, chart: null}])
+            },
+            addDown(item, i, j) {
+                this.maxChartId++;
+                item.charts.splice(i + 1, 0, [{id: this.maxChartId, chart: null}])
+            },
         }
     }
 </script>
@@ -290,5 +335,49 @@
         margin-right: 15px;
         cursor: pointer;
         color: #79aec8;
+    }
+
+
+    .arrow-box {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        opacity: 0;
+        z-index: 0;
+        top: 0;
+        left: 0;
+    }
+
+    .arrow-box:hover {
+        opacity: 1;
+    }
+
+    .arrow-btn {
+        cursor: pointer;
+        position: absolute;
+    }
+
+    .el-icon-arrow-left {
+        left: 0;
+        top: calc(50% - 8px);
+    }
+
+    .el-icon-arrow-right {
+        right: 0;
+        top: calc(50% - 8px);
+    }
+
+    .el-icon-arrow-up {
+        left: calc(50% - 8px);
+        top: 0;
+    }
+
+    .el-icon-arrow-down {
+        left: calc(50% - 8px);
+        bottom: 0;
+    }
+
+    .box-div {
+        /*background-color: #6b6fce;*/
     }
 </style>
