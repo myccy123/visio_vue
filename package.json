@@ -12,6 +12,7 @@
     "echarts": "^4.4.0",
     "echarts-gl": "^1.1.1",
     "element-ui": "^2.12.0",
+    "html2canvas": "^1.0.0-rc.5",
     "lodash": "^4.17.15",
     "resize-observer-polyfill": "^1.5.1",
     "vue": "^2.6.10",

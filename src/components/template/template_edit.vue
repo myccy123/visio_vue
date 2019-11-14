@@ -15,7 +15,7 @@
             <div v-for="chart in charts" class="chart-box"
                  draggable="true"
                  @dragstart="dragStart($event, chart)"
-                 @dragend="dragEnd">
+            >
                 <img :src="chart.icon">
             </div>
         </div>
@@ -38,14 +38,16 @@
                         <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
                                    style="margin-left: 20px;" @click="addBox">add
                         </el-button>
-                        <el-button size="mini" type="primary" @click="publish">发布</el-button>
+                        <el-button size="mini" type="primary" @click="publish" icon="el-icon-upload">发布</el-button>
                     </el-form-item>
                 </el-form>
             </div>
 
             <div class="draw-box"
-                 :style="{width: templateConfig.width != ''?templateConfig.width+'px':'', height: templateConfig.height != ''?templateConfig.height+'px':''}">
+                 id="draw-win2"
+                 :style="{width: templateConfig.width != ''?templateConfig.width+'px':'', height: templateConfig.height != ''?templateConfig.height+'px':'', paddingRight: templateConfig.width != ''?'20px':''}">
                 <grid-layout
+                        id="draw-win"
                         :layout.sync="layout"
                         :col-num="cols"
                         :row-height="rowHeight"
@@ -57,11 +59,11 @@
                         :margin="margin"
                         :auto-size="true"
                         :use-css-transforms="true"
+                        style="margin-bottom: 20px;"
                         :style="{border: '1px dashed #79aec8', 'background-color': templateConfig.backgroundColor}">
 
                     <grid-item v-for="item in layout" class="box"
                                @resized="rerefshBox(item)"
-
                                dragAllowFrom=".move-btn"
                                :x="item.x"
                                :y="item.y"
@@ -71,24 +73,28 @@
                                :key="item.i">
                         <div :id="item.i" style="height: 100%; width: 100%;">
                             <div v-for="(row, i) in item.charts" :style="{height: 100/item.charts.length + '%'}"
+                                 :key="i"
                                  style="display: flex;justify-content:space-around;">
                                 <div v-for="(col, j) in row"
+                                     :key="col.id"
                                      :style="{height: '100%', width: 100/row.length + '%'}"
-                                     @dragover.native.prevent
-                                     @drop.native="dropDown"
+                                     @dragend="dragEnd"
+                                     @dragover.prevent
+                                     @drop="dropDown"
                                      style="position: relative;">
-                                    <div :id="col.id" class="box-div" style="height: 100%;z-index: 2"></div>
-                                    <div class="arrow-box">
+                                    <div :id="col.id" class="box-div" style="height: 100%"></div>
+                                    <div v-if="item.showMask" class="arrow-box">
                                         <i @click="addLeft(item, i, j)" class="el-icon-arrow-left arrow-btn"></i>
                                         <i @click="addRight(item, i, j)" class="el-icon-arrow-right arrow-btn"></i>
                                         <i @click="addDown(item, i, j)" class="el-icon-arrow-down arrow-btn"></i>
                                         <i @click="addUp(item, i, j)" class="el-icon-arrow-up arrow-btn"></i>
+                                        <i @click="delChart(item, i, j)" class="el-icon-delete-solid arrow-btn"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="tool-box">
-                            <i class="el-icon-setting refresh-btn" @click="rerefshBox(item)"></i>
+                            <i class="el-icon-setting refresh-btn" @click="item.showMask = !item.showMask"></i>
                             <i class="el-icon-refresh refresh-btn" @click="rerefshBox(item)"></i>
                             <i class="el-icon-rank move-btn"></i>
                             <i class="el-icon-delete del-btn" @click="delBox(item)"></i>
@@ -106,6 +112,8 @@
     import VueGridLayout from 'vue-grid-layout';
     import echarts from "echarts";
     import 'echarts-gl';
+    import lodash from 'lodash';
+    import html2canvas from 'html2canvas';
 
     export default {
         name: "template_edit",
@@ -116,6 +124,7 @@
         },
         data() {
             return {
+                templateId: '',
                 chartCate: 'all',
                 charts: [],
                 templateConfig: {
@@ -124,7 +133,15 @@
                     width: '',
                     height: ''
                 },
-                layout: [{"x": 0, "y": 0, "w": 4, "h": 6, "i": "0", charts: [[{id: 10000, chart: null}]]}],
+                layout: [{
+                    "x": 0,
+                    "y": 0,
+                    "w": 4,
+                    "h": 6,
+                    "i": "0",
+                    showMask: false,
+                    charts: [[{id: 10000, chart: null, chartId: ''}]]
+                }],
                 cols: 30,
                 rowHeight: 30,
                 margin: [10, 10], //[left-right, top-bottom]
@@ -166,7 +183,8 @@
                     "w": 4,
                     "h": 6,
                     "i": this.maxId,
-                    charts: [[{id: this.maxChartId, chart: null}]]
+                    showMask: false,
+                    charts: [[{id: this.maxChartId, chart: null, chartId: ''}]]
                 })
             },
             delBox(item) {
@@ -179,9 +197,16 @@
                 }
             },
             rerefshBox(item) {
-                if (item.chart) {
-                    item.chart.resize()
-                }
+                this.$nextTick(() => {
+                    for (let row of item.charts) {
+                        for (let col of row) {
+                            if (col.chart) {
+                                col.chart.resize()
+                            }
+                        }
+                    }
+                })
+
             },
             dragStart(e, chart) {
                 e.dataTransfer.setData('chartid', chart.id);
@@ -189,16 +214,14 @@
             dragEnd(e) {
                 e.dataTransfer.clearData();
             },
-            getElementbyClass(el, className) {
-                if (el.className.indexOf(className) === -1) {
-                    return this.getElementbyClass(el.parentElement, className)
-                } else {
-                    return el
-                }
+            chartBoxHover(col) {
+                col.showMask = true
+            },
+            chartBoxLeave(col) {
+                col.showMask = false
             },
             dropDown(e) {
-                console.log(e)
-                let domId = this.getElementbyClass(e.target, 'box-div').id;
+                let domId = e.target.parentNode.childNodes[0].id;
                 let chartid = e.dataTransfer.getData('chartid');
                 this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
                     if (res.data.code === '00') {
@@ -208,7 +231,7 @@
                             eval('res.data.data.chartOptions' + f.name + '=' + f.fun)
                         }
                         myChart.setOption(res.data.data.chartOptions);
-                        this.setChart(parseInt(domId), myChart)
+                        this.setChart(parseInt(domId), myChart, chartid)
                     } else {
                         this.$message.error(res.data.message)
                     }
@@ -216,40 +239,94 @@
 
                 })
             },
-            setChart(boxId, chart) {
+            setChart(boxId, chart, chartId) {
                 for (let item of this.layout) {
-                    if (item.i == boxId) {
-                        item.chart = chart
+                    for (let row of item.charts) {
+                        for (let col of row) {
+                            if (col.id == boxId) {
+                                col.chart = chart;
+                                col.chartId = chartId;
+                                return
+                            }
+                        }
                     }
                 }
             },
             publish() {
-                let temp = {
-                    layout: this.layout,
-                    height: this.height,
-                    width: this.width,
-                    margin: this.margin,
-                    cols: this.cols,
-                    rows: this.maxRow,
-                    rowHeight: this.rowHeight
-                };
-                console.log(temp)
+                let _this = this;
+                let drawWin = document.getElementById('draw-win');
+                console.log(drawWin.offsetWidth);
+                console.log(drawWin.offsetHeight)
+                html2canvas(document.getElementById('draw-win2'), {
+                    ignoreElements: (el) => {
+                        if (el.className === 'tool-box') {
+                            return true
+                        }
+                    },
+                    width: document.getElementById('draw-win').offsetWidth+30,
+                    height: document.getElementById('draw-win').offsetHeight+30
+                }).then(function (canvas) {
+                    let lo = lodash.cloneDeepWith(_this.layout, (val, key) => {
+                        if (key === 'chart') {
+                            return null
+                        }
+                    });
+                    let data = {
+                        id: _this.templateId,
+                        userid: '',
+                        name: _this.templateConfig.name,
+                        icon: canvas.toDataURL("image/png"),
+                        data: {
+                            layout: lo,
+                            templateInfo: {
+                                height: _this.templateConfig.height,
+                                width: _this.templateConfig.width,
+                                margin: _this.margin,
+                                cols: _this.cols,
+                                rows: _this.maxRow,
+                                rowHeight: _this.rowHeight
+                            }
+                        }
+                    };
+                    _this.$axios.post(_this.$api.publish, data).then((res) => {
+                        if (res.data.code === '00') {
+                            _this.$router.push({name: 'templateList'})
+                        }
+                    }).catch((err) => {
+                        console.log(err)
+                    })
+                });
+
             },
             addLeft(item, i, j) {
                 this.maxChartId++;
-                item.charts[i].splice(j, 0, {id: this.maxChartId, chart: null})
+                item.charts[i].splice(j, 0, {id: this.maxChartId, chart: null});
+                this.rerefshBox(item)
             },
             addRight(item, i, j) {
                 this.maxChartId++;
-                item.charts[i].splice(j + 1, 0, {id: this.maxChartId, chart: null})
+                item.charts[i].splice(j + 1, 0, {id: this.maxChartId, chart: null});
+                this.rerefshBox(item)
             },
             addUp(item, i, j) {
                 this.maxChartId++;
-                item.charts.splice(i, 0, [{id: this.maxChartId, chart: null}])
+                item.charts.splice(i, 0, [{id: this.maxChartId, chart: null}]);
+                this.rerefshBox(item)
             },
             addDown(item, i, j) {
                 this.maxChartId++;
-                item.charts.splice(i + 1, 0, [{id: this.maxChartId, chart: null}])
+                item.charts.splice(i + 1, 0, [{id: this.maxChartId, chart: null}]);
+                this.rerefshBox(item)
+            },
+            delChart(item, i, j) {
+                item.charts[i].splice(j, 1);
+                if (item.charts[i].length === 0) {
+                    item.charts.splice(i, 1)
+                }
+                if (item.charts.length === 0) {
+                    this.maxChartId++;
+                    item.charts.push([{id: this.maxChartId, chart: null, chartId: ''}])
+                }
             },
         }
     }
@@ -289,7 +366,7 @@
     }
 
     .draw-box {
-        height: calc(100vh - 115px);
+        min-height: calc(100vh - 115px);
         margin: 0 8px 8px 8px;
         /*border: 1px dashed #79aec8;*/
     }
@@ -342,19 +419,16 @@
         height: 100%;
         width: 100%;
         position: absolute;
-        opacity: 0;
+        background: rgba(0, 0, 0, 0.6);
         z-index: 0;
         top: 0;
         left: 0;
     }
 
-    .arrow-box:hover {
-        opacity: 1;
-    }
-
     .arrow-btn {
         cursor: pointer;
         position: absolute;
+        color: white;
     }
 
     .el-icon-arrow-left {
@@ -375,6 +449,11 @@
     .el-icon-arrow-down {
         left: calc(50% - 8px);
         bottom: 0;
+    }
+
+    .el-icon-delete-solid {
+        left: calc(50% - 8px);
+        top: calc(50% - 8px);
     }
 
     .box-div {

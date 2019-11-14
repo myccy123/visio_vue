@@ -59,7 +59,7 @@
                 })
             },
             preview(id) {
-                window.open("http://127.0.0.1:8000/preview/chart/?id=" + id, "_blank");
+                window.open(this.$api.baseUrl + "/preview/chart/?id=" + id, "_blank");
             },
             addChart() {
                 this.$router.push({name: 'chartEdit'})

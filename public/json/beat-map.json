@@ -40,7 +40,6 @@
       "sublink": "http://www.pm25.in",
       "left": "center",
       "textStyle": {
-        "color": "#fff",
         "fontSize": 18,
         "fontWeight": "bolder"
       },
