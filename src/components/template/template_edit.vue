@@ -44,10 +44,10 @@
             </div>
 
             <div class="draw-box"
-                 id="draw-win2"
                  :style="{width: templateConfig.width != ''?templateConfig.width+'px':'', height: templateConfig.height != ''?templateConfig.height+'px':'', paddingRight: templateConfig.width != ''?'20px':''}">
                 <grid-layout
                         id="draw-win"
+                        ref="layout"
                         :layout.sync="layout"
                         :col-num="cols"
                         :row-height="rowHeight"
@@ -56,8 +56,10 @@
                         :is-resizable="true"
                         :is-mirrored="false"
                         :vertical-compact="true"
+                        :useCssTransforms="false"
                         :margin="margin"
                         :auto-size="true"
+                        @layout-updated="test"
                         :use-css-transforms="true"
                         style="margin-bottom: 20px;"
                         :style="{border: '1px dashed #79aec8', 'background-color': templateConfig.backgroundColor}">
@@ -186,6 +188,7 @@
                     showMask: false,
                     charts: [[{id: this.maxChartId, chart: null, chartId: ''}]]
                 })
+
             },
             delBox(item) {
                 this.layout.splice(this.layout.indexOf(item), 1)
@@ -254,23 +257,30 @@
             },
             publish() {
                 let _this = this;
-                let drawWin = document.getElementById('draw-win');
-                console.log(drawWin.offsetWidth);
-                console.log(drawWin.offsetHeight)
-                html2canvas(document.getElementById('draw-win2'), {
+                html2canvas(document.getElementById('draw-win'), {
                     ignoreElements: (el) => {
                         if (el.className === 'tool-box') {
                             return true
                         }
                     },
-                    width: document.getElementById('draw-win').offsetWidth+30,
-                    height: document.getElementById('draw-win').offsetHeight+30
+                    width: document.getElementById('draw-win').offsetWidth,
+                    height: document.getElementById('draw-win').offsetHeight
                 }).then(function (canvas) {
                     let lo = lodash.cloneDeepWith(_this.layout, (val, key) => {
                         if (key === 'chart') {
                             return null
                         }
                     });
+                    let rows = _this.maxRow;
+                    if (_this.maxRow === Infinity) {
+                        let max = 0
+                        for (let l of _this.layout) {
+                            if ((l.y + l.h) > max) {
+                                max = l.y + l.h
+                            }
+                        }
+                        rows = max
+                    }
                     let data = {
                         id: _this.templateId,
                         userid: '',
@@ -281,9 +291,11 @@
                             templateInfo: {
                                 height: _this.templateConfig.height,
                                 width: _this.templateConfig.width,
+                                offsetHeight: _this.$refs.layout.$el.offsetHeight,
+                                offsetWidth: _this.$refs.layout.$el.offsetWidth,
                                 margin: _this.margin,
                                 cols: _this.cols,
-                                rows: _this.maxRow,
+                                rows: rows,
                                 rowHeight: _this.rowHeight
                             }
                         }
@@ -297,6 +309,9 @@
                     })
                 });
 
+            },
+            test(n) {
+                console.log(n)
             },
             addLeft(item, i, j) {
                 this.maxChartId++;
