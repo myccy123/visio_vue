@@ -17,6 +17,7 @@ const urls = {
     publish: baseUrl + '/ccb/publish/',
     templateList: baseUrl + '/ccb/template/list/',
     delTemplate: baseUrl + '/ccb/delete/template/',
+    getTemplate: baseUrl + '/ccb/get/template/',
 }
 
 export default urls

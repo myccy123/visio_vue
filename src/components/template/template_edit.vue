@@ -150,7 +150,6 @@
                 maxId: 0,
                 maxChartId: 10000,
                 cateOptions: opt.CATE_OPTIONS,
-                tmp: [1],
             }
         },
         computed: {
@@ -161,6 +160,46 @@
                     return (parseInt(this.templateConfig.height) - this.margin[1]) / (this.rowHeight + this.margin[1])
                 }
             },
+        },
+        created() {
+            if(this.$route.query.id) {
+                this.$axios.post(this.$api.getTemplate, {id: this.$route.query.id}).then((res) => {
+                    if (res.data.code === '00') {
+                        console.log(res.data.data);
+                        this.templateId = res.data.data.id;
+                        this.layout = res.data.data.layout_info.layout;
+                        this.templateConfig = res.data.data.layout_info.templateInfo;
+                        this.margin = res.data.data.layout_info.templateInfo.margin;
+                        this.cols = res.data.data.layout_info.templateInfo.cols;
+
+                        for (let item of this.layout) {
+                            for (let row of item.charts) {
+                                for (let col of row) {
+                                    if (col.chartId != '') {
+                                        this.$axios.post(this.$api.getChart, {id: col.chartId}).then((res) => {
+                                            if (res.data.code === '00') {
+                                                echarts.dispose(document.getElementById(col.id));
+                                                let myChart = echarts.init(document.getElementById(col.id));
+                                                for (let f of res.data.data.functions) {
+                                                    eval('res.data.data.chartOptions' + f.name + '=' + f.fun)
+                                                }
+                                                myChart.setOption(res.data.data.chartOptions);
+                                                col.chart = myChart
+                                            } else {
+                                                this.$message.error(res.data.message)
+                                            }
+                                        }).catch((err) => {
+
+                                        })
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }).catch((err) => {
+
+                })
+            }
         },
         mounted() {
             this.chartList('all')
@@ -192,12 +231,6 @@
             },
             delBox(item) {
                 this.layout.splice(this.layout.indexOf(item), 1)
-            },
-            delChart(idx) {
-                this.tmp.splice(idx, 1);
-                if (this.tmp.length === 0) {
-                    this.tmp.push(1)
-                }
             },
             rerefshBox(item) {
                 this.$nextTick(() => {
@@ -273,7 +306,7 @@
                     });
                     let rows = _this.maxRow;
                     if (_this.maxRow === Infinity) {
-                        let max = 0
+                        let max = 0;
                         for (let l of _this.layout) {
                             if ((l.y + l.h) > max) {
                                 max = l.y + l.h
@@ -291,6 +324,7 @@
                             templateInfo: {
                                 height: _this.templateConfig.height,
                                 width: _this.templateConfig.width,
+                                backgroundColor: _this.templateConfig.backgroundColor,
                                 offsetHeight: _this.$refs.layout.$el.offsetHeight,
                                 offsetWidth: _this.$refs.layout.$el.offsetWidth,
                                 margin: _this.margin,
@@ -342,6 +376,7 @@
                     this.maxChartId++;
                     item.charts.push([{id: this.maxChartId, chart: null, chartId: ''}])
                 }
+                this.rerefshBox(item)
             },
         }
     }

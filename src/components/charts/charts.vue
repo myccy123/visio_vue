@@ -16,7 +16,7 @@
                    style="margin: 20px 0 0 50px;float: left;" @click="addChart">add
         </el-button>
 
-        <div style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:flex-start;">
+        <div style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;">
             <div v-for="chart in charts" class="chart-box" :id="chart.id">
                 <img class="chart-img" :src="chart.icon">
                 <div class="mask">
@@ -101,7 +101,8 @@
     }
 
     .chart-box:hover {
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
     }
 
     .chart-img {

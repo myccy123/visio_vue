@@ -53,6 +53,9 @@
             preview(id) {
                 window.open(this.$api.baseUrl + "/preview/template/?id=" + id, "_blank");
             },
+            editTemplate(id) {
+                this.$router.push({name: 'templateEdit', query: {id: id}})
+            },
             delTemplate(id) {
                 this.$confirm('是否删除该模版?', '提示', {
                     confirmButtonText: '确定',
@@ -87,10 +90,7 @@
         line-height: 250px;
         margin: 5px;
         position: relative;
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
-    }
-
-    .temp-box:hover {
+        border-radius: 5px;
         box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
     }
 
