@@ -17,13 +17,11 @@
                 title="选择数据源类型"
                 :visible.sync="showDialog"
                 width="50%">
-            <el-row :gutter="40">
-                <el-col :span="4" :offset="10">
-                    <div class="source-icon" @click="addMySQL">
-                        <img src="@/assets/img/MySQL.png">
-                    </div>
-                </el-col>
-            </el-row>
+            <div style="display: flex; justify-content: space-around;">
+                <div class="source-icon" @click="addMySQL">
+                    <img src="@/assets/img/MySQL.png">
+                </div>
+            </div>
         </el-dialog>
     </div>
 </template>
@@ -111,12 +109,17 @@
     }
 
     .source-icon {
-        height: 200px;
+        height: 100px;
+        width: 100px;
+        margin: 20px;
+        padding: 20px;
         cursor: pointer;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        transition: .3s;
     }
 
     .source-icon:hover {
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        transform: scale(1.1);
     }
 
     .source-icon img {
