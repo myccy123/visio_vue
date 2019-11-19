@@ -1058,52 +1058,6 @@
       "effectType": "ripple",
       "progressive": 0,
       "showEffectOn": "render"
-    },
-    {
-      "type": "scatter",
-      "coordinateSystem": "geo",
-      "zlevel": 2,
-      "rippleEffect": {
-        "period": 4,
-        "brushType": "stroke",
-        "scale": 4
-      },
-      "label": {
-        "show": true,
-        "position": "right",
-        "color": "#0f0",
-        "formatter": "{b}",
-        "textStyle": {
-          "color": "#0f0"
-        }
-      },
-      "symbol": "pin",
-      "symbolSize": 50,
-      "data": [
-        {
-          "name": "北京市",
-          "value": [
-            116.4551,
-            40.2539,
-            10
-          ]
-        }
-      ],
-      "emphasis": {
-        "label": {
-          "show": true,
-          "color": "#f60"
-        }
-      },
-      "z": 2,
-      "legendHoverLink": true,
-      "hoverAnimation": true,
-      "large": false,
-      "largeThreshold": 2000,
-      "itemStyle": {
-        "opacity": 0.8
-      },
-      "clip": true
     }
   ],
   "visualMap": [

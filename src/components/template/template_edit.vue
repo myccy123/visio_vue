@@ -80,11 +80,12 @@
                                 <div v-for="(col, j) in row"
                                      :key="col.id"
                                      :style="{height: '100%', width: 100/row.length + '%'}"
+                                     class="box-div"
                                      @dragend="dragEnd"
                                      @dragover.prevent
                                      @drop="dropDown"
                                      style="position: relative;">
-                                    <div :id="col.id" class="box-div" style="height: 100%"></div>
+                                    <div :id="col.id" style="height: 100%"></div>
                                     <div v-if="item.showMask" class="arrow-box">
                                         <i @click="addLeft(item, i, j)" class="el-icon-arrow-left arrow-btn"></i>
                                         <i @click="addRight(item, i, j)" class="el-icon-arrow-right arrow-btn"></i>
@@ -165,7 +166,6 @@
             if(this.$route.query.id) {
                 this.$axios.post(this.$api.getTemplate, {id: this.$route.query.id}).then((res) => {
                     if (res.data.code === '00') {
-                        console.log(res.data.data);
                         this.templateId = res.data.data.id;
                         this.layout = res.data.data.layout_info.layout;
                         this.templateConfig = res.data.data.layout_info.templateInfo;
@@ -179,7 +179,7 @@
                                         this.$axios.post(this.$api.getChart, {id: col.chartId}).then((res) => {
                                             if (res.data.code === '00') {
                                                 echarts.dispose(document.getElementById(col.id));
-                                                let myChart = echarts.init(document.getElementById(col.id));
+                                                let myChart = echarts.init(document.getElementById(col.id), res.data.data.theme);
                                                 for (let f of res.data.data.functions) {
                                                     eval('res.data.data.chartOptions' + f.name + '=' + f.fun)
                                                 }
@@ -199,6 +199,9 @@
                 }).catch((err) => {
 
                 })
+            }
+            for (let theme of opt.THEME) {
+                require('../../assets/themes/' + theme.value);
             }
         },
         mounted() {
@@ -242,7 +245,6 @@
                         }
                     }
                 })
-
             },
             dragStart(e, chart) {
                 e.dataTransfer.setData('chartid', chart.id);
@@ -256,13 +258,21 @@
             chartBoxLeave(col) {
                 col.showMask = false
             },
+            getChartBox(el) {
+                if (el.className == 'box-div'){
+                    return el.childNodes[0]
+                } else {
+                    return this.getChartBox(el.parentNode)
+                }
+            },
             dropDown(e) {
-                let domId = e.target.parentNode.childNodes[0].id;
+                let domId = this.getChartBox(e.target).id;
                 let chartid = e.dataTransfer.getData('chartid');
                 this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
                     if (res.data.code === '00') {
                         echarts.dispose(document.getElementById(domId));
-                        let myChart = echarts.init(document.getElementById(domId));
+                        console.log(res.data.data.theme)
+                        let myChart = echarts.init(document.getElementById(domId), res.data.data.theme);
                         for (let f of res.data.data.functions) {
                             eval('res.data.data.chartOptions' + f.name + '=' + f.fun)
                         }
@@ -325,6 +335,7 @@
                                 height: _this.templateConfig.height,
                                 width: _this.templateConfig.width,
                                 backgroundColor: _this.templateConfig.backgroundColor,
+                                name: _this.templateConfig.name,
                                 offsetHeight: _this.$refs.layout.$el.offsetHeight,
                                 offsetWidth: _this.$refs.layout.$el.offsetWidth,
                                 margin: _this.margin,

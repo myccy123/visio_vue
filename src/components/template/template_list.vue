@@ -83,7 +83,7 @@
     }
 
     .temp-box {
-        cursor: pointer;
+        /*cursor: pointer;*/
         overflow: hidden;
         width: 450px;
         height: 300px;

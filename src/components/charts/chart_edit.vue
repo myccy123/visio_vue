@@ -40,6 +40,7 @@
                             <el-form-item label="主题">
                                 <el-select v-model="formOptions.baseConfig.theme"
                                            placeholder="请选择" @change="genChart"
+                                           clearable
                                            style="width: 186px;">
                                     <el-option v-for="item in themeOptions" :key="item.value" :value="item.value"
                                                :label="item.label">
@@ -237,6 +238,33 @@
                                @click="addY" :disabled="formOptions.chartConfig.legend.isLegend"
                                style="margin-bottom: 10px;"></el-button>
                 </div>
+                <div class="dim" v-show="showDatas">
+                    <el-form v-for="(item, idx) in formOptions.chartConfig.datas" :model="item" size="mini"
+                             label-width="60px"
+                             style="padding: 10px 10px 5px 10px;position: relative;">
+                        <el-form-item label="数据项">
+                            <el-select :loading="colOptions.length == 0" v-model="item.data" placeholder="请选择"
+                                       @change="genChart">
+                                <el-option v-for="col in colOptions" :value="col.colname"
+                                           :key="col.colname" :label="col.coldesc">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="算法">
+                            <el-select v-model="item.sum" placeholder="请选择"
+                                       @change="genChart">
+                                <el-option v-for="sm in sumOptions" :value="sm.value"
+                                           :key="sm.value" :label="sm.label">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <i :id="'del-y-btn-'+idx" class="el-icon-circle-close del-y"
+                           @click="delData(idx)"></i>
+                    </el-form>
+                    <el-button type="primary" plain icon="el-icon-plus" size="mini"
+                               @click="addData" :disabled="formOptions.chartConfig.legend.isLegend"
+                               style="margin-bottom: 10px;"></el-button>
+                </div>
                 <div class="dim" v-show="showLatLng">
                     <el-form :model="formOptions.chartConfig" size="mini" label-width="60px"
                              style="padding: 10px 10px 0px 10px;">
@@ -251,6 +279,30 @@
                         </el-form-item>
                         <el-form-item label="纬度">
                             <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lng"
+                                       placeholder="请选择"
+                                       @change="genChart">
+                                <el-option v-for="col in colOptions" :value="col.colname"
+                                           :key="col.colname" :label="col.coldesc">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-form>
+                </div>
+                <div class="dim" v-show="showLatLng2">
+                    <el-form :model="formOptions.chartConfig" size="mini" label-width="60px"
+                             style="padding: 10px 10px 0px 10px;">
+                        <p style="margin: 0; color: #909399;font-size: 12px;text-align: right;margin-bottom: 5px;">目标</p>
+                        <el-form-item label="经度">
+                            <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lat2"
+                                       placeholder="请选择"
+                                       @change="genChart">
+                                <el-option v-for="col in colOptions" :value="col.colname"
+                                           :key="col.colname" :label="col.coldesc">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="纬度">
+                            <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lng2"
                                        placeholder="请选择"
                                        @change="genChart">
                                 <el-option v-for="col in colOptions" :value="col.colname"
@@ -320,12 +372,15 @@
                         z: [
                             {zAxis: '', sum: 'sum'},
                         ],
+                        datas: [{data: '', sum: 'sum'}],
                         legend: {
                             isLegend: false,
                             legendAxis: ''
                         },
                         lat: '',
                         lng: '',
+                        lat2: '',
+                        lng2: '',
                         data: '',
                     },
                     moreConfig: {static: '0', sort: 'asc'},
@@ -350,7 +405,7 @@
                         this.formOptions = opt;
                         this.getCols();
                         echarts.dispose(document.getElementById('chart'));
-                        let myChart = echarts.init(document.getElementById('chart'));
+                        let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
                         myChart.setOption(res.data.data.chartOptions);
                         myChart.resize();
                         this.chart = myChart;
@@ -358,6 +413,10 @@
                 }).catch((err) => {
 
                 })
+            }
+
+            for (let theme of options.THEME) {
+                require('../../assets/themes/' + theme.value);
             }
         },
         mounted() {
@@ -424,10 +483,14 @@
                     })
                 } else{
                     this.formOptions.diy.diyType = ''
+                    this.genChart()
                 }
             },
             addY() {
                 this.formOptions.chartConfig.y.push({yAxis: '', sum: 'sum'})
+            },
+            addData() {
+                this.formOptions.chartConfig.datas.push({data: '', sum: 'sum'})
             },
             delY(idx) {
                 this.formOptions.chartConfig.y.splice(idx, 1);
@@ -436,10 +499,19 @@
                 }
                 this.genChart()
             },
+            delData(idx) {
+                this.formOptions.chartConfig.datas.splice(idx, 1);
+                if (this.formOptions.chartConfig.datas.length === 0) {
+                    this.addData()
+                }
+                this.genChart()
+            },
             switchLegend(v) {
                 if (v) {
                     this.formOptions.chartConfig.y.splice(1, 999);
+                    this.formOptions.chartConfig.datas.splice(1, 999);
                 }
+                this.genChart();
             },
             changeSource(newrow, oldrow) {
                 this.formOptions.srcid = newrow.id;
@@ -461,7 +533,7 @@
                             this.$router.push({name: 'Chart'})
                         }
                         echarts.dispose(document.getElementById('chart'));
-                        let myChart = echarts.init(document.getElementById('chart'));
+                        let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
                         myChart.setOption(res.data.data);
                         myChart.resize();
                         this.chart = myChart;
@@ -478,19 +550,25 @@
         },
         computed: {
             showX() {
-                return ['lineBasic'].indexOf(this.formOptions.chartType) != -1
+                return ['lineBasic','barBasic','areaBasic','columnBasic','scatterBasic'].indexOf(this.formOptions.chartType) !== -1
             },
             showLegend() {
-                return ['lineBasic'].indexOf(this.formOptions.chartType) != -1
+                return ['lineBasic','barBasic','areaBasic','columnBasic','pieBasic','scatterBasic','radarBasic'].indexOf(this.formOptions.chartType) !== -1
             },
             showY() {
-                return ['lineBasic'].indexOf(this.formOptions.chartType) != -1
+                return ['lineBasic','barBasic','areaBasic','columnBasic','scatterBasic'].indexOf(this.formOptions.chartType) !== -1
             },
             showLatLng() {
-                return ['beatMap', 'mapLine'].indexOf(this.formOptions.diy.diyType) != -1
+                return ['heatMap', 'mapLine'].indexOf(this.formOptions.diy.diyType) !== -1
+            },
+            showLatLng2() {
+                return ['mapLine'].indexOf(this.formOptions.diy.diyType) !== -1
             },
             showData() {
-                return ['beatMap', 'mapLine'].indexOf(this.formOptions.diy.diyType) != -1
+                return ['heatMap'].indexOf(this.formOptions.diy.diyType) !== -1
+            },
+            showDatas() {
+                return ['pieBasic','radarBasic'].indexOf(this.formOptions.chartType) !== -1
             },
         }
     }

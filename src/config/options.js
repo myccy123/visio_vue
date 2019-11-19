@@ -16,6 +16,9 @@ export default {
             name: '饼图', value: 'pie', icon: '/img/pie.png'
         },
         {
+            name: '雷达图', value: 'radar', icon: '/img/radar2.png'
+        },
+        {
             name: '散点图', value: 'scatter', icon: '/img/scatter.png'
         },
         {
@@ -28,6 +31,24 @@ export default {
     CHART_TYPES: {
         line: [
             {name: '基础折线图', value: 'lineBasic', icon: '/img/line-basic-default.png'},
+        ],
+        area: [
+            {name: '基础面积图', value: 'areaBasic', icon: '/img/area-basic.jpg'},
+        ],
+        bar: [
+            {name: '水平柱图', value: 'barBasic', icon: '/img/bar-y-category.jpg'},
+        ],
+        column: [
+            {name: '垂直柱图', value: 'columnBasic', icon: '/img/dataset-simple0.jpg'},
+        ],
+        pie: [
+            {name: '基础饼图', value: 'pieBasic', icon: '/img/pie-legend.jpg'},
+        ],
+        scatter: [
+            {name: '基础散点图', value: 'scatterBasic', icon: '/img/scatter-simple.jpg'},
+        ],
+        radar: [
+            {name: '基础雷达图', value: 'radarBasic', icon: '/img/radar.jpg'},
         ],
         diy: [
             {
@@ -48,7 +69,7 @@ export default {
                 name: '地理热力图',
                 value: 'diy',
                 icon: '/img/heatmap-bmap.jpg',
-                type: 'beatMap',
+                type: 'heatMap',
                 json: '/json/beat-map.json'
             },
             {
