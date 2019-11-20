@@ -6,7 +6,8 @@
                        style="margin: 20px 0" @click="addTemplate">add
             </el-button>
         </div>
-        <div style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;">
+        <div v-loading="loading"
+             style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;min-height: calc(100vh - 120px);">
             <div v-for="temp in templates" class="temp-box" :id="temp.id">
                 <img class="temp-img" :src="temp.icon">
                 <div class="mask">
@@ -31,7 +32,8 @@
         components: {commonNav},
         data() {
             return {
-                templates: []
+                templates: [],
+                loading: false
             }
         },
         mounted() {
@@ -42,12 +44,15 @@
                 this.$router.push({name: 'templateEdit'})
             },
             templateList() {
+                this.loading = true
                 this.$axios.post(this.$api.templateList, {userid: ''}).then((res) => {
                     if (res.data.code === '00') {
                         this.templates = res.data.data
                     }
+                    this.loading = false
                 }).catch((err) => {
                     console.log(err)
+                    this.loading = false
                 })
             },
             preview(id) {

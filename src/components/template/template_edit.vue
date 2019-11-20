@@ -1,7 +1,7 @@
 <template>
     <div>
         <common-nav></common-nav>
-        <div class="left">
+        <div class="left" v-loading="loading">
             <el-select v-model="chartCate" placeholder="请选择" size="mini"
                        @change="chartList"
                        style="margin: 10px 0 10px 0;">
@@ -38,7 +38,7 @@
                         <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
                                    style="margin-left: 20px;" @click="addBox">add
                         </el-button>
-                        <el-button size="mini" type="primary" @click="publish" icon="el-icon-upload">发布</el-button>
+                        <el-button :loading="loading2" size="mini" type="primary" @click="publish" icon="el-icon-upload">发布</el-button>
                     </el-form-item>
                 </el-form>
             </div>
@@ -151,6 +151,8 @@
                 maxId: 0,
                 maxChartId: 10000,
                 cateOptions: opt.CATE_OPTIONS,
+                loading: false,
+                loading2: false,
             }
         },
         computed: {
@@ -209,13 +211,16 @@
         },
         methods: {
             chartList(cate) {
+                this.loading = true;
                 this.$axios.post(this.$api.chartList, {cate: cate, userid: 'yujiahao'}).then((res) => {
                     this.charts = [];
                     if (res.data.code === '00') {
                         this.charts = res.data.data;
                     }
+                    this.loading = false
                 }).catch((err) => {
-                    console.log(err)
+                    console.log(err);
+                    this.loading = false
                 })
             },
             addBox() {
@@ -271,7 +276,7 @@
                 this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
                     if (res.data.code === '00') {
                         echarts.dispose(document.getElementById(domId));
-                        console.log(res.data.data.theme)
+                        console.log(res.data.data.theme);
                         let myChart = echarts.init(document.getElementById(domId), res.data.data.theme);
                         for (let f of res.data.data.functions) {
                             eval('res.data.data.chartOptions' + f.name + '=' + f.fun)
@@ -299,6 +304,7 @@
                 }
             },
             publish() {
+                this.loading2 = true;
                 let _this = this;
                 html2canvas(document.getElementById('draw-win'), {
                     ignoreElements: (el) => {

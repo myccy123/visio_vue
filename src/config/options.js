@@ -19,6 +19,9 @@ export default {
             name: '雷达图', value: 'radar', icon: '/img/radar2.png'
         },
         {
+            name: '仪表盘', value: 'gauge', icon: '/img/gauge.png'
+        },
+        {
             name: '散点图', value: 'scatter', icon: '/img/scatter.png'
         },
         {
@@ -49,6 +52,9 @@ export default {
         ],
         radar: [
             {name: '基础雷达图', value: 'radarBasic', icon: '/img/radar.jpg'},
+        ],
+        gauge: [
+            {name: '基础仪表盘', value: 'gaugeBasic', icon: '/img/base-gauge.png'},
         ],
         diy: [
             {

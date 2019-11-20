@@ -16,7 +16,8 @@
                    style="margin: 20px 0 0 50px;float: left;" @click="addChart">add
         </el-button>
 
-        <div style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;">
+        <div v-loading="loading"
+             style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;min-height: calc(100vh - 120px);">
             <div v-for="chart in charts" class="chart-box" :id="chart.id">
                 <img class="chart-img" :src="chart.icon">
                 <div class="mask">
@@ -42,7 +43,8 @@
         data() {
             return {
                 chartCate: 'all',
-                charts: []
+                charts: [],
+                loading: false,
             }
         },
         mounted() {
@@ -50,12 +52,15 @@
         },
         methods: {
             chartList(cate) {
+                this.loading = true
                 this.$axios.post(this.$api.chartList, {cate: cate, userid: 'yujiahao'}).then((res) => {
                     if (res.data.code === '00') {
                         this.charts = res.data.data;
                     }
+                    this.loading = false
                 }).catch((err) => {
-                    console.log(err)
+                    console.log(err);
+                    this.loading = false
                 })
             },
             preview(id) {

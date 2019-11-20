@@ -148,6 +148,7 @@
                 <div style="text-align: center;margin-top: 20px;">
                     <span>
                     <el-button type="primary" :disabled="false" @click="saveChart"
+                               :loading="loading"
                                style="width: 200px;">生成图表</el-button>
                     <el-button type="info" plain @click="showSourceList = true"
                                style="width: 200px;margin-left: 80px;">切换数据源</el-button>
@@ -326,6 +327,20 @@
                         </el-form-item>
                     </el-form>
                 </div>
+                <div class="dim" v-show="showminMax">
+                    <el-form :model="formOptions.chartConfig" size="mini" label-width="60px"
+                             style="padding: 10px 10px 0px 10px;">
+                        <el-form-item label="name">
+                            <el-input @blur="genChart" v-model="formOptions.chartConfig.name" placeholder=""></el-input>
+                        </el-form-item>
+                        <el-form-item label="min">
+                            <el-input @change="genChart" type="number" v-model="formOptions.chartConfig.min" placeholder=""></el-input>
+                        </el-form-item>
+                        <el-form-item label="max">
+                            <el-input @change="genChart" type="number" v-model="formOptions.chartConfig.max" placeholder=""></el-input>
+                        </el-form-item>
+                    </el-form>
+                </div>
             </div>
         </div>
     </div>
@@ -355,6 +370,7 @@
                 showDemoCode: false,
                 showEditCode: false,
                 showSourceList: true,
+                loading: false,
                 themeOptions: options.THEME,
                 filterOptions: options.FILTER,
                 orderOptions: options.ORDER,
@@ -382,6 +398,9 @@
                         lat2: '',
                         lng2: '',
                         data: '',
+                        name: '',
+                        min: 0,
+                        max: 100,
                     },
                     moreConfig: {static: '0', sort: 'asc'},
                     filter: [{col: '', opt: '', val: '', bgndate: '', enddate: '', filterType: 'val'}],
@@ -520,6 +539,7 @@
             },
             genChart() {
                 this.showEditCode = false;
+                this.loading = true;
                 let data = lodash.cloneDeep(this.formOptions);
                 try {
                     data.diy.code = JSON.parse(data.diy.code);
@@ -538,8 +558,10 @@
                         myChart.resize();
                         this.chart = myChart;
                     }
+                    this.loading = false;
                 }).catch((e) => {
                     console.log(e)
+                    this.loading = false;
                 })
             },
             saveChart() {
@@ -566,9 +588,13 @@
             },
             showData() {
                 return ['heatMap'].indexOf(this.formOptions.diy.diyType) !== -1
+                || ['gaugeBasic'].indexOf(this.formOptions.chartType) !== -1
             },
             showDatas() {
                 return ['pieBasic','radarBasic'].indexOf(this.formOptions.chartType) !== -1
+            },
+            showminMax() {
+                return ['gaugeBasic'].indexOf(this.formOptions.chartType) !== -1
             },
         }
     }
