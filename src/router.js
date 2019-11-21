@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import Home from './components/home/home'
 import Source from './components/source/source'
 import addMysql from './components/source/add_mysql'
-import charts from './components/charts/charts'
+import chart_list from './components/charts/chart_list'
 import chartEdit from './components/charts/chart_edit'
 import templateList from './components/template/template_list'
 import templateEdit from './components/template/template_edit'
@@ -28,9 +28,9 @@ export default new VueRouter({
       component: addMysql
     },
     {
-      path: '/charts',
-      name: 'Chart',
-      component: charts
+      path: '/chart/list',
+      name: 'ChartList',
+      component: chart_list
     },
     {
       path: '/chart/edit',

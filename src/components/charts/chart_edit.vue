@@ -7,13 +7,18 @@
                 <div class="chart-cate">
                     <ul>
                         <el-tooltip v-for="cate in cates" effect="dark" :content="cate.name" placement="left">
-                            <li @click="formOptions.chartCate=cate.value"><img :src="cate.icon"></li>
+                            <li :class="{selCate: cate.value === formOptions.chartCate}"
+                                @click="formOptions.chartCate=cate.value">
+                                <img :src="cate.icon">
+                            </li>
                         </el-tooltip>
                     </ul>
                 </div>
                 <div class="chart-type">
                     <ul>
-                        <li v-for="tp in types[formOptions.chartCate]" class="seled-type" @click="switchChart(tp)">
+                        <li v-for="tp in types[formOptions.chartCate]"
+                            :class="hitChartType(tp)"
+                            @click="switchChart(tp)">
                             <div><img :src="tp.icon"></div>
                             <h3>{{tp.name}}</h3></li>
                     </ul>
@@ -374,7 +379,6 @@
                 themeOptions: options.THEME,
                 filterOptions: options.FILTER,
                 orderOptions: options.ORDER,
-                demoOptions: options.DEMO,
                 updateOptions: options.UPDATE,
                 sumOptions: options.SUM_TYPE,
                 colOptions: [], //{colname, coldesc, coltype}
@@ -550,7 +554,7 @@
                 this.$axios.post(this.$api.genChart, data).then((res) => {
                     if (res.data.code === '00') {
                         if(this.formOptions.isSave) {
-                            this.$router.push({name: 'Chart'})
+                            this.$router.push({name: 'ChartList'})
                         }
                         echarts.dispose(document.getElementById('chart'));
                         let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
@@ -560,17 +564,29 @@
                     }
                     this.loading = false;
                 }).catch((e) => {
-                    console.log(e)
+                    console.log(e);
                     this.loading = false;
                 })
             },
             saveChart() {
                 this.formOptions.isSave = true;
-                this.formOptions.baseConfig.icon = this.chart.getDataURL();;
+                this.formOptions.baseConfig.icon = this.chart.getDataURL();
                 this.genChart()
             }
         },
         computed: {
+            hitChartType() {
+                return (tp)=> {
+                    let ret = false;
+                    if (tp.value === 'diy') {
+                        ret = tp.type === this.formOptions.diy.diyType
+                    } else {
+                        ret = tp.value === this.formOptions.chartType
+                    }
+
+                    return {seledType: ret}
+                }
+            },
             showX() {
                 return ['lineBasic','barBasic','areaBasic','columnBasic','scatterBasic'].indexOf(this.formOptions.chartType) !== -1
             },
@@ -644,6 +660,15 @@
         height: calc(100% - 30px);
     }
 
+    .selCate {
+        background-color: #DCDFE6;
+    }
+
+    .seledType {
+        transform: translate(4px, 0);
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    }
+
     .chart-cate li {
         width: 20px;
         height: 20px;
@@ -653,7 +678,7 @@
     }
 
     .chart-cate li:hover {
-        background-color: #e8f6fd;
+        /*background-color: #e8f6fd;*/
     }
 
     .chart-cate img {
@@ -672,10 +697,12 @@
         width: 95%;
         margin: 7px auto 5px auto;
         cursor: pointer;
+        transition: .3s;
     }
 
     .chart-type li:hover {
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        transform: translate(4px, 0);
     }
 
     .chart-type img {

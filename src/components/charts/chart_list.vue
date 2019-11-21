@@ -4,12 +4,7 @@
         <el-radio-group v-model="chartCate" size="mini"
                         @change="chartList"
                         style="margin: 20px 0 15px 30%; float: left;">
-            <el-radio-button label="all">全部</el-radio-button>
-            <el-radio-button label="line">折线图</el-radio-button>
-            <el-radio-button label="bar">柱图</el-radio-button>
-            <el-radio-button label="pie">饼图</el-radio-button>
-            <el-radio-button label="hot">热力图</el-radio-button>
-            <el-radio-button label="diy">自定义图</el-radio-button>
+            <el-radio-button v-for="cate in cates" :label="cate.value">{{cate.label}}</el-radio-button>
         </el-radio-group>
 
         <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
@@ -35,7 +30,7 @@
 
 <script>
     import CommonNav from "../common/nav";
-    import echarts from 'echarts'
+    import opts from "../../config/options"
 
     export default {
         name: "chart",
@@ -45,6 +40,7 @@
                 chartCate: 'all',
                 charts: [],
                 loading: false,
+                cates: opts.CATE_OPTIONS
             }
         },
         mounted() {
@@ -52,7 +48,7 @@
         },
         methods: {
             chartList(cate) {
-                this.loading = true
+                this.loading = true;
                 this.$axios.post(this.$api.chartList, {cate: cate, userid: 'yujiahao'}).then((res) => {
                     if (res.data.code === '00') {
                         this.charts = res.data.data;

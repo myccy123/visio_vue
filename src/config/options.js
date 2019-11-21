@@ -13,6 +13,9 @@ export default {
             name: '水平柱图', value: 'bar', icon: '/img/bar-h.png'
         },
         {
+            name: '散点图', value: 'scatter', icon: '/img/scatter.png'
+        },
+        {
             name: '饼图', value: 'pie', icon: '/img/pie.png'
         },
         {
@@ -22,13 +25,10 @@ export default {
             name: '仪表盘', value: 'gauge', icon: '/img/gauge.png'
         },
         {
-            name: '散点图', value: 'scatter', icon: '/img/scatter.png'
-        },
-        {
             name: '表格', value: 'table', icon: '/img/data-table.png'
         },
         {
-            name: '自定义', value: 'diy', icon: '/img/diy-chart.png'
+            name: '自定义图', value: 'diy', icon: '/img/diy-chart.png'
         },
     ],
     CHART_TYPES: {
@@ -112,22 +112,25 @@ export default {
             label: '面积图', value: 'area'
         },
         {
-            label: '垂直柱图', value: 'column'
-        },
-        {
-            label: '水平柱图', value: 'bar'
-        },
-        {
-            label: '饼图', value: 'pie'
+            label: '柱图', value: 'bar'
         },
         {
             label: '散点图', value: 'scatter'
         },
         {
+            label: '饼图', value: 'pie'
+        },
+        {
+            label: '雷达图', value: 'radar'
+        },
+        {
+            label: '仪表盘', value: 'gauge'
+        },
+        {
             label: '表格', value: 'table'
         },
         {
-            label: '自定义', value: 'diy'
+            label: '自定义图', value: 'diy'
         },
     ],
     THEME: [
@@ -150,8 +153,7 @@ export default {
         {label: 'is null', value: 'null'},
         {label: 'is not null', value: 'notnull'},
     ],
-    ORDER: [{label: '升序', value: 'asc'}, {label: '降序', value: 'desc'},],
-    DEMO: [{label: '升序', value: 'asc'}, {label: '降序', value: 'desc'},],
+    ORDER: [{label: '升序', value: 'asc'}, {label: '降序', value: 'desc'}],
     UPDATE: [
         {label: '实时', value: '0'},
         {label: '5 min', value: '5'},
