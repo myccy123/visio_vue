@@ -59,10 +59,9 @@
                         :useCssTransforms="false"
                         :margin="margin"
                         :auto-size="true"
-                        @layout-updated="test"
                         :use-css-transforms="true"
-                        style="margin-bottom: 20px;"
-                        :style="{border: '1px dashed #79aec8', 'background-color': templateConfig.backgroundColor}">
+                        style="margin-bottom: 20px;border: 1px dashed #79aec8"
+                        :style="{'background-color': templateConfig.backgroundColor}">
 
                     <grid-item v-for="item in layout" class="box"
                                @resized="rerefshBox(item)"
@@ -361,9 +360,6 @@
                 });
 
             },
-            test(n) {
-                console.log(n)
-            },
             addLeft(item, i, j) {
                 this.maxChartId++;
                 item.charts[i].splice(j, 0, {id: this.maxChartId, chart: null});
@@ -419,6 +415,7 @@
         height: 220px;
         margin: 6px auto;
         box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
         cursor: pointer;
     }
 

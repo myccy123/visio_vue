@@ -276,7 +276,7 @@
                              style="padding: 10px 10px 0px 10px;">
                         <el-form-item label="经度">
                             <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lat"
-                                       placeholder="请选择"
+                                       placeholder="请选择" clearable
                                        @change="genChart">
                                 <el-option v-for="col in colOptions" :value="col.colname"
                                            :key="col.colname" :label="col.coldesc">
@@ -285,7 +285,7 @@
                         </el-form-item>
                         <el-form-item label="纬度">
                             <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lng"
-                                       placeholder="请选择"
+                                       placeholder="请选择" clearable
                                        @change="genChart">
                                 <el-option v-for="col in colOptions" :value="col.colname"
                                            :key="col.colname" :label="col.coldesc">
@@ -300,7 +300,7 @@
                         <p style="margin: 0; color: #909399;font-size: 12px;text-align: right;margin-bottom: 5px;">目标</p>
                         <el-form-item label="经度">
                             <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lat2"
-                                       placeholder="请选择"
+                                       placeholder="请选择" clearable
                                        @change="genChart">
                                 <el-option v-for="col in colOptions" :value="col.colname"
                                            :key="col.colname" :label="col.coldesc">
@@ -309,7 +309,7 @@
                         </el-form-item>
                         <el-form-item label="纬度">
                             <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lng2"
-                                       placeholder="请选择"
+                                       placeholder="请选择" clearable
                                        @change="genChart">
                                 <el-option v-for="col in colOptions" :value="col.colname"
                                            :key="col.colname" :label="col.coldesc">
@@ -323,7 +323,7 @@
                              style="padding: 10px 10px 0px 10px;">
                         <el-form-item label="数据">
                             <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.data"
-                                       placeholder="请选择"
+                                       placeholder="请选择" clearable
                                        @change="genChart">
                                 <el-option v-for="col in colOptions" :value="col.colname"
                                            :key="col.colname" :label="col.coldesc">
