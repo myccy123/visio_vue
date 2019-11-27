@@ -1,5 +1,5 @@
 
-const baseUrl = 'http://127.0.0.1:8000'
+const baseUrl = 'http://127.0.0.1:8000';
 
 const urls = {
     baseUrl: baseUrl,
@@ -18,6 +18,6 @@ const urls = {
     templateList: baseUrl + '/ccb/template/list/',
     delTemplate: baseUrl + '/ccb/delete/template/',
     getTemplate: baseUrl + '/ccb/get/template/',
-}
+};
 
 export default urls
