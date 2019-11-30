@@ -121,9 +121,9 @@
                     </el-tab-pane>
                     <el-tab-pane label="自定义开发" name="fourth">
                         <el-form ref="form" :inline="true" :model="formOptions.diy" size="mini" label-width="80px">
-                            <el-form-item style="margin-left: 30px;">
-                                <el-button type="info" plain @click="showDemoCode = true">查看代码</el-button>
-                            </el-form-item>
+<!--                            <el-form-item style="margin-left: 30px;">-->
+<!--                                <el-button type="info" plain @click="showDemoCode = true">查看代码</el-button>-->
+<!--                            </el-form-item>-->
                             <el-form-item style="margin-left: 10px;">
                                 <el-button type="primary" plain @click="showEditCode = true">编辑代码</el-button>
                             </el-form-item>
@@ -408,7 +408,7 @@
                     },
                     moreConfig: {static: '0', sort: 'asc'},
                     filter: [{col: '', opt: '', val: '', bgndate: '', enddate: '', filterType: 'val'}],
-                    diy: {code: '', example: '', diyType: ''},
+                    diy: {code: '', example: '', diyType: '', js: ''},
                     id: '',
                     srcid: '',
                     userid: 'yujiahao',
@@ -450,14 +450,14 @@
                     }
                 })
             });
-            observer.observe(document.getElementById('chart'));;
+            observer.observe(document.getElementById('chart'));
             this.getSource()
         },
         methods: {
             getSource() {
                 this.$axios.post(this.$api.sourceList, {userid: 'yujiahao'}).then((res) => {
                     if (res.data.code === '00') {
-                        this.sourceList = [];;
+                        this.sourceList = [];
                         this.sourceList = res.data.data
                     }
                 }).catch((err) => {
@@ -487,7 +487,7 @@
             filterColChange(v, idx) {
                 for (let i = 0; i < this.colOptions.length; i++) {
                     if (this.colOptions[i].colname == v && this.colOptions[i].coltype.search("date") != -1) {
-                        this.formOptions.filter[idx].filterType = 'date';;
+                        this.formOptions.filter[idx].filterType = 'date';
                         return
                     } else {
                         this.formOptions.filter[idx].filterType = 'val'
@@ -498,14 +498,16 @@
                 this.formOptions.chartType = type.value;
                 echarts.dispose(document.getElementById('chart'));
                 if (type.value === 'diy') {
-                    this.formOptions.diy.diyType = type.type
-                    this.$axios.get(type.json).then((res) => {
-                        this.formOptions.diy.example = JSON.stringify(res.data);
-                        this.formOptions.diy.code = JSON.stringify(res.data);
+                    this.formOptions.diy.diyType = type.type;
+                    this.$axios.get(type.js).then((res) => {
+                        // this.formOptions.diy.example = JSON.stringify(res.data);
+                        this.formOptions.diy.code = res.data;
                         this.genChart()
                     })
                 } else{
-                    this.formOptions.diy.diyType = ''
+                    this.formOptions.diy.diyType = '';
+                    this.formOptions.diy.code = '';
+                    this.formOptions.diy.js = '';
                     this.genChart()
                 }
             },
@@ -544,22 +546,33 @@
             genChart() {
                 this.showEditCode = false;
                 this.loading = true;
-                let data = lodash.cloneDeep(this.formOptions);
-                try {
-                    data.diy.code = JSON.parse(data.diy.code);
-                } catch (e) {
-
-                }
+                let data = this.formOptions;
+                // let data = lodash.cloneDeep(this.formOptions);
+                // try {
+                //     data.diy.code = JSON.parse(data.diy.code);
+                // } catch (e) {
+                //
+                // }
 
                 this.$axios.post(this.$api.genChart, data).then((res) => {
                     if (res.data.code === '00') {
                         if(this.formOptions.isSave) {
                             this.$router.push({name: 'ChartList'})
                         }
-                        echarts.dispose(document.getElementById('chart'));
-                        let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
-                        myChart.setOption(res.data.data);
-                        myChart.resize();
+
+                        if (this.formOptions.chartType === 'diy') {
+
+                            let js = document.createElement('script');
+                            js.innerHTML = `${this.formOptions.diy.code};
+                            var chart = echarts.init(document.getElementById('chart'), ${this.formOptions.baseConfig.theme}).setOption(option)`;
+                            document.querySelector('body').appendChild(js);
+
+                        } else {
+                            echarts.dispose(document.getElementById('chart'));
+                            let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
+                            myChart.setOption(res.data.data);
+                            myChart.resize();
+                        }
                         this.chart = myChart;
                     }
                     this.loading = false;

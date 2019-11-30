@@ -38,7 +38,9 @@
                         <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
                                    style="margin-left: 20px;" @click="addBox">add
                         </el-button>
-                        <el-button :loading="loading2" size="mini" type="primary" @click="publish" icon="el-icon-upload">发布</el-button>
+                        <el-button :loading="loading2" size="mini" type="primary" @click="publish"
+                                   icon="el-icon-upload">发布
+                        </el-button>
                     </el-form-item>
                 </el-form>
             </div>
@@ -72,9 +74,9 @@
                                :h="item.h"
                                :i="item.i"
                                :key="item.i">
-                        <div :id="item.i" style="height: 100%; width: 100%;">
+                        <div :id="item.i" style="height: 100%; width: 100%;position: absolute;top: 0;z-index: 98">
                             <div v-for="(row, i) in item.charts" :style="{height: 100/item.charts.length + '%'}"
-                                 :key="i"
+                                 :key="'row' + i"
                                  style="display: flex;justify-content:space-around;">
                                 <div v-for="(col, j) in row"
                                      :key="col.id"
@@ -101,6 +103,16 @@
                             <i class="el-icon-rank move-btn"></i>
                             <i class="el-icon-delete del-btn" @click="delBox(item)"></i>
                         </div>
+<!--                        <svg width="100%" height="100%" version="1.1"-->
+<!--                             style="position: absolute; top: 0;overflow: visible;z-index: 97"-->
+<!--                             xmlns="http://www.w3.org/2000/svg">-->
+<!--                            <polygon points="0,10 10,0 20,0 0,20"-->
+<!--                                     style="fill:lime;stroke:purple;stroke-width:0"/>-->
+<!--                            <polygon points="0,10 10,0 20,0 0,20"-->
+<!--                                     style="fill:lime;stroke:purple;stroke-width:0"/>-->
+<!--                            <g transform="translate(0.5 0.5)">-->
+<!--                            </g>-->
+<!--                        </svg>-->
                     </grid-item>
                 </grid-layout>
             </div>
@@ -164,7 +176,7 @@
             },
         },
         created() {
-            if(this.$route.query.id) {
+            if (this.$route.query.id) {
                 this.$axios.post(this.$api.getTemplate, {id: this.$route.query.id}).then((res) => {
                     if (res.data.code === '00') {
                         this.templateId = res.data.data.id;
@@ -263,19 +275,20 @@
                 col.showMask = false
             },
             getChartBox(el) {
-                if (el.className == 'box-div'){
+                if (el.className == 'box-div') {
                     return el.childNodes[0]
                 } else {
                     return this.getChartBox(el.parentNode)
                 }
             },
             dropDown(e) {
+                console.log(e)
                 let domId = this.getChartBox(e.target).id;
                 let chartid = e.dataTransfer.getData('chartid');
                 this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
                     if (res.data.code === '00') {
+
                         echarts.dispose(document.getElementById(domId));
-                        console.log(res.data.data.theme);
                         let myChart = echarts.init(document.getElementById(domId), res.data.data.theme);
                         for (let f of res.data.data.functions) {
                             eval('res.data.data.chartOptions' + f.name + '=' + f.fun)
@@ -396,6 +409,13 @@
 </script>
 
 <style scoped>
+    svg line {
+        shape-rendering: crispEdges;
+    }
+    svg text {
+        fill: none;
+    }
+
     .left {
         width: 300px;
         float: left;
@@ -452,6 +472,7 @@
         position: absolute;
         top: 0;
         right: 0;
+        z-index: 99;
     }
 
     .del-btn {
@@ -522,5 +543,11 @@
 
     .box-div {
         /*background-color: #6b6fce;*/
+    }
+</style>
+
+<style>
+    .vue-resizable-handle{
+        z-index: 99!important;
     }
 </style>

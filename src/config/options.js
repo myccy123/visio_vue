@@ -57,47 +57,55 @@ export default {
             {name: '基础仪表盘', value: 'gaugeBasic', icon: '/img/base-gauge.png'},
         ],
         diy: [
+            // {
+            //     name: '3D柱图',
+            //     value: 'diy',
+            //     icon: '/img/transparent-bar3d.jpg',
+            //     type: 'bar3d',
+            //     json: '/json/bar-3d.json'
+            // },
+            // {
+            //     name: '关系图',
+            //     value: 'diy',
+            //     icon: '/img/graph-circular-layout.jpg',
+            //     type: 'rel',
+            //     json: '/json/graph-circular-layout.json'
+            // },
+            // {
+            //     name: '地理热力图',
+            //     value: 'diy',
+            //     icon: '/img/heatmap-bmap.jpg',
+            //     type: 'heatMap',
+            //     json: '/json/beat-map.json'
+            // },
+            // {
+            //     name: '百度地图',
+            //     value: 'diy',
+            //     icon: '/img/effectScatter-bmap.jpg',
+            //     type: 'mapPot',
+            //     json: '/json/map_pot.json'
+            // },
+            // {
+            //     name: '路线图',
+            //     value: 'diy',
+            //     icon: '/img/map-line.png',
+            //     type: 'mapLine',
+            //     json: '/json/map-line.json'
+            // },
+            // {
+            //     name: '路线图',
+            //     value: 'diy',
+            //     icon: '/img/map_line2.png',
+            //     type: 'mapLine',
+            //     json: '/json/map-line2.json'
+            // },
             {
-                name: '3D柱图',
-                value: 'diy',
-                icon: '/img/transparent-bar3d.jpg',
-                type: 'bar3d',
-                json: '/json/bar-3d.json'
-            },
-            {
-                name: '关系图',
-                value: 'diy',
-                icon: '/img/graph-circular-layout.jpg',
-                type: 'rel',
-                json: '/json/graph-circular-layout.json'
-            },
-            {
-                name: '地理热力图',
-                value: 'diy',
-                icon: '/img/heatmap-bmap.jpg',
-                type: 'heatMap',
-                json: '/json/beat-map.json'
-            },
-            {
-                name: '百度地图',
-                value: 'diy',
-                icon: '/img/effectScatter-bmap.jpg',
-                type: 'mapPot',
-                json: '/json/map_pot.json'
-            },
-            {
-                name: '路线图',
-                value: 'diy',
-                icon: '/img/map-line.png',
-                type: 'mapLine',
-                json: '/json/map-line.json'
-            },
-            {
-                name: '路线图',
+                name: '酷炫柱图',
                 value: 'diy',
                 icon: '/img/map_line2.png',
-                type: 'mapLine',
-                json: '/json/map-line2.json'
+                type: '1.1',
+                json: '',
+                js: '/diyjs/1.1.js',
             },
         ],
     },

@@ -7,12 +7,15 @@ import axios from 'axios'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import VueParticles from 'vue-particles';
+import echarts from "echarts"
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 Vue.use(VueParticles);
 
 const globalBus = new Vue();
+
+window.echarts = echarts;
 
 axios.defaults.withCredentials = false;
 Vue.prototype.$axios = axios;
