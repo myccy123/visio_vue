@@ -121,9 +121,9 @@
                     </el-tab-pane>
                     <el-tab-pane label="自定义开发" name="fourth">
                         <el-form ref="form" :inline="true" :model="formOptions.diy" size="mini" label-width="80px">
-<!--                            <el-form-item style="margin-left: 30px;">-->
-<!--                                <el-button type="info" plain @click="showDemoCode = true">查看代码</el-button>-->
-<!--                            </el-form-item>-->
+                            <!--                            <el-form-item style="margin-left: 30px;">-->
+                            <!--                                <el-button type="info" plain @click="showDemoCode = true">查看代码</el-button>-->
+                            <!--                            </el-form-item>-->
                             <el-form-item style="margin-left: 10px;">
                                 <el-button type="primary" plain @click="showEditCode = true">编辑代码</el-button>
                             </el-form-item>
@@ -297,7 +297,8 @@
                 <div class="dim" v-show="showLatLng2">
                     <el-form :model="formOptions.chartConfig" size="mini" label-width="60px"
                              style="padding: 10px 10px 0px 10px;">
-                        <p style="margin: 0; color: #909399;font-size: 12px;text-align: right;margin-bottom: 5px;">目标</p>
+                        <p style="margin: 0; color: #909399;font-size: 12px;text-align: right;margin-bottom: 5px;">
+                            目标</p>
                         <el-form-item label="经度">
                             <el-select :loading="colOptions.length == 0" v-model="formOptions.chartConfig.lat2"
                                        placeholder="请选择" clearable
@@ -339,10 +340,12 @@
                             <el-input @blur="genChart" v-model="formOptions.chartConfig.name" placeholder=""></el-input>
                         </el-form-item>
                         <el-form-item label="min">
-                            <el-input @change="genChart" type="number" v-model="formOptions.chartConfig.min" placeholder=""></el-input>
+                            <el-input @change="genChart" type="number" v-model="formOptions.chartConfig.min"
+                                      placeholder=""></el-input>
                         </el-form-item>
                         <el-form-item label="max">
-                            <el-input @change="genChart" type="number" v-model="formOptions.chartConfig.max" placeholder=""></el-input>
+                            <el-input @change="genChart" type="number" v-model="formOptions.chartConfig.max"
+                                      placeholder=""></el-input>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -419,7 +422,7 @@
             }
         },
         created() {
-            if(this.$route.query.id) {
+            if (this.$route.query.id) {
                 this.showSourceList = false;
                 this.$axios.post(this.$api.getChart, {id: this.$route.query.id}).then((res) => {
                     if (res.data.code === '00') {
@@ -428,10 +431,19 @@
                         this.formOptions = opt;
                         this.getCols();
                         echarts.dispose(document.getElementById('chart'));
-                        let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
-                        myChart.setOption(res.data.data.chartOptions);
-                        myChart.resize();
-                        this.chart = myChart;
+                        if (this.formOptions.chartType === 'diy') {
+                            let js = document.createElement('script');
+                            js.innerHTML = `${this.formOptions.diy.code};
+                            var diyChart = echarts.init(document.getElementById('chart'), ${this.formOptions.baseConfig.theme})
+                            diyChart.setOption(option)`;
+                            document.querySelector('body').appendChild(js);
+                        } else {
+                            echarts.dispose(document.getElementById('chart'));
+                            let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
+                            myChart.setOption(res.data.data.chartOptions);
+                            this.chart = myChart;
+                            myChart.resize();
+                        }
                     }
                 }).catch((err) => {
 
@@ -504,7 +516,7 @@
                         this.formOptions.diy.code = res.data;
                         this.genChart()
                     })
-                } else{
+                } else {
                     this.formOptions.diy.diyType = '';
                     this.formOptions.diy.code = '';
                     this.formOptions.diy.js = '';
@@ -547,16 +559,11 @@
                 this.showEditCode = false;
                 this.loading = true;
                 let data = this.formOptions;
-                // let data = lodash.cloneDeep(this.formOptions);
-                // try {
-                //     data.diy.code = JSON.parse(data.diy.code);
-                // } catch (e) {
-                //
-                // }
 
                 this.$axios.post(this.$api.genChart, data).then((res) => {
+                    echarts.dispose(document.getElementById('chart'));
                     if (res.data.code === '00') {
-                        if(this.formOptions.isSave) {
+                        if (this.formOptions.isSave) {
                             this.$router.push({name: 'ChartList'})
                         }
 
@@ -564,16 +571,17 @@
 
                             let js = document.createElement('script');
                             js.innerHTML = `${this.formOptions.diy.code};
-                            var chart = echarts.init(document.getElementById('chart'), ${this.formOptions.baseConfig.theme}).setOption(option)`;
+                            var diyChart = echarts.init(document.getElementById('chart'), ${this.formOptions.baseConfig.theme});
+                            diyChart.setOption(option)`;
                             document.querySelector('body').appendChild(js);
+                            this.chart = diyChart;
 
                         } else {
-                            echarts.dispose(document.getElementById('chart'));
                             let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
                             myChart.setOption(res.data.data);
                             myChart.resize();
+                            this.chart = myChart;
                         }
-                        this.chart = myChart;
                     }
                     this.loading = false;
                 }).catch((e) => {
@@ -583,13 +591,13 @@
             },
             saveChart() {
                 this.formOptions.isSave = true;
-                this.formOptions.baseConfig.icon = this.chart.getDataURL();
+                this.formOptions.baseConfig.icon = diyChart ? diyChart.getDataURL() : this.chart.getDataURL();
                 this.genChart()
             }
         },
         computed: {
             hitChartType() {
-                return (tp)=> {
+                return (tp) => {
                     let ret = false;
                     if (tp.value === 'diy') {
                         ret = tp.type === this.formOptions.diy.diyType
@@ -601,13 +609,13 @@
                 }
             },
             showX() {
-                return ['lineBasic','barBasic','areaBasic','columnBasic','scatterBasic'].indexOf(this.formOptions.chartType) !== -1
+                return ['lineBasic', 'barBasic', 'areaBasic', 'columnBasic', 'scatterBasic'].indexOf(this.formOptions.chartType) !== -1
             },
             showLegend() {
-                return ['lineBasic','barBasic','areaBasic','columnBasic','pieBasic','scatterBasic','radarBasic'].indexOf(this.formOptions.chartType) !== -1
+                return ['lineBasic', 'barBasic', 'areaBasic', 'columnBasic', 'pieBasic', 'scatterBasic', 'radarBasic'].indexOf(this.formOptions.chartType) !== -1
             },
             showY() {
-                return ['lineBasic','barBasic','areaBasic','columnBasic','scatterBasic'].indexOf(this.formOptions.chartType) !== -1
+                return ['lineBasic', 'barBasic', 'areaBasic', 'columnBasic', 'scatterBasic'].indexOf(this.formOptions.chartType) !== -1
             },
             showLatLng() {
                 return ['heatMap', 'mapLine'].indexOf(this.formOptions.diy.diyType) !== -1
@@ -617,10 +625,10 @@
             },
             showData() {
                 return ['heatMap'].indexOf(this.formOptions.diy.diyType) !== -1
-                || ['gaugeBasic'].indexOf(this.formOptions.chartType) !== -1
+                    || ['gaugeBasic'].indexOf(this.formOptions.chartType) !== -1
             },
             showDatas() {
-                return ['pieBasic','radarBasic'].indexOf(this.formOptions.chartType) !== -1
+                return ['pieBasic', 'radarBasic'].indexOf(this.formOptions.chartType) !== -1
             },
             showminMax() {
                 return ['gaugeBasic'].indexOf(this.formOptions.chartType) !== -1

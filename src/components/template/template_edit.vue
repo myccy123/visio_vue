@@ -76,23 +76,24 @@
                                :key="item.i">
                         <div :id="item.i" style="height: 100%; width: 100%;position: absolute;top: 0;z-index: 98">
                             <div v-for="(row, i) in item.charts" :style="{height: 100/item.charts.length + '%'}"
-                                 :key="'row' + i"
+                                 :key="row.id"
                                  style="display: flex;justify-content:space-around;">
-                                <div v-for="(col, j) in row"
+                                <div v-for="(col, j) in row.cols"
                                      :key="col.id"
-                                     :style="{height: '100%', width: 100/row.length + '%'}"
+                                     :style="{height: '100%', width: 100/row.cols.length + '%'}"
                                      class="box-div"
                                      @dragend="dragEnd"
                                      @dragover.prevent
                                      @drop="dropDown"
                                      style="position: relative;">
-                                    <div :id="col.id" style="height: 100%"></div>
+                                    <div class="chartCtnClass" :id="'chartContainer' + col.id" style="height: 100%"></div>
                                     <div v-if="item.showMask" class="arrow-box">
                                         <i @click="addLeft(item, i, j)" class="el-icon-arrow-left arrow-btn"></i>
                                         <i @click="addRight(item, i, j)" class="el-icon-arrow-right arrow-btn"></i>
                                         <i @click="addDown(item, i, j)" class="el-icon-arrow-down arrow-btn"></i>
                                         <i @click="addUp(item, i, j)" class="el-icon-arrow-up arrow-btn"></i>
                                         <i @click="delChart(item, i, j)" class="el-icon-delete-solid arrow-btn"></i>
+                                        <i @click="editHTML(item, i, j)" class="el-icon-edit-outline arrow-btn"></i>
                                     </div>
                                 </div>
                             </div>
@@ -103,18 +104,22 @@
                             <i class="el-icon-rank move-btn"></i>
                             <i class="el-icon-delete del-btn" @click="delBox(item)"></i>
                         </div>
-<!--                        <svg width="100%" height="100%" version="1.1"-->
-<!--                             style="position: absolute; top: 0;overflow: visible;z-index: 97"-->
-<!--                             xmlns="http://www.w3.org/2000/svg">-->
-<!--                            <polygon points="0,10 10,0 20,0 0,20"-->
-<!--                                     style="fill:lime;stroke:purple;stroke-width:0"/>-->
-<!--                            <polygon points="0,10 10,0 20,0 0,20"-->
-<!--                                     style="fill:lime;stroke:purple;stroke-width:0"/>-->
-<!--                            <g transform="translate(0.5 0.5)">-->
-<!--                            </g>-->
-<!--                        </svg>-->
+                        <SvgBorder style="position: absolute;z-index: 97">
+
+                        </SvgBorder>
                     </grid-item>
                 </grid-layout>
+
+                <el-dialog title="嵌入HTML" :visible.sync="showEditCode" width="800px" top="50px" :modal="false">
+                    <div class="edit-code">
+                        <el-input type="textarea" v-model="htmlCode"></el-input>
+                    </div>
+                    <span slot="footer">
+                        <el-button @click="showEditCode = false" size="mini">取 消</el-button>
+                        <el-button @click="confirmHTML" type="primary" size="mini">确 定</el-button>
+                    </span>
+                </el-dialog>
+
             </div>
         </div>
     </div>
@@ -122,6 +127,7 @@
 
 <script>
     import commonNav from '../common/nav';
+    import SvgBorder from '../common/SvgBorder';
     import opt from '../../config/options';
     import VueGridLayout from 'vue-grid-layout';
     import echarts from "echarts";
@@ -134,10 +140,14 @@
         components: {
             commonNav,
             GridLayout: VueGridLayout.GridLayout,
-            GridItem: VueGridLayout.GridItem
+            GridItem: VueGridLayout.GridItem,
+            SvgBorder,
         },
         data() {
             return {
+                showEditCode: false,
+                editingBox: null,
+                htmlCode: '',
                 templateId: '',
                 chartCate: 'all',
                 charts: [],
@@ -154,13 +164,16 @@
                     "h": 6,
                     "i": "0",
                     showMask: false,
-                    charts: [[{id: 10000, chart: null, chartId: ''}]]
+                    charts: [
+                        {id: 20000, cols: [{id: 10000, chart: null, chartId: '', domId: 'chartContainer10000', html: ''}]}
+                    ]
                 }],
                 cols: 30,
                 rowHeight: 30,
                 margin: [10, 10], //[left-right, top-bottom]
                 maxId: 0,
                 maxChartId: 10000,
+                maxRowId: 20000,
                 cateOptions: opt.CATE_OPTIONS,
                 loading: false,
                 loading2: false,
@@ -184,20 +197,34 @@
                         this.templateConfig = res.data.data.layout_info.templateInfo;
                         this.margin = res.data.data.layout_info.templateInfo.margin;
                         this.cols = res.data.data.layout_info.templateInfo.cols;
+                        this.maxId = res.data.data.layout_info.templateInfo.maxId;
+                        this.maxChartId = res.data.data.layout_info.templateInfo.maxChartId;
+                        this.maxRowId = res.data.data.layout_info.templateInfo.maxRowId;
 
                         for (let item of this.layout) {
                             for (let row of item.charts) {
-                                for (let col of row) {
+                                for (let col of row.cols) {
+                                    if (col.html) {
+                                        this.renderHTML(document.getElementById(col.domId), col.html)
+                                    }
                                     if (col.chartId != '') {
                                         this.$axios.post(this.$api.getChart, {id: col.chartId}).then((res) => {
                                             if (res.data.code === '00') {
-                                                echarts.dispose(document.getElementById(col.id));
-                                                let myChart = echarts.init(document.getElementById(col.id), res.data.data.theme);
-                                                for (let f of res.data.data.functions) {
-                                                    eval('res.data.data.chartOptions' + f.name + '=' + f.fun)
+                                                let domId = col.domId;
+
+                                                if (res.data.data.chartType === 'diy') {
+                                                    let js = document.createElement('script');
+                                                    js.innerHTML = `${res.data.data.diyCode};
+                                                    var ${domId} = echarts.init(document.getElementById('${domId}'), ${res.data.data.diyCode.theme});
+                                                    ${domId}.setOption(option)`;
+                                                    document.querySelector('body').appendChild(js);
+                                                    col.chart = echarts.getInstanceByDom(document.getElementById(domId))
+
+                                                } else {
+                                                    let myChart = echarts.init(document.getElementById(domId), res.data.data.theme);
+                                                    myChart.setOption(res.data.data.chartOptions);
+                                                    col.chart = myChart;
                                                 }
-                                                myChart.setOption(res.data.data.chartOptions);
-                                                col.chart = myChart
                                             } else {
                                                 this.$message.error(res.data.message)
                                             }
@@ -237,6 +264,7 @@
             addBox() {
                 this.maxId++;
                 this.maxChartId++;
+                this.maxRowId++;
                 this.layout.push({
                     "x": 0,
                     "y": 0,
@@ -244,7 +272,9 @@
                     "h": 6,
                     "i": this.maxId,
                     showMask: false,
-                    charts: [[{id: this.maxChartId, chart: null, chartId: ''}]]
+                    charts: [
+                        {id: this.maxRowId, cols: [{id: this.maxChartId, chart: null, chartId: '', domId: 'chartContainer' + this.maxChartId, html: ''}]}
+                    ]
                 })
 
             },
@@ -254,7 +284,7 @@
             rerefshBox(item) {
                 this.$nextTick(() => {
                     for (let row of item.charts) {
-                        for (let col of row) {
+                        for (let col of row.cols) {
                             if (col.chart) {
                                 col.chart.resize()
                             }
@@ -275,26 +305,35 @@
                 col.showMask = false
             },
             getChartBox(el) {
-                if (el.className == 'box-div') {
+                if (el.className === 'box-div') {
                     return el.childNodes[0]
                 } else {
                     return this.getChartBox(el.parentNode)
                 }
             },
             dropDown(e) {
-                console.log(e)
                 let domId = this.getChartBox(e.target).id;
                 let chartid = e.dataTransfer.getData('chartid');
                 this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
                     if (res.data.code === '00') {
 
                         echarts.dispose(document.getElementById(domId));
-                        let myChart = echarts.init(document.getElementById(domId), res.data.data.theme);
-                        for (let f of res.data.data.functions) {
-                            eval('res.data.data.chartOptions' + f.name + '=' + f.fun)
+
+                        if (res.data.data.chartType === 'diy') {
+                            let js = document.createElement('script');
+                            js.innerHTML = `${res.data.data.diyCode};
+                            var ${domId} = echarts.init(document.getElementById('${domId}'), ${res.data.data.diyCode.theme});
+                            ${domId}.setOption(option)`;
+                            document.querySelector('body').appendChild(js);
+
+                            this.setChart(domId, echarts.getInstanceByDom(document.getElementById(domId)), chartid)
+
+                        } else {
+                            let myChart = echarts.init(document.getElementById(domId), res.data.data.theme);
+                            myChart.setOption(res.data.data.chartOptions);
+                            this.setChart(domId, myChart, chartid)
                         }
-                        myChart.setOption(res.data.data.chartOptions);
-                        this.setChart(parseInt(domId), myChart, chartid)
+
                     } else {
                         this.$message.error(res.data.message)
                     }
@@ -305,8 +344,8 @@
             setChart(boxId, chart, chartId) {
                 for (let item of this.layout) {
                     for (let row of item.charts) {
-                        for (let col of row) {
-                            if (col.id == boxId) {
+                        for (let col of row.cols) {
+                            if (col.domId == boxId) {
                                 col.chart = chart;
                                 col.chartId = chartId;
                                 return
@@ -321,6 +360,9 @@
                 html2canvas(document.getElementById('draw-win'), {
                     ignoreElements: (el) => {
                         if (el.className === 'tool-box') {
+                            return true
+                        }
+                        if (el.className === 'vue-resizable-handle') {
                             return true
                         }
                     },
@@ -359,7 +401,10 @@
                                 margin: _this.margin,
                                 cols: _this.cols,
                                 rows: rows,
-                                rowHeight: _this.rowHeight
+                                rowHeight: _this.rowHeight,
+                                maxId: _this.maxId,
+                                maxChartId: _this.maxChartId,
+                                maxRowId: _this.maxRowId,
                             }
                         }
                     };
@@ -373,34 +418,66 @@
                 });
 
             },
+            editHTML(item, i, j) {
+                this.htmlCode = item.charts[i].cols[j].html;
+                this.editingBox = item.charts[i].cols[j];
+                this.showEditCode = true;
+            },
+            confirmHTML() {
+                this.editingBox.html = this.htmlCode;
+                if (this.htmlCode) {
+                    this.renderHTML(document.getElementById(this.editingBox.domId), this.htmlCode);
+                }
+                this.showEditCode = false;
+            },
+            renderHTML(dom, html) {
+                if (html) {
+                    let c = echarts.getInstanceByDom(dom);
+                    if(c) {
+                        c.dispose()
+                    }
+                    dom.innerHTML = html
+                }
+            },
             addLeft(item, i, j) {
                 this.maxChartId++;
-                item.charts[i].splice(j, 0, {id: this.maxChartId, chart: null});
+                item.charts[i].cols.splice(j, 0, {id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''});
                 this.rerefshBox(item)
             },
             addRight(item, i, j) {
                 this.maxChartId++;
-                item.charts[i].splice(j + 1, 0, {id: this.maxChartId, chart: null});
+                item.charts[i].cols.splice(j + 1, 0, {id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''});
                 this.rerefshBox(item)
             },
             addUp(item, i, j) {
                 this.maxChartId++;
-                item.charts.splice(i, 0, [{id: this.maxChartId, chart: null}]);
+                this.maxRowId++;
+                item.charts.splice(i, 0, {id: this.maxRowId, cols: [{id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''}]});
                 this.rerefshBox(item)
             },
             addDown(item, i, j) {
                 this.maxChartId++;
-                item.charts.splice(i + 1, 0, [{id: this.maxChartId, chart: null}]);
+                this.maxRowId++;
+                item.charts.splice(i + 1, 0, {id: this.maxRowId, cols: [{id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''}]});
                 this.rerefshBox(item)
             },
             delChart(item, i, j) {
-                item.charts[i].splice(j, 1);
-                if (item.charts[i].length === 0) {
+                if (item.charts[i].cols[j].chart) {
+                    item.charts[i].cols[j].chart.dispose();
+                }
+                item.charts[i].cols.splice(j, 1);
+                if (item.charts[i].cols.length === 0) {
                     item.charts.splice(i, 1)
                 }
                 if (item.charts.length === 0) {
                     this.maxChartId++;
-                    item.charts.push([{id: this.maxChartId, chart: null, chartId: ''}])
+                    this.maxRowId++;
+                    item.charts.push({
+                        id: this.maxRowId,
+                        cols: [
+                            {id: this.maxChartId, chart: null, chartId: '', domId: 'chartContainer' + this.maxChartId, html: ''}
+                        ]
+                    })
                 }
                 this.rerefshBox(item)
             },
@@ -456,7 +533,7 @@
     }
 
     .box {
-        border: 1px solid #79aec8;
+        /*border: 1px solid #79aec8;*/
         overflow: hidden;
     }
 
@@ -537,7 +614,13 @@
     }
 
     .el-icon-delete-solid {
-        left: calc(50% - 8px);
+        left: calc(50% - 8px + 20px);
+        top: calc(50% - 8px);
+        color: red;
+    }
+
+    .el-icon-edit-outline {
+        left: calc(50% - 8px - 20px);
         top: calc(50% - 8px);
     }
 
@@ -549,5 +632,17 @@
 <style>
     .vue-resizable-handle{
         z-index: 99!important;
+    }
+
+    .chartCtnClass > div:first-child {
+        box-sizing: border-box;
+        padding: 10px!important;
+    }
+
+    .chartCtnClass canvas {
+        width: calc(100% - 24px)!important;
+        height: calc(100% - 24px)!important;
+        left: 12px!important;
+        top: 12px!important;
     }
 </style>
