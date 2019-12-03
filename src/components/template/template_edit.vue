@@ -86,7 +86,8 @@
                                      @dragover.prevent
                                      @drop="dropDown"
                                      style="position: relative;">
-                                    <div class="chartCtnClass" :id="'chartContainer' + col.id" style="height: 100%"></div>
+                                    <div class="chartCtnClass" :id="'chartContainer' + col.id"
+                                         style="height: 100%"></div>
                                     <div v-if="item.showMask" class="arrow-box">
                                         <i @click="addLeft(item, i, j)" class="el-icon-arrow-left arrow-btn"></i>
                                         <i @click="addRight(item, i, j)" class="el-icon-arrow-right arrow-btn"></i>
@@ -99,14 +100,15 @@
                             </div>
                         </div>
                         <div class="tool-box">
+                            <i class="el-icon-delete del-btn" @click="delBox(item)"></i>
+                            <i class="el-icon-full-screen refresh-btn" @click="changeBorder(item)"></i>
                             <i class="el-icon-setting refresh-btn" @click="item.showMask = !item.showMask"></i>
                             <i class="el-icon-refresh refresh-btn" @click="rerefshBox(item)"></i>
                             <i class="el-icon-rank move-btn"></i>
-                            <i class="el-icon-delete del-btn" @click="delBox(item)"></i>
                         </div>
-                        <SvgBorder style="position: absolute;z-index: 97">
-
-                        </SvgBorder>
+                        <SvgBorder v-if="item.svgBorder == 'border1' || !item.svgBorder"
+                                   style="position: absolute;z-index: 97"
+                                   :svgKey="'svg-filter-' + item.i"></SvgBorder>
                     </grid-item>
                 </grid-layout>
 
@@ -120,6 +122,14 @@
                     </span>
                 </el-dialog>
 
+                <el-dialog title="选择边框" :visible.sync="showEditBorder" width="800px" top="50px" :modal="false">
+                    <div class="edit-border" style="display: flex; justify-content: space-around;">
+                        <div v-for="b in borderOptions" class="source-icon" @click="confirmBorder(b.value)">
+                            <img :src="b.icon">
+                            <span>{{b.label}}</span>
+                        </div>
+                    </div>
+                </el-dialog>
             </div>
         </div>
     </div>
@@ -146,7 +156,9 @@
         data() {
             return {
                 showEditCode: false,
+                showEditBorder: false,
                 editingBox: null,
+                editingItem: null,
                 htmlCode: '',
                 templateId: '',
                 chartCate: 'all',
@@ -164,8 +176,12 @@
                     "h": 6,
                     "i": "0",
                     showMask: false,
+                    svgBorder: 'border1',
                     charts: [
-                        {id: 20000, cols: [{id: 10000, chart: null, chartId: '', domId: 'chartContainer10000', html: ''}]}
+                        {
+                            id: 20000,
+                            cols: [{id: 10000, chart: null, chartId: '', domId: 'chartContainer10000', html: ''}]
+                        }
                     ]
                 }],
                 cols: 30,
@@ -175,6 +191,7 @@
                 maxChartId: 10000,
                 maxRowId: 20000,
                 cateOptions: opt.CATE_OPTIONS,
+                borderOptions: opt.SVG_BORDERS,
                 loading: false,
                 loading2: false,
             }
@@ -189,6 +206,13 @@
             },
         },
         created() {
+            for (let theme of opt.THEME) {
+                require('../../assets/themes/' + theme.value);
+            }
+        },
+        mounted() {
+            this.chartList('all');
+
             if (this.$route.query.id) {
                 this.$axios.post(this.$api.getTemplate, {id: this.$route.query.id}).then((res) => {
                     if (res.data.code === '00') {
@@ -205,9 +229,12 @@
                             for (let row of item.charts) {
                                 for (let col of row.cols) {
                                     if (col.html) {
-                                        this.renderHTML(document.getElementById(col.domId), col.html)
+                                        this.$nextTick(() => {
+                                            this.renderHTML(document.getElementById(col.domId), col.html)
+                                        })
                                     }
-                                    if (col.chartId != '') {
+                                    if (col.chartId !== '') {
+
                                         this.$axios.post(this.$api.getChart, {id: col.chartId}).then((res) => {
                                             if (res.data.code === '00') {
                                                 let domId = col.domId;
@@ -240,12 +267,6 @@
 
                 })
             }
-            for (let theme of opt.THEME) {
-                require('../../assets/themes/' + theme.value);
-            }
-        },
-        mounted() {
-            this.chartList('all')
         },
         methods: {
             chartList(cate) {
@@ -272,11 +293,29 @@
                     "h": 6,
                     "i": this.maxId,
                     showMask: false,
+                    svgBorder: 'border1',
                     charts: [
-                        {id: this.maxRowId, cols: [{id: this.maxChartId, chart: null, chartId: '', domId: 'chartContainer' + this.maxChartId, html: ''}]}
+                        {
+                            id: this.maxRowId,
+                            cols: [{
+                                id: this.maxChartId,
+                                chart: null,
+                                chartId: '',
+                                domId: 'chartContainer' + this.maxChartId,
+                                html: ''
+                            }]
+                        }
                     ]
                 })
 
+            },
+            changeBorder(item) {
+                this.editingItem = item;
+                this.showEditBorder = true;
+            },
+            confirmBorder(v) {
+                this.editingItem.svgBorder = v;
+                this.showEditBorder = false;
             },
             delBox(item) {
                 this.layout.splice(this.layout.indexOf(item), 1)
@@ -433,7 +472,7 @@
             renderHTML(dom, html) {
                 if (html) {
                     let c = echarts.getInstanceByDom(dom);
-                    if(c) {
+                    if (c) {
                         c.dispose()
                     }
                     dom.innerHTML = html
@@ -441,24 +480,40 @@
             },
             addLeft(item, i, j) {
                 this.maxChartId++;
-                item.charts[i].cols.splice(j, 0, {id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''});
+                item.charts[i].cols.splice(j, 0, {
+                    id: this.maxChartId,
+                    chart: null,
+                    domId: 'chartContainer' + this.maxChartId,
+                    html: ''
+                });
                 this.rerefshBox(item)
             },
             addRight(item, i, j) {
                 this.maxChartId++;
-                item.charts[i].cols.splice(j + 1, 0, {id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''});
+                item.charts[i].cols.splice(j + 1, 0, {
+                    id: this.maxChartId,
+                    chart: null,
+                    domId: 'chartContainer' + this.maxChartId,
+                    html: ''
+                });
                 this.rerefshBox(item)
             },
             addUp(item, i, j) {
                 this.maxChartId++;
                 this.maxRowId++;
-                item.charts.splice(i, 0, {id: this.maxRowId, cols: [{id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''}]});
+                item.charts.splice(i, 0, {
+                    id: this.maxRowId,
+                    cols: [{id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''}]
+                });
                 this.rerefshBox(item)
             },
             addDown(item, i, j) {
                 this.maxChartId++;
                 this.maxRowId++;
-                item.charts.splice(i + 1, 0, {id: this.maxRowId, cols: [{id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''}]});
+                item.charts.splice(i + 1, 0, {
+                    id: this.maxRowId,
+                    cols: [{id: this.maxChartId, chart: null, domId: 'chartContainer' + this.maxChartId, html: ''}]
+                });
                 this.rerefshBox(item)
             },
             delChart(item, i, j) {
@@ -475,7 +530,13 @@
                     item.charts.push({
                         id: this.maxRowId,
                         cols: [
-                            {id: this.maxChartId, chart: null, chartId: '', domId: 'chartContainer' + this.maxChartId, html: ''}
+                            {
+                                id: this.maxChartId,
+                                chart: null,
+                                chartId: '',
+                                domId: 'chartContainer' + this.maxChartId,
+                                html: ''
+                            }
                         ]
                     })
                 }
@@ -489,6 +550,7 @@
     svg line {
         shape-rendering: crispEdges;
     }
+
     svg text {
         fill: none;
     }
@@ -624,25 +686,43 @@
         top: calc(50% - 8px);
     }
 
-    .box-div {
-        /*background-color: #6b6fce;*/
+    .source-icon {
+        height: 100px;
+        width: 100px;
+        margin: 20px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 5px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        transition: .3s;
+    }
+
+    .source-icon:hover {
+        transform: scale(1.1);
+    }
+
+    .source-icon img {
+        height: 100%;
+        width: 100%;
+        object-fit: contain;
     }
 </style>
 
 <style>
-    .vue-resizable-handle{
-        z-index: 99!important;
+    .vue-resizable-handle {
+        z-index: 99 !important;
     }
 
     .chartCtnClass > div:first-child {
         box-sizing: border-box;
-        padding: 10px!important;
+        padding: 10px !important;
     }
 
     .chartCtnClass canvas {
-        width: calc(100% - 24px)!important;
-        height: calc(100% - 24px)!important;
-        left: 12px!important;
-        top: 12px!important;
+        width: calc(100% - 24px) !important;
+        height: calc(100% - 24px) !important;
+        left: 12px !important;
+        top: 12px !important;
     }
 </style>

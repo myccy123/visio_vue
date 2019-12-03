@@ -4,7 +4,7 @@
         <el-radio-group v-model="chartCate" size="mini"
                         @change="chartList"
                         style="margin: 20px 0 15px 30%; float: left;">
-            <el-radio-button v-for="cate in cates" :label="cate.value">{{cate.label}}</el-radio-button>
+            <el-radio-button v-for="cate in cates" :label="cate.value" :key="cate.value">{{cate.label}}</el-radio-button>
         </el-radio-group>
 
         <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"

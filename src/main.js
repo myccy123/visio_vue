@@ -7,7 +7,8 @@ import axios from 'axios'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import VueParticles from 'vue-particles';
-import echarts from "echarts"
+import echarts from "echarts";
+import lodash from "lodash";
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
@@ -16,6 +17,7 @@ Vue.use(VueParticles);
 const globalBus = new Vue();
 
 window.echarts = echarts;
+window.lodash = lodash;
 
 axios.get(urls.mapDir, {params: {mapfile: 'shanxi'}}).then((res) => {
     echarts.registerMap('shanxi', res.data)

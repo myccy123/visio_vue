@@ -6,7 +6,8 @@
                 <h2 class="h2-title">chart类型</h2>
                 <div class="chart-cate">
                     <ul>
-                        <el-tooltip v-for="cate in cates" effect="dark" :content="cate.name" placement="left">
+                        <el-tooltip v-for="cate in cates" effect="dark" :content="cate.name"
+                                    placement="left" :key="cate.value">
                             <li :class="{selCate: cate.value === formOptions.chartCate}"
                                 @click="formOptions.chartCate=cate.value">
                                 <img :src="cate.icon">
@@ -60,7 +61,7 @@
                         <el-button class="add-filter" type="primary" icon="el-icon-plus" plain size="mini"
                                    @click="addFilter"></el-button>
                         <el-form v-for="(item,idx) in formOptions.filter" :inline="true" :model="item" size="mini"
-                                 label-width="60px">
+                                 label-width="60px" :key="'filter_key_' + idx">
                             <el-form-item label="数据项">
                                 <el-select class="data-filter" :loading="colOptions.length == 0" v-model="item.col"
                                            placeholder="请选择" @change="filterColChange(item.col, idx)">
@@ -129,17 +130,18 @@
                             </el-form-item>
                         </el-form>
                         <el-dialog title="代码示例" :visible.sync="showDemoCode" width="800px" top="50px"
-                                   :modal="false">
+                                   :modal="false" :close-on-click-modal="false">
                             <div style="max-height: 60vh; overflow: auto;background-color: #FFFAFA;min-height: 300px;">
-                                <pre><code class="javascript" id="demo">{{formOptions.diy.example}}</code></pre>
+                                <pre v-highlightjs="sourcecode"><code class="javascript" id="demo">{{formOptions.diy.example}}</code></pre>
                             </div>
                             <span slot="footer">
                                 <el-button data-clipboard-target="#demo" size="mini">复 制</el-button>
                             </span>
                         </el-dialog>
-                        <el-dialog title="编辑代码" :visible.sync="showEditCode" width="800px" top="50px" :modal="false">
+                        <el-dialog title="编辑代码" :visible.sync="showEditCode" width="800px" top="50px"
+                                   :modal="false" :close-on-click-modal="false">
                             <div class="edit-code">
-                                <el-input type="textarea" v-model="formOptions.diy.code"></el-input>
+                                <el-input type="textarea" v-model="formOptions.diy.code">{{formOptions.diy.code}}</el-input>
                             </div>
                             <span slot="footer">
                                 <el-button @click="showEditCode = false" size="mini">取 消</el-button>
@@ -153,15 +155,15 @@
                 <div style="text-align: center;margin-top: 20px;">
                     <span>
                     <el-button type="primary" :disabled="false" @click="saveChart"
-                               :loading="loading"
-                               style="width: 200px;">生成图表</el-button>
+                               :loading="loading" icon="el-icon-upload"
+                               style="width: 200px;">保 存</el-button>
                     <el-button type="info" plain @click="showSourceList = true"
                                style="width: 200px;margin-left: 80px;">切换数据源</el-button>
                     </span>
                     <el-dialog title="选择您的数据源" :visible.sync="showSourceList"
-                               :close-on-click-modal="formOptions.srcid != ''"
+                               :close-on-click-modal="formOptions.srcid !== ''"
                                style="min-width: 600px;"
-                               :show-close="formOptions.srcid != ''" :close-on-press-escape="false">
+                               :show-close="formOptions.srcid !== ''" :close-on-press-escape="false">
                         <el-table :data="sourceList" :highlight-current-row="true" @current-change="changeSource"
                                   max-height="500" :row-style="{cursor: 'pointer'}" stripe>
                             <el-table-column type="index"></el-table-column>
@@ -219,7 +221,7 @@
                 </div>
                 <div class="dim" v-show="showY">
                     <el-form v-for="(item, idx) in formOptions.chartConfig.y" :model="item" size="mini"
-                             label-width="60px"
+                             label-width="60px" :key="'y_key_' + idx"
                              style="padding: 10px 10px 5px 10px;position: relative;">
                         <el-form-item label="Y轴">
                             <el-select :loading="colOptions.length == 0" v-model="item.yAxis" placeholder="请选择"
@@ -246,10 +248,10 @@
                 </div>
                 <div class="dim" v-show="showDatas">
                     <el-form v-for="(item, idx) in formOptions.chartConfig.datas" :model="item" size="mini"
-                             label-width="60px"
+                             label-width="60px" :key="'data_key_' + idx"
                              style="padding: 10px 10px 5px 10px;position: relative;">
                         <el-form-item label="数据项">
-                            <el-select :loading="colOptions.length == 0" v-model="item.data" placeholder="请选择"
+                            <el-select :loading="colOptions.length === 0" v-model="item.data" placeholder="请选择"
                                        @change="genChart">
                                 <el-option v-for="col in colOptions" :value="col.colname"
                                            :key="col.colname" :label="col.coldesc">
@@ -362,7 +364,6 @@
     import 'echarts/map/js/world'
     import 'echarts-gl';
     import 'echarts/extension/bmap/bmap'
-    import lodash from 'lodash';
     import ResizeObserver from 'resize-observer-polyfill';
 
     export default {
@@ -372,6 +373,7 @@
             return {
                 defTab: 'first',
                 chart: null,
+                observer: null,
                 sourceList: [],
                 cates: options.CHART_CATES,
                 types: options.CHART_TYPES,
@@ -441,7 +443,6 @@
                             echarts.dispose(document.getElementById('chart'));
                             let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
                             myChart.setOption(res.data.data.chartOptions);
-                            this.chart = myChart;
                             myChart.resize();
                         }
                     }
@@ -457,13 +458,18 @@
         mounted() {
             const observer = new ResizeObserver(entries => {
                 entries.forEach(entry => {
-                    if (this.chart) {
-                        this.chart.resize();
+                    let chart = echarts.getInstanceByDom(document.getElementById('chart'));
+                    if (chart) {
+                        chart.resize();
                     }
                 })
             });
             observer.observe(document.getElementById('chart'));
+            this.observer = observer;
             this.getSource()
+        },
+        destroyed() {
+            this.observer.disconnect();
         },
         methods: {
             getSource() {
@@ -511,12 +517,14 @@
                 echarts.dispose(document.getElementById('chart'));
                 if (type.value === 'diy') {
                     this.formOptions.diy.diyType = type.type;
+                    this.defTab = 'fourth';
                     this.$axios.get(type.js).then((res) => {
                         // this.formOptions.diy.example = JSON.stringify(res.data);
                         this.formOptions.diy.code = res.data;
                         this.genChart()
                     })
                 } else {
+                    this.defTab = 'first';
                     this.formOptions.diy.diyType = '';
                     this.formOptions.diy.code = '';
                     this.formOptions.diy.js = '';
@@ -566,21 +574,17 @@
                         if (this.formOptions.isSave) {
                             this.$router.push({name: 'ChartList'})
                         }
-
+                        var diyChart = null
                         if (this.formOptions.chartType === 'diy') {
-
                             let js = document.createElement('script');
                             js.innerHTML = `${this.formOptions.diy.code};
                             var diyChart = echarts.init(document.getElementById('chart'), ${this.formOptions.baseConfig.theme});
                             diyChart.setOption(option)`;
                             document.querySelector('body').appendChild(js);
-                            this.chart = diyChart;
-
                         } else {
                             let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
                             myChart.setOption(res.data.data);
                             myChart.resize();
-                            this.chart = myChart;
                         }
                     }
                     this.loading = false;
@@ -590,9 +594,14 @@
                 })
             },
             saveChart() {
-                this.formOptions.isSave = true;
-                this.formOptions.baseConfig.icon = diyChart ? diyChart.getDataURL() : this.chart.getDataURL();
-                this.genChart()
+                let chart = echarts.getInstanceByDom(document.getElementById('chart'));
+                if (chart) {
+                    this.formOptions.isSave = true;
+                    this.formOptions.baseConfig.icon = chart.getDataURL();
+                    this.genChart()
+                } else {
+                    this.$message.error('图片未生成，无法保存！');
+                }
             }
         },
         computed: {

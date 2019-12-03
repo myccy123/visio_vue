@@ -100,10 +100,10 @@ export default {
             //     json: '/json/map-line2.json'
             // },
             {
-                name: '酷炫柱图',
+                name: '3D柱图',
                 value: 'diy',
-                icon: '/img/map_line2.png',
-                type: '1.1',
+                icon: '/img/transparent-bar3d.jpg',
+                type: 'bar3d',
                 json: '',
                 js: '/diyjs/1.1.js',
             },
@@ -174,5 +174,9 @@ export default {
         {label: 'AVG', value: 'avg'},
         {label: 'MAX', value: 'max'},
         {label: 'MIN', value: 'min'},
+    ],
+    SVG_BORDERS: [
+        {label: '无边框', value: 'border0', icon: '/img/border0.png'},
+        {label: '酷炫边框', value: 'border1', icon: '/img/border1.png'},
     ],
 };
