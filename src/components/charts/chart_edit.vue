@@ -122,22 +122,10 @@
                     </el-tab-pane>
                     <el-tab-pane label="自定义开发" name="fourth">
                         <el-form ref="form" :inline="true" :model="formOptions.diy" size="mini" label-width="80px">
-                            <!--                            <el-form-item style="margin-left: 30px;">-->
-                            <!--                                <el-button type="info" plain @click="showDemoCode = true">查看代码</el-button>-->
-                            <!--                            </el-form-item>-->
                             <el-form-item style="margin-left: 10px;">
                                 <el-button type="primary" plain @click="showEditCode = true">编辑代码</el-button>
                             </el-form-item>
                         </el-form>
-                        <el-dialog title="代码示例" :visible.sync="showDemoCode" width="800px" top="50px"
-                                   :modal="false" :close-on-click-modal="false">
-                            <div style="max-height: 60vh; overflow: auto;background-color: #FFFAFA;min-height: 300px;">
-                                <pre v-highlightjs="sourcecode"><code class="javascript" id="demo">{{formOptions.diy.example}}</code></pre>
-                            </div>
-                            <span slot="footer">
-                                <el-button data-clipboard-target="#demo" size="mini">复 制</el-button>
-                            </span>
-                        </el-dialog>
                         <el-dialog title="编辑代码" :visible.sync="showEditCode" width="800px" top="50px"
                                    :modal="false" :close-on-click-modal="false">
                             <div class="edit-code">
@@ -413,7 +401,7 @@
                     },
                     moreConfig: {static: '0', sort: 'asc'},
                     filter: [{col: '', opt: '', val: '', bgndate: '', enddate: '', filterType: 'val'}],
-                    diy: {code: '', example: '', diyType: '', js: ''},
+                    diy: {code: '', diyType: '', js: ''},
                     id: '',
                     srcid: '',
                     userid: 'yujiahao',
@@ -519,7 +507,6 @@
                     this.formOptions.diy.diyType = type.type;
                     this.defTab = 'fourth';
                     this.$axios.get(type.js).then((res) => {
-                        // this.formOptions.diy.example = JSON.stringify(res.data);
                         this.formOptions.diy.code = res.data;
                         this.genChart()
                     })

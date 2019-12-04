@@ -80,14 +80,16 @@
                                  style="display: flex;justify-content:space-around;">
                                 <div v-for="(col, j) in row.cols"
                                      :key="col.id"
+                                     style="position: relative;padding:12px; box-sizing: border-box"
                                      :style="{height: '100%', width: 100/row.cols.length + '%'}"
                                      class="box-div"
                                      @dragend="dragEnd"
                                      @dragover.prevent
-                                     @drop="dropDown"
-                                     style="position: relative;">
-                                    <div class="chartCtnClass" :id="'chartContainer' + col.id"
-                                         style="height: 100%"></div>
+                                     @drop="dropDown">
+                                    <div style="height: 100%">
+                                        <div class="chartCtnClass" :id="'chartContainer' + col.id"
+                                             style="height: 100%"></div>
+                                    </div>
                                     <div v-if="item.showMask" class="arrow-box">
                                         <i @click="addLeft(item, i, j)" class="el-icon-arrow-left arrow-btn"></i>
                                         <i @click="addRight(item, i, j)" class="el-icon-arrow-right arrow-btn"></i>
@@ -345,7 +347,7 @@
             },
             getChartBox(el) {
                 if (el.className === 'box-div') {
-                    return el.childNodes[0]
+                    return el.childNodes[0].childNodes[0]
                 } else {
                     return this.getChartBox(el.parentNode)
                 }
@@ -387,6 +389,7 @@
                             if (col.domId == boxId) {
                                 col.chart = chart;
                                 col.chartId = chartId;
+                                col.html = '';
                                 return
                             }
                         }
@@ -714,15 +717,15 @@
         z-index: 99 !important;
     }
 
-    .chartCtnClass > div:first-child {
-        box-sizing: border-box;
-        padding: 10px !important;
-    }
+    /*.chartCtnClass > div:first-child {*/
+    /*    box-sizing: border-box;*/
+    /*    padding: 10px !important;*/
+    /*}*/
 
-    .chartCtnClass canvas {
-        width: calc(100% - 24px) !important;
-        height: calc(100% - 24px) !important;
-        left: 12px !important;
-        top: 12px !important;
-    }
+    /*.chartCtnClass canvas {*/
+    /*    width: calc(100% - 24px) !important;*/
+    /*    height: calc(100% - 24px) !important;*/
+    /*    left: 12px !important;*/
+    /*    top: 12px !important;*/
+    /*}*/
 </style>

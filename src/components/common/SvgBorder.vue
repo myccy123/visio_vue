@@ -105,7 +105,7 @@ export default {
             l${corner},${corner}
             V${svgHeight - 76}
             l-8,8
-            v0,24
+            v0,23
             l8,8
             v0,24
             l -12,12
@@ -113,7 +113,7 @@ export default {
             l${-corner},${-corner}
             V76
             l8,-8
-            v0,-24
+            v0,-23
             l-8,-8
             V${corner}
             Z
@@ -171,13 +171,13 @@ export default {
             l-8,8
             v0,24
             l8,8
-            v0,24
+            v0,23
             l -12,12
             H${corner + 1}
             l${-corner},${-corner}
             V76
             l8,-8
-            v0,-24
+            v0,-23
             l-8,-8
             V${corner}
             Z
