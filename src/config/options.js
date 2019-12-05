@@ -58,34 +58,6 @@ export default {
         ],
         diy: [
             // {
-            //     name: '3D柱图',
-            //     value: 'diy',
-            //     icon: '/img/transparent-bar3d.jpg',
-            //     type: 'bar3d',
-            //     json: '/json/bar-3d.json'
-            // },
-            // {
-            //     name: '关系图',
-            //     value: 'diy',
-            //     icon: '/img/graph-circular-layout.jpg',
-            //     type: 'rel',
-            //     json: '/json/graph-circular-layout.json'
-            // },
-            // {
-            //     name: '地理热力图',
-            //     value: 'diy',
-            //     icon: '/img/heatmap-bmap.jpg',
-            //     type: 'heatMap',
-            //     json: '/json/beat-map.json'
-            // },
-            // {
-            //     name: '百度地图',
-            //     value: 'diy',
-            //     icon: '/img/effectScatter-bmap.jpg',
-            //     type: 'mapPot',
-            //     json: '/json/map_pot.json'
-            // },
-            // {
             //     name: '路线图',
             //     value: 'diy',
             //     icon: '/img/map-line.png',
@@ -104,8 +76,35 @@ export default {
                 value: 'diy',
                 icon: '/img/transparent-bar3d.jpg',
                 type: 'bar3d',
-                json: '',
                 js: '/diyjs/1.1.js',
+            },
+            {
+                name: '百度地图',
+                value: 'diy',
+                icon: '/img/effectScatter-bmap.jpg',
+                type: 'mapPot',
+                js: '/diyjs/example_bmap.js'
+            },
+            {
+                name: '热力图(GEO)',
+                value: 'diy',
+                icon: '/img/heatmap-bmap.jpg',
+                type: 'heatMap',
+                js: '/diyjs/example_heatmap.js'
+            },
+            {
+                name: '关系图',
+                value: 'diy',
+                icon: '/img/graph-circular-layout.jpg',
+                type: 'rel',
+                js: '/diyjs/example_relpie.js'
+            },
+            {
+                name: '气泡图',
+                value: 'diy',
+                icon: '/img/bubble-gradient.jpg',
+                type: 'bubble',
+                js: '/diyjs/example_bubble.js'
             },
         ],
     },
@@ -142,12 +141,15 @@ export default {
         },
     ],
     THEME: [
-        {label: 'dark', value: 'dark'},
+        {label: 'chalk', value: 'chalk'},
+        {label: 'essos', value: 'essos'},
+        {label: 'halloween', value: 'halloween'},
         {label: 'infographic', value: 'infographic'},
-        {label: 'macarons', value: 'macarons'},
-        {label: 'roma', value: 'roma'},
-        {label: 'shine', value: 'shine'},
+        {label: 'purple-passion', value: 'purple-passion'},
         {label: 'vintage', value: 'vintage'},
+        {label: 'walden', value: 'walden'},
+        {label: 'westeros', value: 'westeros'},
+        {label: 'wonderland', value: 'wonderland'},
     ],
     FILTER: [
         {label: '=', value: 'eq'},

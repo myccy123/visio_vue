@@ -19,7 +19,7 @@
                 width="50%">
             <div style="display: flex; justify-content: space-around;">
                 <div class="source-icon" @click="addMySQL">
-                    <img src="@/assets/img/MySQL.png">
+                    <img src="/img/MySQL.png">
                 </div>
             </div>
         </el-dialog>

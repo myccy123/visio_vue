@@ -22,7 +22,7 @@
                 <feBlend result="blend" mode="screen" in2="SourceGraphic" />
             </filter>
 
-            <g id="layer101" :filter="'url(#'+svgKey+')'" stroke="none" fill='#222974'>
+            <g id="layer101" :filter="'url(#'+svgKey+')'" stroke="none" :fill='bgColor'>
                 <path
                     ref="svgOutline"
                     :style="{strokeWidth: '1px',stroke: svgColor }"
@@ -54,6 +54,10 @@ export default {
         },
         svgKey:{
             type:String
+        },
+        bgColor:{
+            type:String,
+            default:'#fff'
         }
     },
     data() {
