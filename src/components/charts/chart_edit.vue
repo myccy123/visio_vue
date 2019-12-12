@@ -431,7 +431,7 @@
                         opt.isSave = false;
                         this.formOptions = opt;
                         this.getCols();
-                        this.registerMap().then(()=>{
+                        this.initMap().then(()=>{
                             echarts.dispose(document.getElementById('chart'));
                             if (this.formOptions.chartType === 'diy') {
                                 let js = document.createElement('script');
@@ -493,7 +493,7 @@
 
                 })
             },
-            registerMap(){
+            initMap(){
                 let map = this.formOptions.moreConfig.map;
                 return new Promise((resolve, reject) => {
                     if (!map) {
@@ -596,7 +596,7 @@
                         if (this.formOptions.isSave) {
                             this.$router.push({name: 'ChartList'})
                         }
-                        this.registerMap().then(()=>{
+                        this.initMap().then(()=>{
                             if (this.formOptions.chartType === 'diy') {
                                 let js = document.createElement('script');
                                 js.innerHTML = `${this.formOptions.diy.code};

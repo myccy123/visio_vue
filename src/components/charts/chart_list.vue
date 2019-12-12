@@ -1,16 +1,30 @@
 <template>
     <div>
         <common-nav></common-nav>
-        <el-radio-group v-model="chartCate" size="mini"
-                        @change="chartList"
-                        style="margin: 20px 0 15px 30%; float: left;">
-            <el-radio-button v-for="cate in cates" :label="cate.value" :key="cate.value">{{cate.label}}</el-radio-button>
-        </el-radio-group>
+        <div style="display: flex;justify-content: space-around;max-width: 950px;margin: 20px auto 0 auto">
+            <el-radio-group v-model="chartCate" size="mini"
+                            @change="chartList">
+                <el-radio-button v-for="cate in cates" :label="cate.value" :key="cate.value">{{cate.label}}
+                </el-radio-button>
+            </el-radio-group>
 
-        <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
-                   style="margin: 20px 0 0 50px;float: left;" @click="addChart">add
-        </el-button>
+            <el-select v-model="customCate"
+                       placeholder="请选择"
+                       style="width: 130px;"
+                       @change="chartList"
+                       size="mini">
+                <el-option
+                        v-for="item in customCates"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value">
+                </el-option>
+            </el-select>
 
+            <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
+                       @click="addChart">add
+            </el-button>
+        </div>
         <div v-loading="loading"
              style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;min-height: calc(100vh - 120px);">
             <div v-for="chart in charts" class="chart-box" :id="chart.id">
@@ -38,18 +52,25 @@
         data() {
             return {
                 chartCate: 'all',
+                customCate: 'all',
                 charts: [],
                 loading: false,
-                cates: opts.CATE_OPTIONS
+                cates: opts.CATE_OPTIONS,
+                customCates: [],
             }
         },
         mounted() {
-            this.chartList(this.chartCate)
+            this.chartList();
+            this.customCateList();
         },
         methods: {
-            chartList(cate) {
+            chartList() {
                 this.loading = true;
-                this.$axios.post(this.$api.chartList, {cate: cate, userid: 'yujiahao'}).then((res) => {
+                this.$axios.post(this.$api.chartList, {
+                    cate: this.chartCate,
+                    customCate: this.customCate,
+                    userid: 'yujiahao'
+                }).then((res) => {
                     if (res.data.code === '00') {
                         this.charts = res.data.data;
                     }
@@ -57,6 +78,15 @@
                 }).catch((err) => {
                     console.log(err);
                     this.loading = false
+                })
+            },
+            customCateList() {
+                this.$axios.post(this.$api.customCates).then((res) => {
+                    if (res.data.code === '00') {
+                        this.customCates = res.data.data;
+                    }
+                }).catch((err) => {
+                    console.log(err);
                 })
             },
             preview(id) {
@@ -76,7 +106,7 @@
                 }).then(() => {
                     this.$axios.post(this.$api.delChart, {id: id}).then((res) => {
                         if (res.data.code === '00') {
-                            this.chartList(this.chartCate)
+                            this.chartList()
                         }
                     }).catch((err) => {
                         console.log(err)

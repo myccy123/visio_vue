@@ -1,17 +1,29 @@
 <template>
-<div>
-        <common-nav></common-nav>
+    <div>
+        <common-nav style="position: fixed;top: 0;width: calc(100% - 16px);padding-top: 8px;background-color: #fff;z-index: 9999"></common-nav>
         <div class="left" v-loading="loading">
-            <el-select v-model="chartCate" placeholder="请选择" size="mini"
-                       @change="chartList"
-                       style="margin: 10px 0 10px 0;">
-                <el-option
-                        v-for="item in cateOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                </el-option>
-            </el-select>
+            <div style="display: flex;justify-content: space-around;margin: 10px 0;">
+                <el-select v-model="chartCate" placeholder="请选择" size="mini"
+                           @change="chartList"
+                           style="width: 45%">
+                    <el-option
+                            v-for="item in cateOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-select v-model="customCate" placeholder="请选择" size="mini"
+                           @change="chartList"
+                           style="width: 45%">
+                    <el-option
+                            v-for="item in customCates"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+            </div>
             <div v-for="chart in charts" class="chart-box"
                  draggable="true"
                  @dragstart="dragStart($event, chart)"
@@ -220,6 +232,7 @@
                 htmlCode: '',
                 templateId: '',
                 chartCate: 'all',
+                customCate: 'all',
                 charts: [],
                 templateConfig: {
                     name: '',
@@ -258,6 +271,7 @@
                 maxChartId: 10000,
                 maxRowId: 20000,
                 cateOptions: opt.CATE_OPTIONS,
+                customCates: [],
                 borderOptions: opt.SVG_BORDERS,
                 themeOptions: opt.THEME,
                 loading: false,
@@ -281,11 +295,9 @@
         },
         mounted() {
 
-            this.chartList('all');
+            this.chartList();
+            this.customCateList();
             // this.startTick();
-            if (this.$route.query.map) {
-                this.registerMap(this.$route.query.map)
-            }
             if (this.$route.query.id) {
                 this.$axios.post(this.$api.getTemplate, {id: this.$route.query.id}).then((res) => {
                     if (res.data.code === '00') {
@@ -312,23 +324,26 @@
                                             if (res.data.code === '00') {
                                                 let domId = col.domId;
 
-                                                if (res.data.data.chartType === 'diy') {
-                                                    let js = document.createElement('script');
-                                                    js.innerHTML = `${res.data.data.diyCode};
-                                                    var ${domId} = echarts.init(document.getElementById('${domId}'), ${res.data.data.diyCode.theme});
-                                                    ${domId}.setOption(option)`;
-                                                    document.querySelector('body').appendChild(js);
-                                                    col.chart = echarts.getInstanceByDom(document.getElementById(domId))
+                                                this.initMap(res.data.data.formOptions.moreConfig.map).then(()=>{
+                                                    if (res.data.data.chartType === 'diy') {
+                                                        let js = document.createElement('script');
+                                                        js.innerHTML = `${res.data.data.diyCode};
+                                                        var ${domId} = echarts.init(document.getElementById('${domId}'), ${res.data.data.diyCode.theme});
+                                                        ${domId}.setOption(option)`;
+                                                        document.querySelector('body').appendChild(js);
+                                                        col.chart = echarts.getInstanceByDom(document.getElementById(domId))
 
-                                                } else {
-                                                    let theme = res.data.data.theme;
-                                                    if(this.templateConfig.theme) {
-                                                        theme = this.templateConfig.theme
+                                                    } else {
+                                                        let theme = res.data.data.theme;
+                                                        if (this.templateConfig.theme) {
+                                                            theme = this.templateConfig.theme
+                                                        }
+                                                        let myChart = echarts.init(document.getElementById(domId), theme);
+                                                        myChart.setOption(res.data.data.chartOptions);
+                                                        col.chart = myChart;
                                                     }
-                                                    let myChart = echarts.init(document.getElementById(domId), theme);
-                                                    myChart.setOption(res.data.data.chartOptions);
-                                                    col.chart = myChart;
-                                                }
+                                                });
+
                                             } else {
                                                 this.$message.error(res.data.message)
                                             }
@@ -350,11 +365,11 @@
         },
         methods: {
             startTick() {
-                this.timer = setInterval(()=>{
-                    for(let item of this.layout){
-                        for(let row of item.charts) {
-                            for(let col of row.cols) {
-                                if(col.mode === '3' && col.slider.length > 1) {
+                this.timer = setInterval(() => {
+                    for (let item of this.layout) {
+                        for (let row of item.charts) {
+                            for (let col of row.cols) {
+                                if (col.mode === '3' && col.slider.length > 1) {
                                     let sliderDom = document.getElementById(col.slider[0].domId).parentNode
                                     let here = parseInt(sliderDom.style.transform.split('%')[0].split('(')[1])
                                     sliderDom.style.transform = `translateX(-${here + 100}%)`
@@ -365,17 +380,30 @@
                     }
                 }, 3000)
             },
-            registerMap(map){
-                this.$axios.get(this.$api.mapDir, {params: {mapfile: map}}).then((res) => {
-                    echarts.registerMap(map, res.data);
-                    console.log('地图初始化完成=>', mapFile)
-                }).catch((err) => {
-                    console.log(err)
+            initMap(map){
+                return new Promise((resolve, reject) => {
+                    if (!map) {
+                        resolve();
+                    } else {
+                        this.$axios.get(this.$api.mapDir, {params: {mapfile: map}}).then((res) => {
+                            echarts.registerMap(map, res.data);
+                            console.log(`地图（${map}）初始化成功！`);
+                            resolve();
+
+                        }).catch((err) => {
+                            console.log(err);
+                            resolve();
+                        })
+                    }
                 })
             },
-            chartList(cate) {
+            chartList() {
                 this.loading = true;
-                this.$axios.post(this.$api.chartList, {cate: cate, userid: 'yujiahao'}).then((res) => {
+                this.$axios.post(this.$api.chartList, {
+                    cate: this.chartCate,
+                    customCate: this.customCate,
+                    userid: 'yujiahao'
+                }).then((res) => {
                     this.charts = [];
                     if (res.data.code === '00') {
                         this.charts = res.data.data;
@@ -386,8 +414,17 @@
                     this.loading = false
                 })
             },
+            customCateList() {
+                this.$axios.post(this.$api.customCates).then((res) => {
+                    if (res.data.code === '00') {
+                        this.customCates = res.data.data;
+                    }
+                }).catch((err) => {
+                    console.log(err);
+                })
+            },
             switchTheme(v) {
-                for(let t of this.themeOptions) {
+                for (let t of this.themeOptions) {
                     if (t.value === v) {
                         this.templateConfig.backgroundColor = t.backgroundColor;
                         break;
@@ -491,9 +528,9 @@
             dropDown(e) {
                 let obj = this.getChartBox(e.target);
                 this.$nextTick(() => {
-                    let dom = document.querySelector('#'+obj.domId);
+                    let dom = document.querySelector('#' + obj.domId);
 
-                    if(!dom) return;
+                    if (!dom) return;
                     let domId = dom.id;
                     let chartid = e.dataTransfer.getData('chartid');
                     this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
@@ -501,24 +538,27 @@
 
                             echarts.dispose(document.getElementById(domId));
 
-                            if (res.data.data.chartType === 'diy') {
-                                let js = document.createElement('script');
-                                js.innerHTML = `${res.data.data.diyCode};
-                            var ${domId} = echarts.init(document.getElementById('${domId}'), ${res.data.data.diyCode.theme});
-                            ${domId}.setOption(option)`;
-                                document.querySelector('body').appendChild(js);
+                            this.initMap(res.data.data.formOptions.moreConfig.map).then(()=>{
+                                if (res.data.data.chartType === 'diy') {
+                                    let js = document.createElement('script');
+                                    js.innerHTML = `${res.data.data.diyCode};
+                                    var ${domId} = echarts.init(document.getElementById('${domId}'), ${res.data.data.diyCode.theme});
+                                    ${domId}.setOption(option)`;
+                                    document.querySelector('body').appendChild(js);
 
-                                this.setChart(domId, echarts.getInstanceByDom(document.getElementById(domId)), chartid)
+                                    this.setChart(domId, echarts.getInstanceByDom(document.getElementById(domId)), chartid)
 
-                            } else {
-                                let theme = res.data.data.theme;
-                                if(this.templateConfig.theme !== '') {
-                                    theme = this.templateConfig.theme
+                                } else {
+                                    let theme = res.data.data.theme;
+                                    if (this.templateConfig.theme !== '') {
+                                        theme = this.templateConfig.theme
+                                    }
+                                    let myChart = echarts.init(document.getElementById(domId), theme);
+                                    myChart.setOption(res.data.data.chartOptions);
+                                    this.setChart(domId, myChart, chartid)
                                 }
-                                let myChart = echarts.init(document.getElementById(domId), theme);
-                                myChart.setOption(res.data.data.chartOptions);
-                                this.setChart(domId, myChart, chartid)
-                            }
+                            });
+
                         } else {
                             this.$message.error(res.data.message)
                         }
@@ -603,6 +643,7 @@
                         }
                     }).catch((err) => {
                         console.log(err)
+                        _this.loading2 = false;
                     })
                 });
 
@@ -754,14 +795,17 @@
 
     .left {
         width: 300px;
-        float: left;
         height: calc(100vh - 57px);
         text-align: center;
+        position: fixed;
+        top: 49px;
         overflow: auto;
     }
 
     .right {
         float: left;
+        margin-left: 300px;
+        margin-top: 41px;
         width: calc(100vw - 320px);
         height: calc(100vh - 57px);
     }

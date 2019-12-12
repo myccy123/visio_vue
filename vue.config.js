@@ -1,5 +1,6 @@
 module.exports = {
-    assetsDir: 'static/vue_vision/',
+    // assetsDir: 'static/vue_vision/',
+    publicPath: process.env.NODE_ENV === 'production'? '/static/vue_vision/': '/',
     // devServer: {
     //     disableHostCheck: true,
     //     // 设置请求代理

@@ -19,14 +19,6 @@ const globalBus = new Vue();
 window.echarts = echarts;
 window.lodash = lodash;
 
-
-axios.get(urls.mapDir, {params: {mapfile: 'shanxi'}}).then((res) => {
-    echarts.registerMap('shanxi', res.data)
-}).catch((err) => {
-    console.log(err)
-})
-
-
 axios.defaults.withCredentials = false;
 Vue.prototype.$axios = axios;
 Vue.prototype.$bus = globalBus;
