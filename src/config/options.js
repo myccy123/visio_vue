@@ -1,4 +1,4 @@
-let pre_dir = '/static/vue_visio'
+let pre_dir = '/static/vue_vision'
 if (process.env.NODE_ENV === "development") {
     pre_dir = '';
 }
