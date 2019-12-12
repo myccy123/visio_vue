@@ -19,6 +19,7 @@ const globalBus = new Vue();
 window.echarts = echarts;
 window.lodash = lodash;
 
+
 axios.get(urls.mapDir, {params: {mapfile: 'shanxi'}}).then((res) => {
     echarts.registerMap('shanxi', res.data)
 }).catch((err) => {

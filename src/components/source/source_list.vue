@@ -19,7 +19,7 @@
                 width="50%">
             <div style="display: flex; justify-content: space-around;">
                 <div class="source-icon" @click="addMySQL">
-                    <img src="/img/MySQL.png">
+                    <img :src="sourceIcon.mysql">
                 </div>
             </div>
         </el-dialog>
@@ -27,12 +27,15 @@
 </template>
 
 <script>
+    import opt from '../../config/options';
+
     export default {
         name: "source_list",
         data() {
             return {
                 sources: [],
                 showDialog: false,
+                sourceIcon: opt.ASSETS.sourceIcon,
             };
         },
         mounted() {

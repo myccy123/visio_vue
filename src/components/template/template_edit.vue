@@ -1,5 +1,5 @@
 <template>
-    <div>
+<div>
         <common-nav></common-nav>
         <div class="left" v-loading="loading">
             <el-select v-model="chartCate" placeholder="请选择" size="mini"
@@ -25,14 +25,25 @@
                     <el-form-item label="名称">
                         <el-input v-model="templateConfig.name"></el-input>
                     </el-form-item>
-                    <el-form-item label="宽">
-                        <el-input v-model="templateConfig.width"></el-input>
-                    </el-form-item>
-                    <el-form-item label="高">
-                        <el-input v-model="templateConfig.height"></el-input>
+                    <el-form-item label="主题">
+                        <el-select v-model="templateConfig.theme"
+                                   placeholder="请选择"
+                                   @change="switchTheme"
+                                   clearable
+                                   style="">
+                            <el-option v-for="item in themeOptions" :key="item.value" :value="item.value"
+                                       :label="item.label">
+                            </el-option>
+                        </el-select>
                     </el-form-item>
                     <el-form-item label="背景色" style="height: 28px">
                         <el-color-picker v-model="templateConfig.backgroundColor" color-format="hex"></el-color-picker>
+                    </el-form-item>
+                    <el-form-item label="宽">
+                        <el-input v-model="templateConfig.width" style="width: 80px;"></el-input>
+                    </el-form-item>
+                    <el-form-item label="高">
+                        <el-input v-model="templateConfig.height" style="width: 80px;"></el-input>
                     </el-form-item>
                     <el-form-item>
                         <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
@@ -65,7 +76,7 @@
                         style="margin-bottom: 20px;border: 1px dashed #79aec8"
                         :style="{'background-color': templateConfig.backgroundColor}">
 
-                    <grid-item v-for="item in layout" class="box"
+                    <grid-item v-for="(item, idx) in layout" class="box"
                                @resized="rerefshBox(item)"
                                dragAllowFrom=".move-btn"
                                :x="item.x"
@@ -86,8 +97,25 @@
                                      @dragend="dragEnd"
                                      @dragover.prevent
                                      @drop="dropDown">
-                                    <div style="height: 100%;position: relative;">
-                                        <div class="chartCtnClass" :id="'chartContainer' + col.id"
+                                    <div :mode="item.charts[i].cols[j].mode"
+                                         :itemid="idx"
+                                         :rowid="i"
+                                         :colid="j"
+                                         style="height: 100%;position: relative;overflow: hidden">
+                                        <template v-if="item.charts[i].cols[j].mode === '3'">
+                                            <div :style="{height: '100%',width: '100%',
+                                            transform: 'translateX(0%)',
+                                            transitionDuration: '0.5s', position: 'relative'}">
+                                                <div style="width: 100%;height: 100%;position: absolute;"
+                                                     :style="{left: `calc(100% * ${k})`}"
+                                                     v-for="(slider, k) in item.charts[i].cols[j].slider"
+                                                     :key="'slider_' + slider.id"
+                                                     :id="'slider_' + slider.id">
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <div v-else
+                                             class="chartCtnClass" :id="'chartWrapper' + col.id"
                                              style="width: 100%;height: 100%;position: absolute"></div>
                                     </div>
                                     <div v-if="item.showMask" class="arrow-box">
@@ -96,13 +124,17 @@
                                         <i @click="addDown(item, i, j)" class="el-icon-arrow-down arrow-btn"></i>
                                         <i @click="addUp(item, i, j)" class="el-icon-arrow-up arrow-btn"></i>
                                         <div class="chart-btns">
-                                            <el-button @click="editHTML(item, i, j)" class="edit-html-btn chart-btn"
-                                                       type="primary"
-                                                       size="mini">HTML模式
-                                            </el-button>
-                                            <el-button @click="editSlider(item, i, j)" class="slider-btn chart-btn" type="primary"
-                                                       size="mini">轮播模式
-                                            </el-button>
+                                            <el-dropdown size="mini" split-button
+                                                         type="primary"
+                                                         @click="editMode(item, i, j)"
+                                                         @command="switchMode($event, item, i, j)">
+                                                {{cmdMap(item.charts[i].cols[j].mode)}}
+                                                <el-dropdown-menu slot="dropdown">
+                                                    <el-dropdown-item command="1">单图模式</el-dropdown-item>
+                                                    <el-dropdown-item command="2">HTML模式</el-dropdown-item>
+                                                    <el-dropdown-item command="3">轮播模式</el-dropdown-item>
+                                                </el-dropdown-menu>
+                                            </el-dropdown>
                                             <el-button @click="delChart(item, i, j)" class="del-chart-btn chart-btn"
                                                        type="danger"
                                                        size="mini">删除
@@ -168,6 +200,7 @@
     import lodash from 'lodash';
     import html2canvas from 'html2canvas';
 
+
     export default {
         name: "template_edit",
         components: {
@@ -183,6 +216,7 @@
                 showEditSlider: false,
                 editingBox: null,
                 editingItem: null,
+                timer: null,
                 htmlCode: '',
                 templateId: '',
                 chartCate: 'all',
@@ -191,7 +225,8 @@
                     name: '',
                     backgroundColor: '',
                     width: '',
-                    height: ''
+                    height: '',
+                    theme: '',
                 },
                 layout: [{
                     "x": 0,
@@ -208,9 +243,10 @@
                                 id: 10000,
                                 chart: null,
                                 chartId: '',
-                                domId: 'chartContainer10000',
+                                domId: 'chartWrapper10000',
                                 html: '',
                                 slider: [],
+                                mode: '1',
                             }]
                         }
                     ]
@@ -223,6 +259,7 @@
                 maxRowId: 20000,
                 cateOptions: opt.CATE_OPTIONS,
                 borderOptions: opt.SVG_BORDERS,
+                themeOptions: opt.THEME,
                 loading: false,
                 loading2: false,
             }
@@ -235,6 +272,7 @@
                     return (parseInt(this.templateConfig.height) - this.margin[1]) / (this.rowHeight + this.margin[1])
                 }
             },
+
         },
         created() {
             for (let theme of opt.THEME) {
@@ -242,8 +280,12 @@
             }
         },
         mounted() {
-            this.chartList('all');
 
+            this.chartList('all');
+            // this.startTick();
+            if (this.$route.query.map) {
+                this.registerMap(this.$route.query.map)
+            }
             if (this.$route.query.id) {
                 this.$axios.post(this.$api.getTemplate, {id: this.$route.query.id}).then((res) => {
                     if (res.data.code === '00') {
@@ -279,7 +321,11 @@
                                                     col.chart = echarts.getInstanceByDom(document.getElementById(domId))
 
                                                 } else {
-                                                    let myChart = echarts.init(document.getElementById(domId), res.data.data.theme);
+                                                    let theme = res.data.data.theme;
+                                                    if(this.templateConfig.theme) {
+                                                        theme = this.templateConfig.theme
+                                                    }
+                                                    let myChart = echarts.init(document.getElementById(domId), theme);
                                                     myChart.setOption(res.data.data.chartOptions);
                                                     col.chart = myChart;
                                                 }
@@ -299,7 +345,34 @@
                 })
             }
         },
+        destroyed() {
+            window.clearInterval(this.timer)
+        },
         methods: {
+            startTick() {
+                this.timer = setInterval(()=>{
+                    for(let item of this.layout){
+                        for(let row of item.charts) {
+                            for(let col of row.cols) {
+                                if(col.mode === '3' && col.slider.length > 1) {
+                                    let sliderDom = document.getElementById(col.slider[0].domId).parentNode
+                                    let here = parseInt(sliderDom.style.transform.split('%')[0].split('(')[1])
+                                    sliderDom.style.transform = `translateX(-${here + 100}%)`
+                                    console.log(sliderDom.style)
+                                }
+                            }
+                        }
+                    }
+                }, 3000)
+            },
+            registerMap(map){
+                this.$axios.get(this.$api.mapDir, {params: {mapfile: map}}).then((res) => {
+                    echarts.registerMap(map, res.data);
+                    console.log('地图初始化完成=>', mapFile)
+                }).catch((err) => {
+                    console.log(err)
+                })
+            },
             chartList(cate) {
                 this.loading = true;
                 this.$axios.post(this.$api.chartList, {cate: cate, userid: 'yujiahao'}).then((res) => {
@@ -312,6 +385,14 @@
                     console.log(err);
                     this.loading = false
                 })
+            },
+            switchTheme(v) {
+                for(let t of this.themeOptions) {
+                    if (t.value === v) {
+                        this.templateConfig.backgroundColor = t.backgroundColor;
+                        break;
+                    }
+                }
             },
             addBox() {
                 this.maxId++;
@@ -332,9 +413,10 @@
                                 id: this.maxChartId,
                                 chart: null,
                                 chartId: '',
-                                domId: 'chartContainer' + this.maxChartId,
+                                domId: 'chartWrapper' + this.maxChartId,
                                 html: '',
                                 slider: [],
+                                mode: '1',
                             }]
                         }
                     ]
@@ -367,6 +449,12 @@
                             if (col.chart) {
                                 col.chart.resize()
                             }
+                            if (col.slider.length > 0) {
+                                for (let s of col.slider) {
+                                    let chart = echarts.getInstanceByDom(document.getElementById(s.domId))
+                                    chart.resize()
+                                }
+                            }
                         }
                     }
                 })
@@ -378,41 +466,67 @@
                 e.dataTransfer.clearData();
             },
             getChartBox(el) {
-                if (el.className === 'box-div') {
-                    return el.childNodes[0].childNodes[0]
+                if (el.className.indexOf('box-div') !== -1) {
+                    let itemid = el.childNodes[0].getAttribute('itemid')
+                    let rowid = el.childNodes[0].getAttribute('rowid')
+                    let colid = el.childNodes[0].getAttribute('colid')
+                    let colObj = this.layout[itemid].charts[rowid].cols[colid]
+
+                    if (el.childNodes[0].getAttribute('mode') === '3') {
+                        this.maxChartId++;
+                        let sliderOjb = {
+                            id: this.maxChartId,
+                            chartId: '',
+                            domId: 'slider_' + this.maxChartId,
+                        }
+                        colObj.slider.push(sliderOjb)
+                        return sliderOjb
+                    } else {
+                        return colObj
+                    }
                 } else {
                     return this.getChartBox(el.parentNode)
                 }
             },
             dropDown(e) {
-                let domId = this.getChartBox(e.target).id;
-                let chartid = e.dataTransfer.getData('chartid');
-                this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
-                    if (res.data.code === '00') {
+                let obj = this.getChartBox(e.target);
+                this.$nextTick(() => {
+                    let dom = document.querySelector('#'+obj.domId);
 
-                        echarts.dispose(document.getElementById(domId));
+                    if(!dom) return;
+                    let domId = dom.id;
+                    let chartid = e.dataTransfer.getData('chartid');
+                    this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
+                        if (res.data.code === '00') {
 
-                        if (res.data.data.chartType === 'diy') {
-                            let js = document.createElement('script');
-                            js.innerHTML = `${res.data.data.diyCode};
+                            echarts.dispose(document.getElementById(domId));
+
+                            if (res.data.data.chartType === 'diy') {
+                                let js = document.createElement('script');
+                                js.innerHTML = `${res.data.data.diyCode};
                             var ${domId} = echarts.init(document.getElementById('${domId}'), ${res.data.data.diyCode.theme});
                             ${domId}.setOption(option)`;
-                            document.querySelector('body').appendChild(js);
+                                document.querySelector('body').appendChild(js);
 
-                            this.setChart(domId, echarts.getInstanceByDom(document.getElementById(domId)), chartid)
+                                this.setChart(domId, echarts.getInstanceByDom(document.getElementById(domId)), chartid)
 
+                            } else {
+                                let theme = res.data.data.theme;
+                                if(this.templateConfig.theme !== '') {
+                                    theme = this.templateConfig.theme
+                                }
+                                let myChart = echarts.init(document.getElementById(domId), theme);
+                                myChart.setOption(res.data.data.chartOptions);
+                                this.setChart(domId, myChart, chartid)
+                            }
                         } else {
-                            let myChart = echarts.init(document.getElementById(domId), res.data.data.theme);
-                            myChart.setOption(res.data.data.chartOptions);
-                            this.setChart(domId, myChart, chartid)
+                            this.$message.error(res.data.message)
                         }
-
-                    } else {
-                        this.$message.error(res.data.message)
-                    }
-                }).catch((err) => {
-                    console.log(err)
+                    }).catch((err) => {
+                        console.log(err)
+                    })
                 })
+
             },
             setChart(boxId, chart, chartId) {
                 for (let item of this.layout) {
@@ -421,7 +535,7 @@
                             if (col.domId === boxId) {
                                 col.chart = chart;
                                 col.chartId = chartId;
-                                col.html = '';
+                                // col.html = '';
                                 return
                             }
                         }
@@ -469,6 +583,7 @@
                                 height: _this.templateConfig.height,
                                 width: _this.templateConfig.width,
                                 backgroundColor: _this.templateConfig.backgroundColor,
+                                theme: _this.templateConfig.theme,
                                 name: _this.templateConfig.name,
                                 offsetHeight: _this.$refs.layout.$el.offsetHeight,
                                 offsetWidth: _this.$refs.layout.$el.offsetWidth,
@@ -492,6 +607,30 @@
                 });
 
             },
+            editMode(item, i, j) {
+                let mode = item.charts[i].cols[j].mode
+                if (mode === '2') {
+                    this.editHTML(item, i, j)
+                } else if (mode === '3') {
+                    this.showEditSlider = true
+                }
+            },
+            switchMode(cmd, item, i, j) {
+                // item.charts[i].cols[j].mode = cmd
+                this.$set(item.charts[i].cols[j], 'mode', cmd)
+                if (cmd === '3') {
+                    echarts.dispose(document.getElementById(item.charts[i].cols[j].domId))
+                }
+            },
+            cmdMap(cmd) {
+                if (cmd === '1') {
+                    return '单图'
+                } else if (cmd === '2') {
+                    return '编辑HTML'
+                } else if (cmd === '3') {
+                    return '编辑轮播'
+                }
+            },
             editHTML(item, i, j) {
                 this.htmlCode = item.charts[i].cols[j].html;
                 this.editingBox = item.charts[i].cols[j];
@@ -513,7 +652,7 @@
                     dom.innerHTML = html
                 }
             },
-            editSlider(item, i, j){
+            editSlider(item, i, j) {
                 this.showEditSlider = true;
             },
             addLeft(item, i, j) {
@@ -521,9 +660,10 @@
                 item.charts[i].cols.splice(j, 0, {
                     id: this.maxChartId,
                     chart: null,
-                    domId: 'chartContainer' + this.maxChartId,
+                    domId: 'chartWrapper' + this.maxChartId,
                     html: '',
                     slider: [],
+                    mode: '1',
                 });
                 this.rerefshBox(item)
             },
@@ -532,9 +672,10 @@
                 item.charts[i].cols.splice(j + 1, 0, {
                     id: this.maxChartId,
                     chart: null,
-                    domId: 'chartContainer' + this.maxChartId,
+                    domId: 'chartWrapper' + this.maxChartId,
                     html: '',
                     slider: [],
+                    mode: '1',
                 });
                 this.rerefshBox(item)
             },
@@ -546,9 +687,10 @@
                     cols: [{
                         id: this.maxChartId,
                         chart: null,
-                        domId: 'chartContainer' + this.maxChartId,
+                        domId: 'chartWrapper' + this.maxChartId,
                         html: '',
                         slider: [],
+                        mode: '1',
                     }]
                 });
                 this.rerefshBox(item)
@@ -561,9 +703,10 @@
                     cols: [{
                         id: this.maxChartId,
                         chart: null,
-                        domId: 'chartContainer' + this.maxChartId,
+                        domId: 'chartWrapper' + this.maxChartId,
                         html: '',
                         slider: [],
+                        mode: '1',
                     }]
                 });
                 this.rerefshBox(item)
@@ -586,9 +729,10 @@
                                 id: this.maxChartId,
                                 chart: null,
                                 chartId: '',
-                                domId: 'chartContainer' + this.maxChartId,
+                                domId: 'chartWrapper' + this.maxChartId,
                                 html: '',
                                 slider: [],
+                                mode: '1',
                             }
                         ]
                     })
@@ -663,7 +807,7 @@
         position: absolute;
         top: 0;
         right: 0;
-        z-index: 99;
+        z-index: 199;
     }
 
     .del-btn {
@@ -696,7 +840,7 @@
         width: 100%;
         position: absolute;
         background: rgba(0, 0, 0, 0.6);
-        z-index: 0;
+        z-index: 100;
         top: 0;
         left: 0;
         display: flex;
@@ -707,8 +851,8 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        width: 92px;
-        height: 150px;
+        width: 117px;
+        height: 105px;
         margin: auto;
     }
 
@@ -763,10 +907,16 @@
         width: 100%;
         object-fit: contain;
     }
+
 </style>
 
 <style>
     .vue-resizable-handle {
         z-index: 99 !important;
     }
+
+    .chart-btns .el-button-group .el-button:first-child {
+        width: calc(100% - 28px) !important;
+    }
+
 </style>

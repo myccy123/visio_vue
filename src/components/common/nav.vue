@@ -3,7 +3,7 @@
 
         <el-menu default-active="1" class="el-menu-demo" mode="horizontal">
             <el-menu-item><div class="logo">
-                <img src="@/assets/img/logo-nav.png">
+                <img :src="logo">
             </div></el-menu-item>
             <el-menu-item index="/" @click="goTo">首页</el-menu-item>
             <el-submenu index="2">
@@ -24,13 +24,15 @@
 
 <script>
     import 'element-ui/lib/theme-chalk/display.css';
+    import opt from '../../config/options'
 
     export default {
         name: "commonNav",
         data() {
             return {
                 isLogin: false,
-                userInfo: {}
+                userInfo: {},
+                logo: opt.ASSETS.logo,
             };
         },
         mounted() {

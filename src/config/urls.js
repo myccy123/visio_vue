@@ -1,6 +1,8 @@
+let baseUrl = 'http://www.janetech.cn:9000';
 
-// const baseUrl = 'http://192.168.43.180:8000';
-const baseUrl = 'http://127.0.0.1:8000';
+if (process.env.NODE_ENV === "development") {
+    baseUrl = 'http://127.0.0.1:8000'
+}
 
 const urls = {
     baseUrl: baseUrl,

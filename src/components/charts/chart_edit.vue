@@ -104,6 +104,7 @@
                                  label-width="80px">
                             <el-form-item label="排序">
                                 <el-select v-model="formOptions.moreConfig.sort" placeholder="请选择"
+                                           style="width: 186px;"
                                            @change="genChart">
                                     <el-option v-for="item in orderOptions" :key="item.value" :value="item.value"
                                                :label="item.label">
@@ -112,11 +113,16 @@
                             </el-form-item>
                             <el-form-item label="数据更新">
                                 <el-select v-model="formOptions.moreConfig.static"
+                                           style="width: 186px;"
                                            placeholder="请选择">
                                     <el-option v-for="item in updateOptions" :key="item.value" :value="item.value"
                                                :label="item.label">
                                     </el-option>
                                 </el-select>
+                            </el-form-item>
+                            <el-form-item label="地图">
+                                <el-input v-model="formOptions.moreConfig.map"
+                                          @blur="genChart"></el-input>
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
@@ -337,6 +343,10 @@
                             <el-input @change="genChart" type="number" v-model="formOptions.chartConfig.max"
                                       placeholder=""></el-input>
                         </el-form-item>
+                        <el-form-item label="单位">
+                            <el-input @change="genChart" v-model="formOptions.chartConfig.unit"
+                                      placeholder=""></el-input>
+                        </el-form-item>
                     </el-form>
                 </div>
             </div>
@@ -398,8 +408,9 @@
                         name: '',
                         min: 0,
                         max: 100,
+                        unit: '',
                     },
-                    moreConfig: {static: '0', sort: 'asc'},
+                    moreConfig: {static: '0', sort: 'asc', map: ''},
                     filter: [{col: '', opt: '', val: '', bgndate: '', enddate: '', filterType: 'val'}],
                     diy: {code: '', diyType: '', js: ''},
                     id: '',
@@ -420,19 +431,22 @@
                         opt.isSave = false;
                         this.formOptions = opt;
                         this.getCols();
-                        echarts.dispose(document.getElementById('chart'));
-                        if (this.formOptions.chartType === 'diy') {
-                            let js = document.createElement('script');
-                            js.innerHTML = `${this.formOptions.diy.code};
+                        this.registerMap().then(()=>{
+                            echarts.dispose(document.getElementById('chart'));
+                            if (this.formOptions.chartType === 'diy') {
+                                let js = document.createElement('script');
+                                js.innerHTML = `${this.formOptions.diy.code};
                             var diyChart = echarts.init(document.getElementById('chart'), ${this.formOptions.baseConfig.theme})
                             diyChart.setOption(option)`;
-                            document.querySelector('body').appendChild(js);
-                        } else {
-                            echarts.dispose(document.getElementById('chart'));
-                            let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
-                            myChart.setOption(res.data.data.chartOptions);
-                            myChart.resize();
-                        }
+                                document.querySelector('body').appendChild(js);
+                            } else {
+                                echarts.dispose(document.getElementById('chart'));
+                                let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
+                                myChart.setOption(res.data.data.chartOptions);
+                                myChart.resize();
+                            }
+                        })
+
                     }
                 }).catch((err) => {
 
@@ -477,6 +491,27 @@
                     }
                 }).catch((err) => {
 
+                })
+            },
+            registerMap(){
+                let map = this.formOptions.moreConfig.map;
+                return new Promise((resolve, reject) => {
+                    if (!map) {
+                        resolve();
+                    } else {
+                        this.$axios.get(this.$api.mapDir, {params: {mapfile: map}}).then((res) => {
+                            echarts.registerMap(map, res.data);
+                            this.$message({
+                                message: `地图（${map}）初始化成功！`,
+                                type: 'success'
+                            });
+                            resolve();
+
+                        }).catch((err) => {
+                            console.log(err);
+                            resolve();
+                        })
+                    }
                 })
             },
             addFilter() {
@@ -561,18 +596,19 @@
                         if (this.formOptions.isSave) {
                             this.$router.push({name: 'ChartList'})
                         }
-                        var diyChart = null
-                        if (this.formOptions.chartType === 'diy') {
-                            let js = document.createElement('script');
-                            js.innerHTML = `${this.formOptions.diy.code};
-                            var diyChart = echarts.init(document.getElementById('chart'), ${this.formOptions.baseConfig.theme});
+                        this.registerMap().then(()=>{
+                            if (this.formOptions.chartType === 'diy') {
+                                let js = document.createElement('script');
+                                js.innerHTML = `${this.formOptions.diy.code};
+                            var diyChart = echarts.init(document.getElementById('chart'), '${this.formOptions.baseConfig.theme}');
                             diyChart.setOption(option)`;
-                            document.querySelector('body').appendChild(js);
-                        } else {
-                            let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
-                            myChart.setOption(res.data.data);
-                            myChart.resize();
-                        }
+                                document.querySelector('body').appendChild(js);
+                            } else {
+                                let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
+                                myChart.setOption(res.data.data);
+                                myChart.resize();
+                            }
+                        })
                     }
                     this.loading = false;
                 }).catch((e) => {
