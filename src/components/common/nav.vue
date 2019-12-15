@@ -52,11 +52,14 @@
 
     .logo {
         height: 100%;
-        width: 100px;
+        width: 155px;
     }
 
     .logo img{
         height: 100%;
+        width: 100%;
+        margin-bottom: 3px;
+        object-fit: contain;
     }
     .common-nav {
         padding: 0 50px;

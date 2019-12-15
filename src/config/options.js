@@ -1,4 +1,4 @@
-let pre_dir = '/static/vue_vision'
+let pre_dir = '/static/vue_vision';
 if (process.env.NODE_ENV === "development") {
     pre_dir = '';
 }
@@ -173,9 +173,10 @@ export default {
         {label: '酷炫边框', value: 'border1', icon: pre_dir + '/img/border1.png'},
     ],
     ASSETS: {
-        logo: pre_dir + '/img/logo-nav.png',
+        logo: pre_dir + '/img/logo2-nav.png',
         sourceIcon: {
             mysql: pre_dir + '/img/MySQL.png',
+            excel: pre_dir + '/img/excel.png',
         }
     }
 };

@@ -1,7 +1,7 @@
 <template>
     <div>
         <common-nav></common-nav>
-        <div style="display: flex;justify-content: space-around;max-width: 950px;margin: 20px auto 0 auto">
+        <div style="display: flex;justify-content: space-around;width: 950px;margin: 20px auto 0 auto">
             <el-radio-group v-model="chartCate" size="mini"
                             @change="chartList">
                 <el-radio-button v-for="cate in cates" :label="cate.value" :key="cate.value">{{cate.label}}
@@ -128,12 +128,14 @@
         line-height: 250px;
         margin: 5px;
         position: relative;
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        transition-duration: 0.4s;
     }
 
     .chart-box:hover {
         box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
+        transform: scale(1.03);
     }
 
     .chart-img {

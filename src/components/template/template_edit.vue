@@ -1,6 +1,7 @@
 <template>
     <div>
-        <common-nav style="position: fixed;top: 0;width: calc(100% - 16px);padding-top: 8px;background-color: #fff;z-index: 9999"></common-nav>
+        <common-nav
+                style="position: fixed;top: 0;width: calc(100% - 16px);padding-top: 8px;background-color: #fff;z-index: 9999"></common-nav>
         <div class="left" v-loading="loading">
             <div style="display: flex;justify-content: space-around;margin: 10px 0;">
                 <el-select v-model="chartCate" placeholder="请选择" size="mini"
@@ -49,7 +50,8 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="背景色" style="height: 28px">
-                        <el-color-picker v-model="templateConfig.backgroundColor" color-format="hex"></el-color-picker>
+                        <el-color-picker v-model="templateConfig.backgroundColor" color-format="hex"
+                                         :predefine="predefineColors"></el-color-picker>
                     </el-form-item>
                     <el-form-item label="宽">
                         <el-input v-model="templateConfig.width" style="width: 80px;"></el-input>
@@ -89,7 +91,7 @@
                         :style="{'background-color': templateConfig.backgroundColor}">
 
                     <grid-item v-for="(item, idx) in layout" class="box"
-                               @resized="rerefshBox(item)"
+                               @resized="refreshBox(item)"
                                dragAllowFrom=".move-btn"
                                :x="item.x"
                                :y="item.y"
@@ -162,7 +164,7 @@
                         </div>
                         <div class="tool-box">
                             <i class="el-icon-delete del-btn" @click="delBox(item)"></i>
-                            <i class="el-icon-refresh refresh-btn" @click="rerefshBox(item)"></i>
+                            <i class="el-icon-refresh refresh-btn" @click="refreshBox(item)"></i>
                             <i class="el-icon-full-screen refresh-btn" @click="changeBorder(item)"></i>
                             <i class="el-icon-setting refresh-btn" @click="item.showMask = !item.showMask"></i>
                             <i class="el-icon-rank move-btn"></i>
@@ -228,6 +230,7 @@
                 showEditSlider: false,
                 editingBox: null,
                 editingItem: null,
+                predefineColors: ['#222974', '#293441', '#FDFCF5', '#323232', '#5B5C6E', '#FEF8EF'],
                 timer: null,
                 htmlCode: '',
                 templateId: '',
@@ -324,20 +327,20 @@
                                             if (res.data.code === '00') {
                                                 let domId = col.domId;
 
-                                                this.initMap(res.data.data.formOptions.moreConfig.map).then(()=>{
-                                                    if (res.data.data.chartType === 'diy') {
-                                                        let js = document.createElement('script');
-                                                        js.innerHTML = `${res.data.data.diyCode};
-                                                        var ${domId} = echarts.init(document.getElementById('${domId}'), ${res.data.data.diyCode.theme});
-                                                        ${domId}.setOption(option)`;
-                                                        document.querySelector('body').appendChild(js);
-                                                        col.chart = echarts.getInstanceByDom(document.getElementById(domId))
+                                                this.initMap(res.data.data.formOptions.moreConfig.map).then(() => {
+                                                    let theme = res.data.data.theme;
+                                                    if (this.templateConfig.theme) {
+                                                        theme = this.templateConfig.theme
+                                                    }
 
+                                                    if (res.data.data.chartType === 'diy') {
+                                                        let jsCode = `${res.data.data.diyCode};
+                                                        let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}');
+                                                        ${domId}.setOption(option);
+                                                        return ${domId}`;
+                                                        let jsFun = new Function(jsCode);
+                                                        col.chart = jsFun();
                                                     } else {
-                                                        let theme = res.data.data.theme;
-                                                        if (this.templateConfig.theme) {
-                                                            theme = this.templateConfig.theme
-                                                        }
                                                         let myChart = echarts.init(document.getElementById(domId), theme);
                                                         myChart.setOption(res.data.data.chartOptions);
                                                         col.chart = myChart;
@@ -380,7 +383,7 @@
                     }
                 }, 3000)
             },
-            initMap(map){
+            initMap(map) {
                 return new Promise((resolve, reject) => {
                     if (!map) {
                         resolve();
@@ -479,16 +482,16 @@
                 });
 
             },
-            rerefshBox(item) {
+            refreshBox(item) {
                 this.$nextTick(() => {
                     for (let row of item.charts) {
                         for (let col of row.cols) {
                             if (col.chart) {
                                 col.chart.resize()
                             }
-                            if (col.slider.length > 0) {
+                            if (col.slider && col.slider.length > 0) {
                                 for (let s of col.slider) {
-                                    let chart = echarts.getInstanceByDom(document.getElementById(s.domId))
+                                    let chart = echarts.getInstanceByDom(document.getElementById(s.domId));
                                     chart.resize()
                                 }
                             }
@@ -538,21 +541,23 @@
 
                             echarts.dispose(document.getElementById(domId));
 
-                            this.initMap(res.data.data.formOptions.moreConfig.map).then(()=>{
-                                if (res.data.data.chartType === 'diy') {
-                                    let js = document.createElement('script');
-                                    js.innerHTML = `${res.data.data.diyCode};
-                                    var ${domId} = echarts.init(document.getElementById('${domId}'), ${res.data.data.diyCode.theme});
-                                    ${domId}.setOption(option)`;
-                                    document.querySelector('body').appendChild(js);
+                            this.initMap(res.data.data.formOptions.moreConfig.map).then(() => {
+                                let theme = res.data.data.theme;
+                                if (this.templateConfig.theme !== '') {
+                                    theme = this.templateConfig.theme
+                                }
 
-                                    this.setChart(domId, echarts.getInstanceByDom(document.getElementById(domId)), chartid)
+                                if (res.data.data.chartType === 'diy') {
+                                    let jsCode = `${res.data.data.diyCode};
+                                    let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}');
+                                    ${domId}.setOption(option);
+                                    return ${domId}`;
+
+                                    let jsFun = new Function(jsCode);
+                                    this.setChart(domId, jsFun(), chartid)
 
                                 } else {
-                                    let theme = res.data.data.theme;
-                                    if (this.templateConfig.theme !== '') {
-                                        theme = this.templateConfig.theme
-                                    }
+
                                     let myChart = echarts.init(document.getElementById(domId), theme);
                                     myChart.setOption(res.data.data.chartOptions);
                                     this.setChart(domId, myChart, chartid)
@@ -706,7 +711,7 @@
                     slider: [],
                     mode: '1',
                 });
-                this.rerefshBox(item)
+                this.refreshBox(item)
             },
             addRight(item, i, j) {
                 this.maxChartId++;
@@ -718,7 +723,7 @@
                     slider: [],
                     mode: '1',
                 });
-                this.rerefshBox(item)
+                this.refreshBox(item)
             },
             addUp(item, i, j) {
                 this.maxChartId++;
@@ -734,7 +739,7 @@
                         mode: '1',
                     }]
                 });
-                this.rerefshBox(item)
+                this.refreshBox(item)
             },
             addDown(item, i, j) {
                 this.maxChartId++;
@@ -750,7 +755,7 @@
                         mode: '1',
                     }]
                 });
-                this.rerefshBox(item)
+                this.refreshBox(item)
             },
             delChart(item, i, j) {
                 if (item.charts[i].cols[j].chart) {
@@ -778,7 +783,7 @@
                         ]
                     })
                 }
-                this.rerefshBox(item)
+                this.refreshBox(item)
             },
         }
     }
@@ -799,6 +804,8 @@
         text-align: center;
         position: fixed;
         top: 49px;
+        z-index: 1000;
+        background-color: #fff;
         overflow: auto;
     }
 

@@ -88,7 +88,6 @@
     }
 
     .temp-box {
-        /*cursor: pointer;*/
         overflow: hidden;
         width: 450px;
         height: 300px;
@@ -96,7 +95,12 @@
         margin: 5px;
         position: relative;
         border-radius: 5px;
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        transition-duration: 0.4s;
+    }
+
+    .temp-box:hover {
+        transform: scale(1.02);
     }
 
     .temp-img {

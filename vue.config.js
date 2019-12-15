@@ -1,15 +1,18 @@
+const CompressionWebpackPlugin = require('compression-webpack-plugin');
+const productionGzipExtensions = ['js', 'css'];
+const isProduction = process.env.NODE_ENV === 'production';
+
 module.exports = {
-    // assetsDir: 'static/vue_vision/',
-    publicPath: process.env.NODE_ENV === 'production'? '/static/vue_vision/': '/',
-    // devServer: {
-    //     disableHostCheck: true,
-    //     // 设置请求代理
-    //     proxy: {
-    //         '/': {
-    //             target: 'http://192.168.43.180:8000',
-    //             ws: false,
-    //             changeOrigin: true
-    //         }
-    //     }
-    // }
+    publicPath: isProduction ? '/static/vue_vision/' : '/',
+    configureWebpack: config => {
+        if (isProduction) {
+            config.plugins.push(new CompressionWebpackPlugin({
+                    algorithm: 'gzip',
+                    test: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$'),
+                    threshold: 10240,  //10 Kb
+                    minRatio: 0.8
+                })
+            )
+        }
+    }
 }

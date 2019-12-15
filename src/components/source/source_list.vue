@@ -21,6 +21,9 @@
                 <div class="source-icon" @click="addMySQL">
                     <img :src="sourceIcon.mysql">
                 </div>
+                <div class="source-icon" @click="">
+                    <img :src="sourceIcon.excel">
+                </div>
             </div>
         </el-dialog>
     </div>

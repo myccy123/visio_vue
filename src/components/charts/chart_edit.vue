@@ -432,16 +432,18 @@
                         this.formOptions = opt;
                         this.getCols();
                         this.initMap().then(()=>{
+                            let theme = this.formOptions.baseConfig.theme;
                             echarts.dispose(document.getElementById('chart'));
                             if (this.formOptions.chartType === 'diy') {
-                                let js = document.createElement('script');
-                                js.innerHTML = `${this.formOptions.diy.code};
-                            var diyChart = echarts.init(document.getElementById('chart'), ${this.formOptions.baseConfig.theme})
-                            diyChart.setOption(option)`;
-                                document.querySelector('body').appendChild(js);
+
+                                let jsCode = `${this.formOptions.diy.code};
+                                    var diyChart = echarts.init(document.getElementById('chart'), '${theme}')
+                                    diyChart.setOption(option)`;
+                                let jsFun = new Function(jsCode);
+                                jsFun();
                             } else {
                                 echarts.dispose(document.getElementById('chart'));
-                                let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
+                                let myChart = echarts.init(document.getElementById('chart'), theme);
                                 myChart.setOption(res.data.data.chartOptions);
                                 myChart.resize();
                             }
@@ -594,17 +596,19 @@
                     echarts.dispose(document.getElementById('chart'));
                     if (res.data.code === '00') {
                         if (this.formOptions.isSave) {
-                            this.$router.push({name: 'ChartList'})
+                            this.$router.push({name: 'ChartList'});
+                            return
                         }
                         this.initMap().then(()=>{
+                            let theme = this.formOptions.baseConfig.theme;
                             if (this.formOptions.chartType === 'diy') {
-                                let js = document.createElement('script');
-                                js.innerHTML = `${this.formOptions.diy.code};
-                            var diyChart = echarts.init(document.getElementById('chart'), '${this.formOptions.baseConfig.theme}');
-                            diyChart.setOption(option)`;
-                                document.querySelector('body').appendChild(js);
+                                let jsCode = `${this.formOptions.diy.code};
+                                            var diyChart = echarts.init(document.getElementById('chart'), '${theme}');
+                                            diyChart.setOption(option)`;
+                                let jsFun = new Function(jsCode);
+                                jsFun();
                             } else {
-                                let myChart = echarts.init(document.getElementById('chart'), this.formOptions.baseConfig.theme);
+                                let myChart = echarts.init(document.getElementById('chart'), theme);
                                 myChart.setOption(res.data.data);
                                 myChart.resize();
                             }
@@ -788,7 +792,7 @@
     }
 
     .board {
-        height: calc(100% - 300px);
+        height: 400px;
         width: calc(90% + 20px);
         margin: 10px auto;
         border: 1px solid #79aec8;
