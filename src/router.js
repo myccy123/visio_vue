@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 // import Home from './components/home/home'
 // import Source from './components/source/source'
 // import addMysql from './components/source/add_mysql'
-// import chart_list from './components/charts/chart_list'
+// import chartList from './components/charts/chart_list'
 // import chartEdit from './components/charts/chart_edit'
 // import templateList from './components/template/template_list'
 // import templateEdit from './components/template/template_edit'
@@ -33,7 +33,7 @@ export default new VueRouter({
     {
       path: '/chart/list',
       name: 'ChartList',
-      // component: chart_list,
+      // component: chartList,
       component: () => import('./components/charts/chart_list'),
     },
     {

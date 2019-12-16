@@ -373,9 +373,9 @@
                         for (let row of item.charts) {
                             for (let col of row.cols) {
                                 if (col.mode === '3' && col.slider.length > 1) {
-                                    let sliderDom = document.getElementById(col.slider[0].domId).parentNode
-                                    let here = parseInt(sliderDom.style.transform.split('%')[0].split('(')[1])
-                                    sliderDom.style.transform = `translateX(-${here + 100}%)`
+                                    let sliderDom = document.getElementById(col.slider[0].domId).parentNode;
+                                    let here = parseInt(sliderDom.style.transform.split('%')[0].split('(')[1]);
+                                    sliderDom.style.transform = `translateX(-${here + 100}%)`;
                                     console.log(sliderDom.style)
                                 }
                             }
@@ -507,10 +507,10 @@
             },
             getChartBox(el) {
                 if (el.className.indexOf('box-div') !== -1) {
-                    let itemid = el.childNodes[0].getAttribute('itemid')
-                    let rowid = el.childNodes[0].getAttribute('rowid')
-                    let colid = el.childNodes[0].getAttribute('colid')
-                    let colObj = this.layout[itemid].charts[rowid].cols[colid]
+                    let itemid = el.childNodes[0].getAttribute('itemid');
+                    let rowid = el.childNodes[0].getAttribute('rowid');
+                    let colid = el.childNodes[0].getAttribute('colid');
+                    let colObj = this.layout[itemid].charts[rowid].cols[colid];
 
                     if (el.childNodes[0].getAttribute('mode') === '3') {
                         this.maxChartId++;
@@ -518,8 +518,8 @@
                             id: this.maxChartId,
                             chartId: '',
                             domId: 'slider_' + this.maxChartId,
-                        }
-                        colObj.slider.push(sliderOjb)
+                        };
+                        colObj.slider.push(sliderOjb);
                         return sliderOjb
                     } else {
                         return colObj
@@ -647,14 +647,14 @@
                             _this.$router.push({name: 'templateList'})
                         }
                     }).catch((err) => {
-                        console.log(err)
+                        console.log(err);
                         _this.loading2 = false;
                     })
                 });
 
             },
             editMode(item, i, j) {
-                let mode = item.charts[i].cols[j].mode
+                let mode = item.charts[i].cols[j].mode;
                 if (mode === '2') {
                     this.editHTML(item, i, j)
                 } else if (mode === '3') {
@@ -663,7 +663,7 @@
             },
             switchMode(cmd, item, i, j) {
                 // item.charts[i].cols[j].mode = cmd
-                this.$set(item.charts[i].cols[j], 'mode', cmd)
+                this.$set(item.charts[i].cols[j], 'mode', cmd);
                 if (cmd === '3') {
                     echarts.dispose(document.getElementById(item.charts[i].cols[j].domId))
                 }
