@@ -116,20 +116,7 @@
                                          :rowid="i"
                                          :colid="j"
                                          style="height: 100%;position: relative;overflow: hidden">
-                                        <template v-if="item.charts[i].cols[j].mode === '3'">
-                                            <div :style="{height: '100%',width: '100%',
-                                            transform: 'translateX(0%)',
-                                            transitionDuration: '0.5s', position: 'relative'}">
-                                                <div style="width: 100%;height: 100%;position: absolute;"
-                                                     :style="{left: `calc(100% * ${k})`}"
-                                                     v-for="(slider, k) in item.charts[i].cols[j].slider"
-                                                     :key="'slider_' + slider.id"
-                                                     :id="'slider_' + slider.id">
-                                                </div>
-                                            </div>
-                                        </template>
-                                        <div v-else
-                                             class="chartCtnClass" :id="'chartWrapper' + col.id"
+                                        <div class="chartCtnClass" :id="col.domId"
                                              style="width: 100%;height: 100%;position: absolute"></div>
                                     </div>
                                     <div v-if="item.showMask" class="arrow-box">
@@ -195,8 +182,22 @@
                     </div>
                 </el-dialog>
 
-                <el-dialog title="设置轮播" :visible.sync="showEditSlider" width="800px" top="50px" :modal="false">
-                    <div class="edit-slider" style="display: flex; justify-content: space-around;">
+                <el-dialog title="设置轮播" :visible.sync="showEditSlider" width="800px" top="50px"
+                           :modal="false">
+                    <div class="edit-slider" style="height: 400px;"
+                         v-if="showEditSlider">
+                        <draggable v-model="editingBox.slider" group="people"
+                                   @start="drag=true" @end="drag=false"
+                                   :options="{animation: 500}"
+                                   style="height: 100%;display: flex;justify-content: center">
+                            <div v-for="(sld, idx) in editingBox.slider" :key="'sld'+idx"
+                                 class="slider-icon">
+                                id: {{sld}}
+                                <i class="el-icon-circle-close"
+                                   style="color: red;position: absolute;top: 0;right: 0;cursor: pointer;"
+                                   @click="delSlder(idx)"></i>
+                            </div>
+                        </draggable>
                     </div>
                 </el-dialog>
             </div>
@@ -213,6 +214,7 @@
     import 'echarts-gl';
     import lodash from 'lodash';
     import html2canvas from 'html2canvas';
+    import draggable from 'vuedraggable'
 
 
     export default {
@@ -222,6 +224,7 @@
             GridLayout: VueGridLayout.GridLayout,
             GridItem: VueGridLayout.GridItem,
             SvgBorder,
+            draggable,
         },
         data() {
             return {
@@ -262,6 +265,7 @@
                                 domId: 'chartWrapper10000',
                                 html: '',
                                 slider: [],
+                                sliderIndex: 0,
                                 mode: '1',
                             }]
                         }
@@ -300,7 +304,7 @@
 
             this.chartList();
             this.customCateList();
-            // this.startTick();
+            this.startTick();
             if (this.$route.query.id) {
                 this.$axios.post(this.$api.getTemplate, {id: this.$route.query.id}).then((res) => {
                     if (res.data.code === '00') {
@@ -373,10 +377,44 @@
                         for (let row of item.charts) {
                             for (let col of row.cols) {
                                 if (col.mode === '3' && col.slider.length > 1) {
-                                    let sliderDom = document.getElementById(col.slider[0].domId).parentNode;
-                                    let here = parseInt(sliderDom.style.transform.split('%')[0].split('(')[1]);
-                                    sliderDom.style.transform = `translateX(-${here + 100}%)`;
-                                    console.log(sliderDom.style)
+                                    let domId = col.domId;
+                                    let dom = document.getElementById(domId);
+                                    if (col.sliderIndex >= col.slider.length) {
+                                        col.sliderIndex = 0
+                                    }
+                                    let chartId = col.slider[col.sliderIndex];
+                                    this.$axios.post(this.$api.getChart, {id: chartId}).then((res) => {
+                                        if (res.data.code === '00') {
+
+
+                                            this.initMap(res.data.data.formOptions.moreConfig.map).then(() => {
+                                                echarts.dispose(dom);
+                                                let theme = res.data.data.theme;
+                                                if (this.templateConfig.theme) {
+                                                    theme = this.templateConfig.theme
+                                                }
+
+                                                if (res.data.data.chartType === 'diy') {
+                                                    let jsCode = `${res.data.data.diyCode};
+                                                        let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}');
+                                                        ${domId}.setOption(option);
+                                                        return ${domId}`;
+                                                    let jsFun = new Function(jsCode);
+                                                    col.chart = jsFun();
+                                                } else {
+                                                    let myChart = echarts.init(document.getElementById(domId), theme);
+                                                    myChart.setOption(res.data.data.chartOptions);
+                                                    col.chart = myChart;
+                                                }
+                                            });
+
+                                        } else {
+                                            this.$message.error(res.data.message)
+                                        }
+                                    }).catch((err) => {
+
+                                    });
+                                    col.sliderIndex++;
                                 }
                             }
                         }
@@ -456,6 +494,7 @@
                                 domId: 'chartWrapper' + this.maxChartId,
                                 html: '',
                                 slider: [],
+                                sliderIndex: 0,
                                 mode: '1',
                             }]
                         }
@@ -489,12 +528,6 @@
                             if (col.chart) {
                                 col.chart.resize()
                             }
-                            if (col.slider && col.slider.length > 0) {
-                                for (let s of col.slider) {
-                                    let chart = echarts.getInstanceByDom(document.getElementById(s.domId));
-                                    chart.resize()
-                                }
-                            }
                         }
                     }
                 })
@@ -505,7 +538,46 @@
             dragEnd(e) {
                 e.dataTransfer.clearData();
             },
-            getChartBox(el) {
+            renderChart(col){
+                if (col.html) {
+                    this.$nextTick(() => {
+                        this.renderHTML(document.getElementById(col.domId), col.html)
+                    })
+                }
+                if (col.chartId !== '') {
+                    this.$axios.post(this.$api.getChart, {id: col.chartId}).then((res) => {
+                        if (res.data.code === '00') {
+                            let domId = col.domId;
+
+                            this.initMap(res.data.data.formOptions.moreConfig.map).then(() => {
+                                let theme = res.data.data.theme;
+                                if (this.templateConfig.theme) {
+                                    theme = this.templateConfig.theme
+                                }
+
+                                if (res.data.data.chartType === 'diy') {
+                                    let jsCode = `${res.data.data.diyCode};
+                                        let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}');
+                                        ${domId}.setOption(option);
+                                        return ${domId}`;
+                                    let jsFun = new Function(jsCode);
+                                    col.chart = jsFun();
+                                } else {
+                                    let myChart = echarts.init(document.getElementById(domId), theme);
+                                    myChart.setOption(res.data.data.chartOptions);
+                                    col.chart = myChart;
+                                }
+                            });
+
+                        } else {
+                            this.$message.error(res.data.message)
+                        }
+                    }).catch((err) => {
+
+                    })
+                }
+            },
+            getChartBox(el, chartid) {
                 if (el.className.indexOf('box-div') !== -1) {
                     let itemid = el.childNodes[0].getAttribute('itemid');
                     let rowid = el.childNodes[0].getAttribute('rowid');
@@ -513,29 +585,21 @@
                     let colObj = this.layout[itemid].charts[rowid].cols[colid];
 
                     if (el.childNodes[0].getAttribute('mode') === '3') {
-                        this.maxChartId++;
-                        let sliderOjb = {
-                            id: this.maxChartId,
-                            chartId: '',
-                            domId: 'slider_' + this.maxChartId,
-                        };
-                        colObj.slider.push(sliderOjb);
-                        return sliderOjb
-                    } else {
-                        return colObj
+                        colObj.slider.push(chartid);
                     }
+                    return colObj
                 } else {
-                    return this.getChartBox(el.parentNode)
+                    return this.getChartBox(el.parentNode, chartid)
                 }
             },
             dropDown(e) {
-                let obj = this.getChartBox(e.target);
+                let chartid = e.dataTransfer.getData('chartid');
+                let obj = this.getChartBox(e.target, chartid);
                 this.$nextTick(() => {
-                    let dom = document.querySelector('#' + obj.domId);
 
+                    let dom = document.querySelector('#' + obj.domId);
                     if (!dom) return;
                     let domId = dom.id;
-                    let chartid = e.dataTransfer.getData('chartid');
                     this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
                         if (res.data.code === '00') {
 
@@ -658,15 +722,13 @@
                 if (mode === '2') {
                     this.editHTML(item, i, j)
                 } else if (mode === '3') {
-                    this.showEditSlider = true
+                    this.editSlider(item, i, j)
                 }
             },
             switchMode(cmd, item, i, j) {
                 // item.charts[i].cols[j].mode = cmd
                 this.$set(item.charts[i].cols[j], 'mode', cmd);
-                if (cmd === '3') {
-                    echarts.dispose(document.getElementById(item.charts[i].cols[j].domId))
-                }
+                echarts.dispose(document.getElementById(item.charts[i].cols[j].domId))
             },
             cmdMap(cmd) {
                 if (cmd === '1') {
@@ -676,6 +738,13 @@
                 } else if (cmd === '3') {
                     return '编辑轮播'
                 }
+            },
+            editSlider(item, i, j) {
+                this.editingBox = item.charts[i].cols[j];
+                this.showEditSlider = true
+            },
+            delSlder(idx) {
+                this.editingBox.slider.splice(idx, 1)
             },
             editHTML(item, i, j) {
                 this.htmlCode = item.charts[i].cols[j].html;
@@ -698,9 +767,6 @@
                     dom.innerHTML = html
                 }
             },
-            editSlider(item, i, j) {
-                this.showEditSlider = true;
-            },
             addLeft(item, i, j) {
                 this.maxChartId++;
                 item.charts[i].cols.splice(j, 0, {
@@ -709,6 +775,7 @@
                     domId: 'chartWrapper' + this.maxChartId,
                     html: '',
                     slider: [],
+                    sliderIndex: 0,
                     mode: '1',
                 });
                 this.refreshBox(item)
@@ -721,6 +788,7 @@
                     domId: 'chartWrapper' + this.maxChartId,
                     html: '',
                     slider: [],
+                    sliderIndex: 0,
                     mode: '1',
                 });
                 this.refreshBox(item)
@@ -736,6 +804,7 @@
                         domId: 'chartWrapper' + this.maxChartId,
                         html: '',
                         slider: [],
+                        sliderIndex: 0,
                         mode: '1',
                     }]
                 });
@@ -752,6 +821,7 @@
                         domId: 'chartWrapper' + this.maxChartId,
                         html: '',
                         slider: [],
+                        sliderIndex: 0,
                         mode: '1',
                     }]
                 });
@@ -778,6 +848,7 @@
                                 domId: 'chartWrapper' + this.maxChartId,
                                 html: '',
                                 slider: [],
+                                sliderIndex: 0,
                                 mode: '1',
                             }
                         ]
@@ -957,6 +1028,26 @@
         height: 100%;
         width: 100%;
         object-fit: contain;
+    }
+
+    .slider-icon {
+        margin: 10px;
+        height: 100px;
+        line-height: 100px;
+        width: 100px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        cursor: move;
+        text-align: center;
+        position: relative;
+
+        -webkit-user-select:none;
+        -moz-user-select:none;
+        -ms-user-select:none;
+        user-select:none;
+    }
+    .ghost {
+        opacity: 0.5;
+        background: #c8ebfb;
     }
 
 </style>
