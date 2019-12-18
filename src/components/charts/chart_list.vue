@@ -31,7 +31,8 @@
                 <img class="chart-img" :src="chart.icon">
                 <div class="mask">
                     <div class="btn-box">
-                        <p style="">id : {{chart.id}}</p>
+                        <p style="font-size: 14px;margin: 0;">{{chart.title?chart.title:'未命名'}}</p>
+                        <p style="font-size: 14px;">id : {{chart.id}}</p>
                         <el-button size="mini" type="primary" class="btns" @click="preview(chart.id)">预览</el-button>
                         <el-button size="mini" type="warning" class="btns" @click="editChart(chart.id)">编辑</el-button>
                         <el-button size="mini" type="danger" class="btns" @click="delChart(chart.id)">删除</el-button>

@@ -12,7 +12,7 @@
                 <img class="temp-img" :src="temp.icon">
                 <div class="mask">
                     <div class="btn-box">
-                        <p style="">{{temp.name}}</p>
+                        <p style="">{{temp.name?temp.name:'未命名'}}</p>
                         <p style="">id : {{temp.id}}</p>
                         <el-button size="mini" type="primary" class="btns" @click="preview(temp.id)">预览</el-button>
                         <el-button size="mini" type="warning" class="btns" @click="editTemplate(temp.id)">编辑</el-button>
