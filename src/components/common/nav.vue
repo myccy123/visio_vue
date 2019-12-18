@@ -3,16 +3,16 @@
 
         <el-menu default-active="1" class="el-menu-demo" mode="horizontal">
             <el-menu-item><div class="logo">
-                <img src="@/assets/img/logo-nav.png">
+                <img :src="logo">
             </div></el-menu-item>
             <el-menu-item index="/" @click="goTo">首页</el-menu-item>
             <el-submenu index="2">
                 <template slot="title">工作台</template>
                 <el-menu-item index="/source" @click="goTo">数据源管理</el-menu-item>
-                <el-menu-item index="/charts" @click="goTo">Chart管理</el-menu-item>
-                <el-menu-item index="2-3">模版管理</el-menu-item>
+                <el-menu-item index="/chart/list/" @click="goTo">Chart管理</el-menu-item>
+                <el-menu-item index="/template/list/" @click="goTo">模版管理</el-menu-item>
             </el-submenu>
-            <el-menu-item index="3">关于我们</el-menu-item>
+<!--            <el-menu-item index="3">关于我们</el-menu-item>-->
             <el-menu-item v-if="!isLogin" class="right-item">登录</el-menu-item>
             <el-submenu v-else class="right-item" index="2">
                 <template slot="title">{{userInfo.user_account}}</template>
@@ -24,13 +24,15 @@
 
 <script>
     import 'element-ui/lib/theme-chalk/display.css';
+    import opt from '../../config/options'
 
     export default {
         name: "commonNav",
         data() {
             return {
                 isLogin: false,
-                userInfo: {}
+                userInfo: {},
+                logo: opt.ASSETS.logo,
             };
         },
         mounted() {
@@ -50,11 +52,14 @@
 
     .logo {
         height: 100%;
-        width: 100px;
+        width: 155px;
     }
 
     .logo img{
         height: 100%;
+        width: 100%;
+        margin-bottom: 3px;
+        object-fit: contain;
     }
     .common-nav {
         padding: 0 50px;
