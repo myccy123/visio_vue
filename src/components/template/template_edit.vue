@@ -320,44 +320,9 @@
                         for (let item of this.layout) {
                             for (let row of item.charts) {
                                 for (let col of row.cols) {
-                                    if (col.html) {
-                                        this.$nextTick(() => {
-                                            this.renderHTML(document.getElementById(col.domId), col.html)
-                                        })
-                                    }
-                                    if (col.chartId !== '') {
-
-                                        this.$axios.post(this.$api.getChart, {id: col.chartId}).then((res) => {
-                                            if (res.data.code === '00') {
-                                                let domId = col.domId;
-
-                                                this.initMap(res.data.data.formOptions.moreConfig.map).then(() => {
-                                                    let theme = res.data.data.theme;
-                                                    if (this.templateConfig.theme) {
-                                                        theme = this.templateConfig.theme
-                                                    }
-
-                                                    if (res.data.data.chartType === 'diy') {
-                                                        let jsCode = `${res.data.data.diyCode};
-                                                        let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}');
-                                                        ${domId}.setOption(option);
-                                                        return ${domId}`;
-                                                        let jsFun = new Function(jsCode);
-                                                        col.chart = jsFun();
-                                                    } else {
-                                                        let myChart = echarts.init(document.getElementById(domId), theme);
-                                                        myChart.setOption(res.data.data.chartOptions);
-                                                        col.chart = myChart;
-                                                    }
-                                                });
-
-                                            } else {
-                                                this.$message.error(res.data.message)
-                                            }
-                                        }).catch((err) => {
-
-                                        })
-                                    }
+                                    this.$nextTick(()=>{
+                                        this.renderChart(col)
+                                    })
                                 }
                             }
                         }
@@ -382,38 +347,8 @@
                                     if (col.sliderIndex >= col.slider.length) {
                                         col.sliderIndex = 0
                                     }
-                                    let chartId = col.slider[col.sliderIndex];
-                                    this.$axios.post(this.$api.getChart, {id: chartId}).then((res) => {
-                                        if (res.data.code === '00') {
-
-
-                                            this.initMap(res.data.data.formOptions.moreConfig.map).then(() => {
-                                                echarts.dispose(dom);
-                                                let theme = res.data.data.theme;
-                                                if (this.templateConfig.theme) {
-                                                    theme = this.templateConfig.theme
-                                                }
-
-                                                if (res.data.data.chartType === 'diy') {
-                                                    let jsCode = `${res.data.data.diyCode};
-                                                        let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}');
-                                                        ${domId}.setOption(option);
-                                                        return ${domId}`;
-                                                    let jsFun = new Function(jsCode);
-                                                    col.chart = jsFun();
-                                                } else {
-                                                    let myChart = echarts.init(document.getElementById(domId), theme);
-                                                    myChart.setOption(res.data.data.chartOptions);
-                                                    col.chart = myChart;
-                                                }
-                                            });
-
-                                        } else {
-                                            this.$message.error(res.data.message)
-                                        }
-                                    }).catch((err) => {
-
-                                    });
+                                    col.chartId = col.slider[col.sliderIndex];
+                                    this.renderChart(col);
                                     col.sliderIndex++;
                                 }
                             }
@@ -465,10 +400,22 @@
                 })
             },
             switchTheme(v) {
-                for (let t of this.themeOptions) {
-                    if (t.value === v) {
-                        this.templateConfig.backgroundColor = t.backgroundColor;
-                        break;
+                if(v === '') {
+                    this.templateConfig.backgroundColor = '';
+                } else {
+                    for (let t of this.themeOptions) {
+                        if (t.value === v) {
+                            this.templateConfig.backgroundColor = t.backgroundColor;
+                            break;
+                        }
+                    }
+                }
+
+                for(let item of this.layout){
+                    for(let row of item.charts){
+                        for(let col of row.cols){
+                            this.renderChart(col)
+                        }
                     }
                 }
             },
@@ -539,9 +486,10 @@
                 e.dataTransfer.clearData();
             },
             renderChart(col){
+                let dom = document.getElementById(col.domId);
                 if (col.html) {
                     this.$nextTick(() => {
-                        this.renderHTML(document.getElementById(col.domId), col.html)
+                        this.renderHTML(dom, col.html)
                     })
                 }
                 if (col.chartId !== '') {
@@ -550,6 +498,7 @@
                             let domId = col.domId;
 
                             this.initMap(res.data.data.formOptions.moreConfig.map).then(() => {
+                                echarts.dispose(dom);
                                 let theme = res.data.data.theme;
                                 if (this.templateConfig.theme) {
                                     theme = this.templateConfig.theme
@@ -563,7 +512,7 @@
                                     let jsFun = new Function(jsCode);
                                     col.chart = jsFun();
                                 } else {
-                                    let myChart = echarts.init(document.getElementById(domId), theme);
+                                    let myChart = echarts.init(dom, theme);
                                     myChart.setOption(res.data.data.chartOptions);
                                     col.chart = myChart;
                                 }
@@ -595,61 +544,8 @@
             dropDown(e) {
                 let chartid = e.dataTransfer.getData('chartid');
                 let obj = this.getChartBox(e.target, chartid);
-                this.$nextTick(() => {
-
-                    let dom = document.querySelector('#' + obj.domId);
-                    if (!dom) return;
-                    let domId = dom.id;
-                    this.$axios.post(this.$api.getChart, {id: chartid}).then((res) => {
-                        if (res.data.code === '00') {
-
-                            echarts.dispose(document.getElementById(domId));
-
-                            this.initMap(res.data.data.formOptions.moreConfig.map).then(() => {
-                                let theme = res.data.data.theme;
-                                if (this.templateConfig.theme !== '') {
-                                    theme = this.templateConfig.theme
-                                }
-
-                                if (res.data.data.chartType === 'diy') {
-                                    let jsCode = `${res.data.data.diyCode};
-                                    let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}');
-                                    ${domId}.setOption(option);
-                                    return ${domId}`;
-
-                                    let jsFun = new Function(jsCode);
-                                    this.setChart(domId, jsFun(), chartid)
-
-                                } else {
-
-                                    let myChart = echarts.init(document.getElementById(domId), theme);
-                                    myChart.setOption(res.data.data.chartOptions);
-                                    this.setChart(domId, myChart, chartid)
-                                }
-                            });
-
-                        } else {
-                            this.$message.error(res.data.message)
-                        }
-                    }).catch((err) => {
-                        console.log(err)
-                    })
-                })
-
-            },
-            setChart(boxId, chart, chartId) {
-                for (let item of this.layout) {
-                    for (let row of item.charts) {
-                        for (let col of row.cols) {
-                            if (col.domId === boxId) {
-                                col.chart = chart;
-                                col.chartId = chartId;
-                                // col.html = '';
-                                return
-                            }
-                        }
-                    }
-                }
+                obj.chartId = chartid;
+                this.renderChart(obj)
             },
             publish() {
                 this.loading2 = true;
