@@ -44,14 +44,14 @@
                 this.$router.push({name: 'templateEdit'})
             },
             templateList() {
-                this.loading = true
+                this.loading = true;
                 this.$axios.post(this.$api.templateList, {userid: ''}).then((res) => {
                     if (res.data.code === '00') {
                         this.templates = res.data.data
                     }
                     this.loading = false
                 }).catch((err) => {
-                    console.log(err)
+                    console.log(err);
                     this.loading = false
                 })
             },
@@ -115,8 +115,8 @@
         width: 100%;
         opacity: 0;
         position: absolute;
-        top: 0px;
-        left: 0px;
+        top: 0;
+        left: 0;
     }
 
     .mask:hover {
@@ -125,8 +125,8 @@
         background: rgba(0, 0, 0, 0.4);
         opacity: 1;
         position: absolute;
-        top: 0px;
-        left: 0px;
+        top: 0;
+        left: 0;
     }
 
     .btn-box {

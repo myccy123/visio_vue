@@ -135,7 +135,8 @@
                         <el-dialog title="编辑代码" :visible.sync="showEditCode" width="800px" top="50px"
                                    :modal="false" :close-on-click-modal="false">
                             <div class="edit-code">
-                                <el-input type="textarea" v-model="formOptions.diy.code">{{formOptions.diy.code}}</el-input>
+                                <el-input type="textarea" v-model="formOptions.diy.code">{{formOptions.diy.code}}
+                                </el-input>
                             </div>
                             <span slot="footer">
                                 <el-button @click="showEditCode = false" size="mini">取 消</el-button>
@@ -431,7 +432,7 @@
                         opt.isSave = false;
                         this.formOptions = opt;
                         this.getCols();
-                        this.initMap().then(()=>{
+                        this.initMap().then(() => {
                             let theme = this.formOptions.baseConfig.theme;
                             echarts.dispose(document.getElementById('chart'));
                             if (this.formOptions.chartType === 'diy') {
@@ -445,7 +446,6 @@
                                 echarts.dispose(document.getElementById('chart'));
                                 let myChart = echarts.init(document.getElementById('chart'), theme);
                                 myChart.setOption(res.data.data.chartOptions);
-                                myChart.resize();
                             }
                         })
 
@@ -495,7 +495,7 @@
 
                 })
             },
-            initMap(){
+            initMap() {
                 let map = this.formOptions.moreConfig.map;
                 return new Promise((resolve, reject) => {
                     if (!map) {
@@ -529,7 +529,7 @@
             },
             filterColChange(v, idx) {
                 for (let i = 0; i < this.colOptions.length; i++) {
-                    if (this.colOptions[i].colname == v && this.colOptions[i].coltype.search("date") != -1) {
+                    if (this.colOptions[i].colname === v && this.colOptions[i].coltype.search("date") !== -1) {
                         this.formOptions.filter[idx].filterType = 'date';
                         return
                     } else {
@@ -553,6 +553,15 @@
                     this.formOptions.diy.code = '';
                     this.formOptions.diy.js = '';
                     this.genChart()
+                }
+            },
+            getCateOfType(){
+                for(let cate in this.types) {
+                    for(let tp of this.types[cate]) {
+                        if(tp.value === this.formOptions.chartType) {
+                            return cate
+                        }
+                    }
                 }
             },
             addY() {
@@ -599,7 +608,7 @@
                             this.$router.push({name: 'ChartList'});
                             return
                         }
-                        this.initMap().then(()=>{
+                        this.initMap().then(() => {
                             let theme = this.formOptions.baseConfig.theme;
                             if (this.formOptions.chartType === 'diy') {
                                 let jsCode = `${this.formOptions.diy.code};
@@ -625,6 +634,7 @@
                 if (chart) {
                     this.formOptions.isSave = true;
                     this.formOptions.baseConfig.icon = chart.getDataURL();
+                    this.formOptions.chartCate = this.getCateOfType();
                     this.genChart()
                 } else {
                     this.$message.error('图片未生成，无法保存！');
@@ -706,7 +716,7 @@
         font-weight: 500;
         text-align: center;
         color: #909399;
-        margin: 0px;
+        margin: 0;
         padding: 5px;
         background-color: #F2F6FC;
     }
@@ -773,7 +783,7 @@
         font-weight: 500;
         color: #6b6fce;
         text-align: center;
-        margin: 0px;
+        margin: 0;
         padding: 2px;
         background-color: #F2F6FC;
     }
@@ -821,13 +831,13 @@
         cursor: pointer;
         color: red;
         position: absolute;
-        top: 0px;
+        top: 0;
         right: 11px;
     }
 
     .dim {
         width: 200px;
-        margin: 10px auto 0px auto;
+        margin: 10px auto 0 auto;
         max-height: 455px;
         border-top: 2px solid #79aec8;
         border-bottom: 1px solid #79aec8;

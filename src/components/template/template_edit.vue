@@ -150,16 +150,30 @@
                             </div>
                         </div>
                         <div class="tool-box">
-                            <i class="el-icon-delete del-btn" @click="delBox(item)"></i>
-                            <i class="el-icon-refresh refresh-btn" @click="refreshBox(item)"></i>
-                            <i class="el-icon-full-screen refresh-btn" @click="changeBorder(item)"></i>
-                            <i class="el-icon-setting refresh-btn" @click="item.showMask = !item.showMask"></i>
+                            <el-tooltip effect="dark" content="删除" placement="top">
+                                <i class="el-icon-delete del-btn" @click="delBox(item)"></i>
+                            </el-tooltip>
+                            <el-tooltip effect="dark" content="刷新" placement="top">
+                                <i class="el-icon-refresh refresh-btn" @click="refreshBox(item)"></i>
+                            </el-tooltip>
+                            <el-tooltip effect="dark" content="设置边框" placement="top">
+                                <i class="el-icon-full-screen refresh-btn" @click="changeBorder(item)"></i>
+                            </el-tooltip>
+                            <el-tooltip effect="dark" content="设置容器" placement="top">
+                                <i class="el-icon-setting refresh-btn" @click="item.showMask = !item.showMask"></i>
+                            </el-tooltip>
                             <i class="el-icon-rank move-btn"></i>
                         </div>
                         <SvgBorder v-if="item.svgBorder == 'border1' || !item.svgBorder"
                                    style="position: absolute;z-index: 97"
                                    :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'#fff'"
+                                   :borderColor="templateConfig.borderColor"
                                    :svgKey="'svg-filter-' + item.i"></SvgBorder>
+                        <SvgBorder2 v-else-if="item.svgBorder == 'border2'"
+                                    style="position: absolute;z-index: 97"
+                                    :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'#fff'"
+                                    :borderColor="templateConfig.borderColor"
+                                    :svgKey="'svg-filter2-' + item.i"></SvgBorder2>
                     </grid-item>
                 </grid-layout>
 
@@ -173,10 +187,25 @@
                     </span>
                 </el-dialog>
 
-                <el-dialog title="选择边框" :visible.sync="showEditBorder" width="800px" top="50px" :modal="false">
+                <el-dialog title="选择边框" :visible.sync="showEditBorder" width="800px" top="50px" :modal="false"
+                           class="border-dialog">
+                    <el-color-picker v-model="templateConfig.borderColor" color-format="hex"
+                                     :predefine="predefineColors" size="mini"></el-color-picker>
                     <div class="edit-border" style="display: flex; justify-content: space-around;">
                         <div v-for="b in borderOptions" class="source-icon" @click="confirmBorder(b.value)">
-                            <img :src="b.icon">
+                            <div v-if="b.value == 'border0'"
+                                 style="height: 100%;width: 100%;border: 1px dashed #1586ee;position: absolute;z-index: 197">
+                            </div>
+                            <SvgBorder v-else-if="b.value == 'border1' && showEditBorder"
+                                       style="position: absolute;z-index: 197"
+                                       bgColor="transparent"
+                                       :borderColor="templateConfig.borderColor"
+                                       :svgKey="'svg-filter-demo-' + b.value"></SvgBorder>
+                            <SvgBorder2 v-else-if="b.value == 'border2' && showEditBorder"
+                                        style="position: absolute;z-index: 197"
+                                        bgColor="transparent"
+                                        :borderColor="templateConfig.borderColor"
+                                        :svgKey="'svg-filter-demo2-' + b.value"></SvgBorder2>
                             <span>{{b.label}}</span>
                         </div>
                     </div>
@@ -208,6 +237,7 @@
 <script>
     import commonNav from '../common/nav';
     import SvgBorder from '../common/SvgBorder';
+    import SvgBorder2 from '../common/SvgBorder2';
     import opt from '../../config/options';
     import VueGridLayout from 'vue-grid-layout';
     import echarts from "echarts";
@@ -223,7 +253,7 @@
             commonNav,
             GridLayout: VueGridLayout.GridLayout,
             GridItem: VueGridLayout.GridItem,
-            SvgBorder,
+            SvgBorder, SvgBorder2,
             draggable,
         },
         data() {
@@ -246,6 +276,7 @@
                     width: '',
                     height: '',
                     theme: '',
+                    borderColor: '#00c0FF',
                 },
                 layout: [{
                     "x": 0,
@@ -320,7 +351,7 @@
                         for (let item of this.layout) {
                             for (let row of item.charts) {
                                 for (let col of row.cols) {
-                                    this.$nextTick(()=>{
+                                    this.$nextTick(() => {
                                         this.renderChart(col)
                                     })
                                 }
@@ -400,7 +431,7 @@
                 })
             },
             switchTheme(v) {
-                if(v === '') {
+                if (v === '') {
                     this.templateConfig.backgroundColor = '';
                 } else {
                     for (let t of this.themeOptions) {
@@ -411,9 +442,9 @@
                     }
                 }
 
-                for(let item of this.layout){
-                    for(let row of item.charts){
-                        for(let col of row.cols){
+                for (let item of this.layout) {
+                    for (let row of item.charts) {
+                        for (let col of row.cols) {
                             this.renderChart(col)
                         }
                     }
@@ -485,7 +516,7 @@
             dragEnd(e) {
                 e.dataTransfer.clearData();
             },
-            renderChart(col){
+            renderChart(col) {
                 let dom = document.getElementById(col.domId);
                 if (col.html) {
                     this.$nextTick(() => {
@@ -589,6 +620,7 @@
                                 width: _this.templateConfig.width,
                                 backgroundColor: _this.templateConfig.backgroundColor,
                                 theme: _this.templateConfig.theme,
+                                borderColor: _this.templateConfig.borderColor,
                                 name: _this.templateConfig.name,
                                 offsetHeight: _this.$refs.layout.$el.offsetHeight,
                                 offsetWidth: _this.$refs.layout.$el.offsetWidth,
@@ -906,13 +938,15 @@
 
     .source-icon {
         height: 100px;
+        line-height: 100px;
         width: 100px;
         margin: 20px;
-        padding: 20px;
+        /*padding: 20px;*/
         text-align: center;
+        position: relative;
         cursor: pointer;
         border-radius: 5px;
-        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        /*box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);*/
         transition: .3s;
     }
 
@@ -936,11 +970,12 @@
         text-align: center;
         position: relative;
 
-        -webkit-user-select:none;
-        -moz-user-select:none;
-        -ms-user-select:none;
-        user-select:none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
+
     .ghost {
         opacity: 0.5;
         background: #c8ebfb;
@@ -951,6 +986,10 @@
 <style>
     .vue-resizable-handle {
         z-index: 99 !important;
+    }
+
+    .border-dialog > .el-dialog .el-dialog__body {
+        text-align: center;
     }
 
     .chart-btns .el-button-group .el-button:first-child {

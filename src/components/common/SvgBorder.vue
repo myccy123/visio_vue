@@ -16,27 +16,27 @@
                 filterUnits="userSpaceOnUse"
             >
                 <feGaussianBlur result="blur" stdDeviation="5.333" in="SourceAlpha" />
-                <feFlood result="flood" flood-color="#1c92ff" flood-opacity="0.38" />
+                <feFlood result="flood" :flood-color="borderColor" flood-opacity="0.38" />
                 <feComposite result="composite-2" operator="out" in2="blur" />
                 <feComposite result="composite" operator="in" in2="SourceAlpha" />
                 <feBlend result="blend" mode="screen" in2="SourceGraphic" />
             </filter>
 
-            <g id="layer101" :filter="'url(#'+svgKey+')'" stroke="none" :fill='bgColor'>
+            <g id="layer101" :filter="'url(#'+svgKey+')'" stroke="none" :fill="bgColor">
                 <path
                     ref="svgOutline"
-                    :style="{strokeWidth: '1px',stroke: svgColor }"
+                    :style="{strokeWidth: '1px',stroke: borderColor }"
                 />
                 <!-- 左上 -->
-                <path ref="svgLT" d :style="{fill:svgColor}" />
-                <path ref="svgRT" d :style="{fill:svgColor}" />
-                <path ref="svgLB" d :style="{fill:svgColor}" />
-                <path ref="svgRB" d :style="{fill:svgColor}" />
+                <path ref="svgLT" d :style="{fill:borderColor}" />
+                <path ref="svgRT" d :style="{fill:borderColor}" />
+                <path ref="svgLB" d :style="{fill:borderColor}" />
+                <path ref="svgRB" d :style="{fill:borderColor}" />
 
                 <path
                     ref="svgAnimationline"
                     :class='animationClass'
-                    :style="{strokeWidth: '1px',stroke: animationColor }"
+                    :style="{strokeWidth: '1px',stroke: borderColor }"
                 />
             </g>
             
@@ -55,15 +55,17 @@ export default {
         svgKey:{
             type:String
         },
-        bgColor:{
-            type:String,
-            default:'#fff'
-        }
+        bgColor: {
+            type: String,
+            default: 'transparent',
+        },
+        borderColor: {
+            type: String,
+            default: '#00c0FF'
+        },
     },
     data() {
         return {
-            svgColor: "rgba(21,134,238,1)",
-            animationColor:'#00c0FF',
             animationClass:'border-animation'
         }
     },
@@ -198,7 +200,7 @@ export default {
 .border-animation {
     stroke-dasharray: 50%;
     stroke-dashoffset: 0;
-    animation: borderAnimation 4s linear infinite;
+    animation: borderAnimation 3s linear infinite;
 }
 @keyframes borderAnimation {
     from {
