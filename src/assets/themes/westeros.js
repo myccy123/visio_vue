@@ -28,7 +28,7 @@
             "#a5e7f0",
             "#cbb0e3"
         ],
-        "backgroundColor": "transparent",
+        "backgroundColor": "",
         "textStyle": {},
         "title": {
             "textStyle": {

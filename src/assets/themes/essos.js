@@ -28,7 +28,8 @@
             "#f2d643",
             "#ebdba4"
         ],
-        "backgroundColor": "#f2eabf",
+        "backgroundColor": "",
+        // "backgroundColor": "#f2eabf",
         "textStyle": {},
         "title": {
             "textStyle": {
