@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import store from './store'
 import urls from './config/urls'
 import axios from 'axios'
 import ElementUI from 'element-ui';
@@ -48,7 +47,6 @@ router.beforeEach((to, from, next) => {
 
 new Vue({
     router,
-    store,
     render: function (h) {
         return h(App)
     }
