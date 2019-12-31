@@ -21,13 +21,13 @@
                     <el-input v-model="mysqlInfo.user"></el-input>
                 </el-form-item>
                 <el-form-item label="密码">
-                    <el-input v-model="mysqlInfo.passWord"></el-input>
+                    <el-input v-model="mysqlInfo.passWord" show-password></el-input>
                 </el-form-item>
                 <el-form-item label="端口">
                     <el-input v-model="mysqlInfo.port"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" style="width: 200px;" @click="next">下一步</el-button>
+                    <el-button type="primary" style="width: 200px;" @click="next" :loading="lding">下一步</el-button>
                 </el-form-item>
             </el-form>
             <el-form v-show="addMysqlStep===1" :model="mysqlInfo" label-width="120px" size="mini"
@@ -38,7 +38,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="info" style="width: 100px;" @click="previous">上一步</el-button>
-                    <el-button :loading="lding" :disabled="!canSave" type="primary"
+                    <el-button :loading="lding2" :disabled="!canSave" type="primary"
                                style="width: 100px;margin-left: 30px;" @click="save">保存
                     </el-button>
                 </el-form-item>
@@ -68,6 +68,7 @@
                 },
                 dbTable: [],
                 lding: false,
+                lding2: false,
                 options: []
             }
         },
@@ -78,6 +79,7 @@
         },
         methods: {
             next() {
+                this.lding = true;
                 this.$axios.post(this.$api.mysqlGetDb, this.mysqlInfo).then((res) => {
                     if (res.data.code === '00') {
                         for (let db in res.data.data) {
@@ -85,7 +87,7 @@
                                 value: db,
                                 label: db,
                                 children: []
-                            }
+                            };
                             for (let table of res.data.data[db]) {
                                 tmp.children.push({
                                     value: table,
@@ -94,24 +96,40 @@
                             }
                             this.options.push(tmp)
                         }
+                        this.addMysqlStep++;
+                    } else {
+                        this.$message({
+                            message: res.data.message,
+                            type: 'error',
+                            showClose: true,
+                            duration: 0,
+                        });
                     }
+                    this.lding = false;
                 }).catch((err) => {
-
+                    this.$message({
+                        message: '无法连接到数据库！请确认网络通畅,用户名密码正确,且有足够权限。',
+                        type: 'error',
+                        showClose: true,
+                        duration: 0,
+                    });
+                    this.lding = false;
                 })
-                this.addMysqlStep++;
             },
             previous() {
                 this.addMysqlStep--;
             },
             save() {
+                this.lding2 = true;
                 this.mysqlInfo.db = this.dbTable[0];
                 this.mysqlInfo.table = this.dbTable[1];
                 this.$axios.post(this.$api.mysqlSave, this.mysqlInfo).then((res) => {
                     if (res.data.code === '00') {
                         this.$router.replace({name: 'source'})
                     }
+                    this.lding2 = false;
                 }).catch((err) => {
-
+                    this.lding2 = false;
                 })
 
             },

@@ -6,34 +6,45 @@
             <h2 class="src-name" style="padding-top: 8px;text-align: center;">数据源详情</h2>
             <el-form :model="srcInfo" label-width="120px" size="mini">
                 <el-form-item label="数据源名称">
-                    <el-input v-model="srcInfo.data_name"></el-input>
+                    <el-input v-model="srcInfo.data_name" readonly></el-input>
                 </el-form-item>
                 <el-form-item label="HOST / IP">
-                    <el-input v-model="srcInfo.db_host"></el-input>
+                    <el-input v-model="srcInfo.db_host" readonly></el-input>
                 </el-form-item>
                 <el-form-item label="用户名">
-                    <el-input v-model="srcInfo.db_user"></el-input>
+                    <el-input v-model="srcInfo.db_user" readonly></el-input>
                 </el-form-item>
                 <el-form-item label="密码">
-                    <el-input v-model="srcInfo.db_password"></el-input>
+                    <el-input v-model="srcInfo.db_password" show-password readonly></el-input>
                 </el-form-item>
                 <el-form-item label="端口">
-                    <el-input v-model="srcInfo.db_port"></el-input>
+                    <el-input v-model="srcInfo.db_port" readonly></el-input>
                 </el-form-item>
                 <el-form-item label="库 / 表">
-                    <el-input v-model="srcInfo.port"></el-input>
+                    <el-input v-model="dbDotTable" readonly></el-input>
                 </el-form-item>
-                <el-form-item v-show="srcValid">
-                    <el-alert style="width: 180px; margin: auto; padding: 0;"
+                <el-form-item>
+                    <el-alert v-if="srcValid === 'success'"
+                              style="width: 180px; margin: auto; padding: 0;"
                               title="数据源可用"
                               show-icon
                               :closable="false"
                               type="success">
                     </el-alert>
-                </el-form-item>
-                <el-form-item>
-<!--                    <el-button type="primary">修改</el-button>-->
-<!--                    <el-button type="primary">主要按钮</el-button>-->
+                    <el-alert v-else-if="srcValid === 'fail'"
+                              style="width: 180px; margin: auto; padding: 0;"
+                              title="数据源不可用"
+                              show-icon
+                              :closable="false"
+                              type="error">
+                    </el-alert>
+                    <el-alert v-else
+                              style="width: 180px; margin: auto; padding: 0;"
+                              title="未选择数据源"
+                              show-icon
+                              :closable="false"
+                              type="info">
+                    </el-alert>
                 </el-form-item>
             </el-form>
         </div>
@@ -69,12 +80,16 @@
                     db_port: '',
                     db_name: '',
                     table_name: '',
-                    data_name: '',
                     id: ''
                 },
                 srcValid: false,
                 rows: [],
                 colnames: []
+            }
+        },
+        computed: {
+            dbDotTable() {
+                return `${this.srcInfo.db_name}.${this.srcInfo.table_name}`
             }
         },
         mounted() {
@@ -93,10 +108,10 @@
                     port: this.srcInfo.db_port,
                 };
                 this.$axios.post(this.$api.mysqlCheck, data).then((res) => {
-                    if (res.data.code === '00') {
-                        this.srcValid = true
+                    if(res.data.code === '00'){
+                        this.srcValid = 'success'
                     } else {
-                        this.srcValid = false
+                        this.srcValid = 'fail'
                     }
                 }).catch((err) => {
 
@@ -118,9 +133,9 @@
                         let columns = res.data.data.columns;
                         let rows = res.data.data.rows;
                         this.colnames = columns;
-                        for(let row of rows) {
+                        for (let row of rows) {
                             let tmp = {};
-                            for(let i=0; i < row.length; i++) {
+                            for (let i = 0; i < row.length; i++) {
                                 tmp[columns[i]] = row[i]
                             }
                             this.rows.push(tmp)
