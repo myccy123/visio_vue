@@ -2,7 +2,7 @@
     <div>
 
         <el-menu default-active="1" class="el-menu-demo" mode="horizontal">
-            <el-menu-item><div class="logo">
+            <el-menu-item index="logo" @click="goTo"><div class="logo">
                 <img :src="logo">
             </div></el-menu-item>
             <el-menu-item index="/" @click="goTo">首页</el-menu-item>
@@ -40,8 +40,12 @@
         },
         methods: {
             goTo(e) {
-                if(this.$route.path != e.index) {
-                    this.$router.replace(e.index)
+                if(this.$route.path !== e.index) {
+                    if (e.index === 'logo') {
+                        this.$router.replace({name: 'index'})
+                    } else{
+                        this.$router.replace(e.index)
+                    }
                 }
             },
         }
