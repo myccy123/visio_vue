@@ -22,7 +22,6 @@ axios.defaults.withCredentials = false;
 Vue.prototype.$axios = axios;
 Vue.prototype.$bus = globalBus;
 Vue.prototype.$api = urls;
-Vue.prototype.$store = store;
 
 router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
