@@ -436,7 +436,7 @@
                             let theme = this.formOptions.baseConfig.theme;
                             echarts.dispose(document.getElementById('chart'));
                             if (this.formOptions.chartType === 'diy') {
-
+                                this.defTab = 'fourth';
                                 let jsCode = `${this.formOptions.diy.code};
                                     var diyChart = echarts.init(document.getElementById('chart'), '${theme}')
                                     diyChart.setOption(option)`;
