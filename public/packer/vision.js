@@ -1,5 +1,6 @@
 import echarts from "echarts";
 import 'echarts-gl';
+import 'echarts/extension/bmap/bmap'
 import lodash from 'lodash';
 import axios from 'axios'
 

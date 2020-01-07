@@ -35,13 +35,13 @@
                                 <el-input class="chart-base-info" v-model="formOptions.baseConfig.title"
                                           @blur="genChart"></el-input>
                             </el-form-item>
-                            <el-form-item label="分类">
-                                <el-input class="chart-base-info" v-model="formOptions.baseConfig.cate"
-                                          placeholder="未分类"></el-input>
-                            </el-form-item>
                             <el-form-item label="副标题">
                                 <el-input class="chart-base-info" v-model="formOptions.baseConfig.subTitle"
                                           @blur="genChart"></el-input>
+                            </el-form-item>
+                            <el-form-item label="分类">
+                                <el-input class="chart-base-info" v-model="formOptions.baseConfig.cate"
+                                          placeholder="未分类"></el-input>
                             </el-form-item>
                             <el-form-item label="主题">
                                 <el-select v-model="formOptions.baseConfig.theme"
@@ -359,8 +359,6 @@
     import CommonNav from "../common/nav";
     import options from "../../config/options"
     import echarts from "echarts"
-    import 'echarts/map/js/china'
-    import 'echarts/map/js/world'
     import 'echarts-gl';
     import 'echarts/extension/bmap/bmap'
     import ResizeObserver from 'resize-observer-polyfill';
@@ -611,7 +609,7 @@
                         this.initMap().then(() => {
                             let theme = this.formOptions.baseConfig.theme;
                             if (this.formOptions.chartType === 'diy') {
-                                let jsCode = `${this.formOptions.diy.code};
+                                let jsCode = `${res.data.data};
                                             var diyChart = echarts.init(document.getElementById('chart'), '${theme}');
                                             diyChart.setOption(option)`;
                                 let jsFun = new Function(jsCode);

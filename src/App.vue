@@ -35,4 +35,7 @@ ul{
     background-color: hsla(220,4%,58%,.5);
     border-radius: 4px;
 }
+.anchorBL {
+    display: none!important;
+}
 </style>

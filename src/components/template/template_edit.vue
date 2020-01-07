@@ -242,6 +242,7 @@
     import VueGridLayout from 'vue-grid-layout';
     import echarts from "echarts";
     import 'echarts-gl';
+    import 'echarts/extension/bmap/bmap'
     import lodash from 'lodash';
     import html2canvas from 'html2canvas';
     import draggable from 'vuedraggable'

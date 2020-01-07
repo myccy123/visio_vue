@@ -77,6 +77,20 @@ export default {
                 js: pre_dir + '/diyjs/example_bmap.js'
             },
             {
+                name: '百度地图',
+                value: 'diy',
+                icon: pre_dir + '/img/map-polygon.jpg',
+                type: 'mapPot',
+                js: pre_dir + '/diyjs/example_bmap2.js'
+            },
+            {
+                name: '路线图',
+                value: 'diy',
+                icon: pre_dir + '/img/mapline.png',
+                type: 'mapPot',
+                js: pre_dir + '/diyjs/example_mapline.js'
+            },
+            {
                 name: '热力图(GEO)',
                 value: 'diy',
                 icon: pre_dir + '/img/heatmap-bmap.jpg',
