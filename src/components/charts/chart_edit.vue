@@ -32,16 +32,18 @@
                         <el-form ref="form" :inline="true" :model="formOptions.baseConfig" size="mini"
                                  label-width="80px" style="text-align: left;">
                             <el-form-item label="主标题">
-                                <el-input class="chart-base-info" v-model="formOptions.baseConfig.title"
+                                <el-input v-model="formOptions.baseConfig.title"
                                           @blur="genChart"></el-input>
                             </el-form-item>
                             <el-form-item label="副标题">
-                                <el-input class="chart-base-info" v-model="formOptions.baseConfig.subTitle"
+                                <el-input v-model="formOptions.baseConfig.subTitle"
                                           @blur="genChart"></el-input>
                             </el-form-item>
                             <el-form-item label="分类">
-                                <el-input class="chart-base-info" v-model="formOptions.baseConfig.cate"
-                                          placeholder="未分类"></el-input>
+                                <el-autocomplete v-model="formOptions.baseConfig.cate"
+                                                 style="width: 185px;"
+                                          :fetch-suggestions="querySearchAsync" clearable
+                                          placeholder="未分类"></el-autocomplete>
                             </el-form-item>
                             <el-form-item label="主题">
                                 <el-select v-model="formOptions.baseConfig.theme"
@@ -488,6 +490,16 @@
                 this.$axios.post(this.$api.sourceDetail, {id: this.formOptions.srcid}).then((res) => {
                     if (res.data.code === '00') {
                         this.colOptions = res.data.data
+                    }
+                }).catch((err) => {
+
+                })
+            },
+            querySearchAsync(queryString, cb) {
+                console.log(queryString)
+                this.$axios.post(this.$api.customCateQuery, {str: queryString}).then((res) => {
+                    if (res.data.code === '00') {
+                        cb(res.data.data)
                     }
                 }).catch((err) => {
 

@@ -3,7 +3,9 @@
         <common-nav></common-nav>
         <div id="example" style="position: relative;">
             <vue-particles color="#dedede" style="height: 100%; width: 100%;"
-                           :particlesNumber="300">
+                           :moveSpeed="5"
+                           linesColor="#dedede"
+                           :particlesNumber="200">
 
             </vue-particles>
             <div class="imax">
@@ -15,9 +17,18 @@
 
         <div>
             <h2 class="title">各种常用图表</h2>
-            <div id="temp1" class="tempContainer">
+            <div id="temp1" class="tempContainer"></div>
+        </div>
 
-            </div>
+        <div>
+            <div id="temp3" class="tempContainer"></div>
+        </div>
+        <div>
+            <h2 class="title">多种主题风格</h2>
+            <div id="temp21" class="tempContainer"></div>
+            <div id="temp22" class="tempContainer"></div>
+            <div id="temp23" class="tempContainer"></div>
+            <div id="temp24" class="tempContainer"></div>
         </div>
     </div>
 </template>
@@ -28,6 +39,25 @@
         name: "home",
         components: {CommonNav},
         mounted() {
+            genTemplate('temp1', 50);
+
+            genTemplate('temp21', 53);
+            genTemplate('temp23', 54);
+            genTemplate('temp22', 55);
+            genTemplate('temp24', 56);
+
+            genTemplate('temp3', 57);
+
+        },
+        data(){
+            return {
+                timer: null,
+                i: 0,
+                themes: ['purple-passion', 'shine', 'walden', 'wonderland'],
+            }
+        },
+        destroyed() {
+            window.clearInterval(this.timer)
         }
     }
 </script>

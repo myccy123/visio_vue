@@ -23,6 +23,7 @@ const urls = {
     delTemplate: baseUrl + '/ccb/delete/template/',
     getTemplate: baseUrl + '/ccb/get/template/',
     customCates: baseUrl + '/ccb/cate/list/',
+    customCateQuery: baseUrl + '/ccb/cate/query/',
 };
 
 export default urls

@@ -7,47 +7,27 @@ import axios from 'axios'
 const BASE_URL = 'http://127.0.0.1:8000';
 // const BASE_URL = 'http://www.janetech.cn:9000';
 
+let themeList = [
+    'chalk',
+    'dark',
+    'essos',
+    'halloween',
+    'infographic',
+    'macarons',
+    'purple-passion',
+    'roma',
+    'shine',
+    'vintage',
+    'walden',
+    'westeros',
+    'wonderland',
+];
 
-axios.get(BASE_URL + '/static/preview/themes/chalk.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/essos.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/halloween.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/infographic.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/purple-passion.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/vintage.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/walden.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/westeros.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/wonderland.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/dark.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/macarons.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/roma.js').then((res) => {
-    new Function(res.data)()
-});
-axios.get(BASE_URL + '/static/preview/themes/shine.js').then((res) => {
-    new Function(res.data)()
-});
-
+for (let t of themeList) {
+    let sc = document.createElement("script");
+    sc.src = `${BASE_URL}/static/preview/themes/${t}.js`;
+    document.getElementsByTagName('head')[0].appendChild(sc);
+}
 
 function getParam(name) {
     const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -552,7 +532,7 @@ function drawSvg2(parentDom,
 function drawTile(parentDom, title, bkColor, color = '#90a3cf') {
     let svgHTML = `
     <div
-        style="position:relative;width:100%;height:80px;font-size:40px;line-height:80px;color:#93EBF8;font-weight:bold;text-align:center;background-color: ${bkColor}"
+        style="position:relative;width:100%;height:80px;font-size:30px;line-height:80px;color:#93EBF8;font-weight:500;text-align:center;background-color: ${bkColor}"
         class="svgTitleWrap">
         <svg
             class="svgEl"
@@ -762,7 +742,7 @@ function genChart(domId, chartId, html = '',
                     let theme = commonTheme ? commonTheme : res.data.data.theme;
                     if (res.data.data.chartType === 'diy') {
                         let jsCode = `${res.data.data.diyCode};
-                            var ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}')
+                            var ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'svg'})
                             ${domId}.setOption(option)`.replace('xxxxChart', domId);
                         let jsFun = new Function(jsCode);
                         jsFun();
@@ -809,7 +789,7 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
     }, 3000);
 }
 
-function genTemplate(domId, tempId) {
+function genTemplate(domId, tempId, theme='') {
     axios.post(BASE_URL + '/ccb/get/template/', {id: tempId}).then((res) => {
         if (res.data.code === '00') {
             let dom = document.getElementById(domId);
@@ -820,6 +800,9 @@ function genTemplate(domId, tempId) {
             let layout = res.data.data.layout_info.layout;
             let bgColor = tempInfo.backgroundColor ? tempInfo.backgroundColor : '#fff';
             let commonTheme = tempInfo.theme;
+            if (theme) {
+                commonTheme = theme;
+            }
             let commonBorderColor = tempInfo.borderColor;
             document.title = title;
             if (res.data.data.name !== '') {
