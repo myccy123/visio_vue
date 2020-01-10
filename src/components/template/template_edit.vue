@@ -247,6 +247,7 @@
     import html2canvas from 'html2canvas';
     import draggable from 'vuedraggable'
 
+    let chartSet = new Set();
 
     export default {
         name: "template_edit",
@@ -365,7 +366,10 @@
             }
         },
         destroyed() {
-            window.clearInterval(this.timer)
+            window.clearInterval(this.timer);
+            for (let c of chartSet) {
+                echarts.dispose(c)
+            }
         },
         methods: {
             startTick() {
@@ -495,6 +499,13 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
+
+                    for(let row of item.charts) {
+                        for(let col of row.cols) {
+                            echarts.dispose(document.getElementById(col.domId))
+                        }
+                    }
+
                     this.layout.splice(this.layout.indexOf(item), 1)
                 }).catch(() => {
                 });
@@ -504,8 +515,9 @@
                 this.$nextTick(() => {
                     for (let row of item.charts) {
                         for (let col of row.cols) {
-                            if (col.chart) {
-                                col.chart.resize()
+                            let ct = echarts.getInstanceByDom(document.getElementById(col.domId));
+                            if (ct) {
+                                ct.resize()
                             }
                         }
                     }
@@ -538,15 +550,16 @@
 
                                 if (res.data.data.chartType === 'diy') {
                                     let jsCode = `${res.data.data.diyCode};
-                                        let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}');
+                                        let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'svg'});
                                         ${domId}.setOption(option);
                                         return ${domId}`;
                                     let jsFun = new Function(jsCode);
-                                    col.chart = jsFun();
+                                    let chart = jsFun();
+                                    chartSet.add(chart)
                                 } else {
                                     let myChart = echarts.init(dom, theme);
                                     myChart.setOption(res.data.data.chartOptions);
-                                    col.chart = myChart;
+                                    chartSet.add(myChart)
                                 }
                             });
 
@@ -757,9 +770,7 @@
                 this.refreshBox(item)
             },
             delChart(item, i, j) {
-                if (item.charts[i].cols[j].chart) {
-                    item.charts[i].cols[j].chart.dispose();
-                }
+                echarts.dispose(document.getElementById(item.charts[i].cols[j].domId));
                 item.charts[i].cols.splice(j, 1);
                 if (item.charts[i].cols.length === 0) {
                     item.charts.splice(i, 1)

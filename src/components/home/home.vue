@@ -24,6 +24,10 @@
             <div id="temp3" class="tempContainer"></div>
         </div>
         <div>
+            <h2 class="title">地图</h2>
+            <div id="temp4" class="tempContainer"></div>
+        </div>
+        <div>
             <h2 class="title">多种主题风格</h2>
             <div id="temp21" class="tempContainer"></div>
             <div id="temp22" class="tempContainer"></div>
@@ -35,18 +39,22 @@
 
 <script>
     import CommonNav from "../common/nav";
+
     export default {
         name: "home",
         components: {CommonNav},
         mounted() {
-            genTemplate('temp1', 50);
+            // genTemplate('temp1', 50);
+            //
+            // genTemplate('temp21', 53);
+            // genTemplate('temp23', 54);
+            // genTemplate('temp22', 55);
+            // genTemplate('temp24', 56);
+            //
+            // genTemplate('temp3', 57);
 
-            genTemplate('temp21', 53);
-            genTemplate('temp23', 54);
-            genTemplate('temp22', 55);
-            genTemplate('temp24', 56);
+            genTemplate('temp4', 52);
 
-            genTemplate('temp3', 57);
 
         },
         data(){

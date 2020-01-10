@@ -710,7 +710,7 @@ function initMap(map) {
 
             }).catch((err) => {
                 console.log(err);
-                resolve();
+                reject();
             })
         }
     })
@@ -739,6 +739,7 @@ function genChart(domId, chartId, html = '',
             if (res.data.code === '00') {
                 initMap(res.data.data.formOptions.moreConfig.map).then(() => {
                     echarts.dispose(dom);
+
                     let theme = commonTheme ? commonTheme : res.data.data.theme;
                     if (res.data.data.chartType === 'diy') {
                         let jsCode = `${res.data.data.diyCode};
@@ -862,6 +863,7 @@ function genTemplate(domId, tempId, theme='') {
                         let colEl = document.createRange().createContextualFragment(colHTML);
                         document.getElementById(`${domId}-vision-layout-${lay.i}-${i}`).appendChild(colEl);
                         genChart(`${domId}_${col.domId}`, col.chartId, col.html, commonTheme, commonBorderColor);
+
                     }
                 }
             }

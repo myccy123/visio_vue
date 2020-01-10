@@ -365,6 +365,8 @@
     import 'echarts/extension/bmap/bmap'
     import ResizeObserver from 'resize-observer-polyfill';
 
+    let chartObj = null;
+
     export default {
         name: "chartEdit",
         components: {CommonNav},
@@ -474,6 +476,7 @@
         },
         destroyed() {
             this.observer.disconnect();
+            echarts.dispose(chartObj)
         },
         methods: {
             getSource() {
@@ -623,13 +626,16 @@
                             if (this.formOptions.chartType === 'diy') {
                                 let jsCode = `${res.data.data};
                                             var diyChart = echarts.init(document.getElementById('chart'), '${theme}');
-                                            diyChart.setOption(option)`;
+                                            diyChart.setOption(option)
+                                            return diyChart`;
                                 let jsFun = new Function(jsCode);
-                                jsFun();
+                                let chart = jsFun();
+                                chartObj = chart;
                             } else {
                                 let myChart = echarts.init(document.getElementById('chart'), theme);
                                 myChart.setOption(res.data.data);
                                 myChart.resize();
+                                chartObj = myChart;
                             }
                         })
                     }
