@@ -550,7 +550,7 @@
 
                                 if (res.data.data.chartType === 'diy') {
                                     let jsCode = `${res.data.data.diyCode};
-                                        let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'svg'});
+                                        let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'});
                                         ${domId}.setOption(option);
                                         return ${domId}`;
                                     let jsFun = new Function(jsCode);

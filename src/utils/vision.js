@@ -1,4 +1,4 @@
-import echarts from "echarts";
+import "echarts";
 import 'echarts-gl';
 import 'echarts/extension/bmap/bmap'
 import lodash from 'lodash';
@@ -6,6 +6,7 @@ import axios from 'axios'
 
 const BASE_URL = 'http://127.0.0.1:8000';
 // const BASE_URL = 'http://www.janetech.cn:9000';
+let chartSet = new Set();
 
 let themeList = [
     'chalk',
@@ -744,13 +745,15 @@ function genChart(domId, chartId, html = '',
                     if (res.data.data.chartType === 'diy') {
                         let jsCode = `${res.data.data.diyCode};
                             var ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'})
-                            ${domId}.setOption(option)`.replace('xxxxChart', domId);
+                            ${domId}.setOption(option);
+                            return ${domId}`.replace('xxxxChart', domId);
                         let jsFun = new Function(jsCode);
-                        jsFun();
+                        chartSet.add(jsFun());
 
                     } else {
                         let myChart = echarts.init(dom, theme);
                         myChart.setOption(res.data.data.chartOptions);
+                        chartSet.add(myChart);
                     }
                 })
 
@@ -790,7 +793,8 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
     }, 3000);
 }
 
-function genTemplate(domId, tempId, theme='') {
+
+function genTemplate(domId, tempId, theme = '') {
     axios.post(BASE_URL + '/ccb/get/template/', {id: tempId}).then((res) => {
         if (res.data.code === '00') {
             let dom = document.getElementById(domId);
@@ -874,13 +878,13 @@ function genTemplate(domId, tempId, theme='') {
     })
 }
 
-window.genTemplate = genTemplate;
-window.genChart = genChart;
-window.lodash = lodash;
-window.echarts = echarts;
-window.axios = axios;
-window.getParam = getParam;
+function disposeAll() {
+    for(let c of chartSet) {
+        echarts.dispose(c)
+    }
+    chartSet.clear()
+}
 
 export {
-    genTemplate, genChart
+    genTemplate, genChart, disposeAll
 }

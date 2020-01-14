@@ -366,6 +366,7 @@
     import ResizeObserver from 'resize-observer-polyfill';
 
     let chartObj = null;
+    let observer = null;
 
     export default {
         name: "chartEdit",
@@ -373,8 +374,6 @@
         data() {
             return {
                 defTab: 'first',
-                chart: null,
-                observer: null,
                 sourceList: [],
                 cates: options.CHART_CATES,
                 types: options.CHART_TYPES,
@@ -462,7 +461,7 @@
             }
         },
         mounted() {
-            const observer = new ResizeObserver(entries => {
+            observer = new ResizeObserver(entries => {
                 entries.forEach(entry => {
                     let chart = echarts.getInstanceByDom(document.getElementById('chart'));
                     if (chart) {
@@ -471,11 +470,10 @@
                 })
             });
             observer.observe(document.getElementById('chart'));
-            this.observer = observer;
             this.getSource()
         },
         destroyed() {
-            this.observer.disconnect();
+            observer.disconnect();
             echarts.dispose(chartObj)
         },
         methods: {
