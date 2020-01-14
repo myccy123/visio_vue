@@ -5,13 +5,11 @@ import urls from './config/urls'
 import axios from 'axios'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
-import VueParticles from 'vue-particles';
 import echarts from "echarts";
 import lodash from "lodash";
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
-Vue.use(VueParticles);
 
 const globalBus = new Vue();
 
