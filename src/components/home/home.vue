@@ -1,7 +1,7 @@
 <template>
     <div>
         <common-nav></common-nav>
-        <transition name="el-fade-in">
+        <transition name="el-zoom-in-bottom">
             <imax v-if="page === 0"></imax>
             <page1 v-else-if="page === 1"></page1>
             <page2 v-else-if="page === 2"></page2>
@@ -20,10 +20,44 @@
     export default {
         name: "home",
         components: {imax, CommonNav, page1, page2, page3},
+        methods: {
+            handleScroll(e) {
+                let total = document.body.scrollHeight;
+                let scrollTop = document.documentElement.scrollTop;
+                let currTop = document.documentElement.clientHeight+
+                    document.documentElement.scrollTop;
+                if (currTop > total && e.wheelDelta < 0) {
+                    this.num++;
+                } else if(scrollTop === 0 && e.wheelDelta > 0) {
+                    this.num--;
+                }
+
+                if(this.num > 1 && this.canSwitch) {
+                    this.next();
+                    this.num = 0
+                } else if (this.num < -1 && this.canSwitch) {
+                    this.previous();
+                    this.num = 0
+                }
+            },
+            previous(){
+                if(this.page > 0) {
+                    this.page--;
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
+                }
+            },
+            next(){
+                if(this.page < 3) {
+                    this.page++;
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
+                }
+            }
+        },
         data() {
             return {
                 page: 0,
                 canSwitch: false,
+                num: 0,
             }
         },
         mounted() {
@@ -32,31 +66,8 @@
                 this.canSwitch = can
             })
         },
-        methods: {
-            handleScroll(e) {
-                let total = document.body.scrollHeight;
-                let scrollTop = document.documentElement.scrollTop;
-                let currTop = document.documentElement.clientHeight+
-                    document.documentElement.scrollTop;
-                if (currTop > total && e.wheelDelta < 0) {
-                    this.next()
-                } else if(scrollTop === 0 && e.wheelDelta > 0) {
-                    this.previous()
-                }
-            },
-            previous(){
-                if(this.page > 0) {
-                    this.page--;
-                }
-            },
-            next(){
-                if(this.page < 3) {
-                    this.page++;
-                }
-            }
-        },
         destroyed() {
-            window.removeEventListener('mousewheel', this.handleScroll)
+            window.removeEventListener('mousewheel', this.handleScroll);
             this.$bus.$off('switchPage')
         }
     }

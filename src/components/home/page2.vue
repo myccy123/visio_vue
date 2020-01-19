@@ -21,7 +21,9 @@
             genTemplate('temp2', 55)
             genTemplate('temp3', 54)
             genTemplate('temp4', 56)
-            this.$bus.$emit('switchPage', true)
+            setTimeout(() => {
+                this.$bus.$emit('switchPage', true)
+            }, 2000)
         },
         destroyed() {
             disposeAll()

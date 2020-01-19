@@ -9,7 +9,7 @@
                         <el-tooltip v-for="cate in cates" effect="dark" :content="cate.name"
                                     placement="left" :key="cate.value">
                             <li :class="{selCate: cate.value === formOptions.chartCate}"
-                                @click="formOptions.chartCate=cate.value">
+                                @click="switchCate(cate.value)">
                                 <img :src="cate.icon">
                             </li>
                         </el-tooltip>
@@ -362,7 +362,8 @@
     import options from "../../config/options"
     import echarts from "echarts"
     import 'echarts-gl';
-    import 'echarts/extension/bmap/bmap'
+    import 'echarts-liquidfill';
+    import 'echarts/extension/bmap/bmap';
     import ResizeObserver from 'resize-observer-polyfill';
 
     let chartObj = null;
@@ -495,6 +496,13 @@
                 }).catch((err) => {
 
                 })
+            },
+            switchCate(cate){
+                this.formOptions.chartCate = cate;
+                if(cate === 'diy') {
+                    this.formOptions.chartType = 'diy';
+                    this.defTab = 'fourth';
+                }
             },
             querySearchAsync(queryString, cb) {
                 console.log(queryString)
@@ -820,6 +828,7 @@
         width: calc(90% + 20px);
         margin: 10px auto;
         border: 1px solid #79aec8;
+        background-color: #222974;
     }
 
     .add-filter {

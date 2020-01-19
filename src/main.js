@@ -15,6 +15,7 @@ const globalBus = new Vue();
 
 window.echarts = echarts;
 window.lodash = lodash;
+window.axios = axios;
 
 axios.defaults.withCredentials = false;
 Vue.prototype.$axios = axios;

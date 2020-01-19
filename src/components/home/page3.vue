@@ -14,7 +14,9 @@
         },
         mounted() {
             genTemplate('temp', 57)
-            this.$bus.$emit('switchPage', true)
+            setTimeout(() => {
+                this.$bus.$emit('switchPage', true)
+            }, 2000)
         },
         destroyed() {
             disposeAll()

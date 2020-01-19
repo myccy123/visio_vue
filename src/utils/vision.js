@@ -1,12 +1,14 @@
 import "echarts";
 import 'echarts-gl';
+import 'echarts-liquidfill'
 import 'echarts/extension/bmap/bmap'
 import lodash from 'lodash';
-import axios from 'axios'
+import axios from 'axios';
+import url from '../config/urls'
 
-const BASE_URL = 'http://127.0.0.1:8000';
-// const BASE_URL = 'http://www.janetech.cn:9000';
+let BASE_URL = url.baseUrl;
 let chartSet = new Set();
+let timerSet = new Set();
 
 let themeList = [
     'chalk',
@@ -871,7 +873,8 @@ function genTemplate(domId, tempId, theme = '') {
                     }
                 }
             }
-            sliderTimer(domId, layout, commonTheme, commonBorderColor);
+            let t = sliderTimer(domId, layout, commonTheme, commonBorderColor);
+            timerSet.add(t)
         }
     }).catch((err) => {
 
@@ -882,7 +885,11 @@ function disposeAll() {
     for(let c of chartSet) {
         echarts.dispose(c)
     }
-    chartSet.clear()
+    chartSet.clear();
+    for (let tm of timerSet) {
+        window.clearInterval(tm)
+    }
+    timerSet.clear()
 }
 
 export {

@@ -30,6 +30,7 @@
                  @dragstart="dragStart($event, chart)"
             >
                 <img :src="chart.icon">
+                <div class="chart-title">{{chart.title?chart.title:'未命名'}}</div>
             </div>
         </div>
         <div class="right">
@@ -242,6 +243,7 @@
     import VueGridLayout from 'vue-grid-layout';
     import echarts from "echarts";
     import 'echarts-gl';
+    import 'echarts-liquidfill';
     import 'echarts/extension/bmap/bmap'
     import lodash from 'lodash';
     import html2canvas from 'html2canvas';
@@ -835,6 +837,7 @@
         box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
         border-radius: 5px;
         cursor: pointer;
+        position: relative;
     }
 
     .chart-box img {
@@ -991,6 +994,14 @@
     .ghost {
         opacity: 0.5;
         background: #c8ebfb;
+    }
+
+    .chart-title{
+        background-color: rgba(0,0,0,0.5);
+        color: #fff;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
     }
 
 </style>
