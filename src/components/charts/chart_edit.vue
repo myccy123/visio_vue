@@ -439,7 +439,7 @@
                             echarts.dispose(document.getElementById('chart'));
                             if (this.formOptions.chartType === 'diy') {
                                 this.defTab = 'fourth';
-                                let jsCode = `${this.formOptions.diy.code};
+                                let jsCode = `${res.data.data.diyCode};
                                     var diyChart = echarts.init(document.getElementById('chart'), '${theme}')
                                     diyChart.setOption(option)`;
                                 let jsFun = new Function(jsCode);
@@ -828,7 +828,7 @@
         width: calc(90% + 20px);
         margin: 10px auto;
         border: 1px solid #79aec8;
-        background-color: #222974;
+        /*background-color: #222974;*/
     }
 
     .add-filter {

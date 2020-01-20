@@ -1,5 +1,6 @@
 <template>
     <div id="example" style="position: relative;">
+        <img :src="bgImg" style="height: 100%;width: 100%;object-fit: cover">
         <div class="imax">
             <h1 style="font-size: 63px;font-weight: 500;color: #303133;text-align: center">一分钟数据可视化</h1>
             <p style="font-size: 21px;font-weight: 200;text-align: center">灵活的数据源管理，丰富的图表库，酷炫的驾驶舱大屏</p>
@@ -9,8 +10,14 @@
 </template>
 
 <script>
+    import option from '../../config/options'
     export default {
         name: "imax",
+        data(){
+            return {
+                bgImg: option.ASSETS.bgImg
+            }
+        },
         created() {
             this.$bus.$emit('switchPage', false)
         },

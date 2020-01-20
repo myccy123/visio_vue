@@ -1,8 +1,4 @@
-// let baseUrl = 'http://www.janetech.cn:9000';
-let baseUrl = 'http://128.64.114.114:9000';
-if (process.env.NODE_ENV === "development") {
-    baseUrl = 'http://192.168.43.180:8000'
-}
+let baseUrl = getBaseUrl();
 
 const urls = {
     baseUrl: baseUrl,
