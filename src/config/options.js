@@ -172,7 +172,8 @@ export default {
         {label: 'is null', value: 'null'},
         {label: 'is not null', value: 'notnull'},
     ],
-    ORDER: [{label: '升序', value: 'asc'}, {label: '降序', value: 'desc'}],
+    ORDER: [{label: '升序(ASC)', value: 'asc'}, {label: '降序(DESC)', value: 'desc'}],
+    ORDER_BY: [{label: 'X轴', value: 'col'}, {label: '值', value: 'val'}],
     UPDATE: [
         {label: '实时', value: '0'},
         {label: '5 min', value: '5'},

@@ -11,12 +11,18 @@
             <div v-for="temp in templates" class="temp-box" :id="temp.id">
                 <img class="temp-img" :src="temp.icon">
                 <div class="mask">
+                    <el-tooltip effect="dark" content="克隆模版" placement="top">
+                        <i @click="cloneTemplate(temp.id)" class="el-icon-document-copy"
+                           style="position: absolute;top: 3px;right: 3px;cursor: pointer;color: #fff;"></i>
+                    </el-tooltip>
                     <div class="btn-box">
                         <p style="">{{temp.name?temp.name:'未命名'}}</p>
                         <p style="">id : {{temp.id}}</p>
                         <el-button size="mini" type="primary" class="btns" @click="preview(temp.id)">预览</el-button>
-                        <el-button size="mini" type="warning" class="btns" @click="editTemplate(temp.id)">编辑</el-button>
-                        <el-button size="mini" type="danger" class="btns" @click="delTemplate(temp.id)">删除</el-button>
+                        <el-button size="mini" type="warning" class="btns" @click="editTemplate(temp.id)">编辑
+                        </el-button>
+                        <el-button size="mini" type="danger" class="btns" @click="delTemplate(temp.id)">删除
+                        </el-button>
                     </div>
                 </div>
             </div>
@@ -61,6 +67,15 @@
             editTemplate(id) {
                 this.$router.push({name: 'templateEdit', query: {id: id}})
             },
+            cloneTemplate(id) {
+                this.$axios.post(this.$api.cloneTemplate, {id: id}).then((res) => {
+                    if (res.data.code === '00') {
+                        this.templateList()
+                    }
+                }).catch((err) => {
+                    console.log(err)
+                })
+            },
             delTemplate(id) {
                 this.$confirm('是否删除该模版?', '提示', {
                     confirmButtonText: '确定',
@@ -83,7 +98,7 @@
 </script>
 
 <style scoped>
-    .tool-box{
+    .tool-box {
         text-align: center;
     }
 

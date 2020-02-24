@@ -104,7 +104,16 @@
                     <el-tab-pane label="高级设置" name="third">
                         <el-form ref="form" :inline="true" :model="formOptions.moreConfig" size="mini"
                                  label-width="80px">
-                            <el-form-item label="排序">
+                            <el-form-item label="排序项">
+                                <el-select v-model="formOptions.moreConfig.orderBy" placeholder="请选择"
+                                           style="width: 186px;"
+                                           @change="genChart">
+                                    <el-option v-for="item in orderByOptions" :key="item.value" :value="item.value"
+                                               :label="item.label">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="排序规则">
                                 <el-select v-model="formOptions.moreConfig.sort" placeholder="请选择"
                                            style="width: 186px;"
                                            @change="genChart">
@@ -122,16 +131,52 @@
                                     </el-option>
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="地图">
-                                <el-input v-model="formOptions.moreConfig.map"
-                                          @blur="genChart"></el-input>
+                            <el-form-item label="条数限制">
+                                <el-input-number size="mini" :min="0" @change="genChart"
+                                                 v-model="formOptions.moreConfig.limit"></el-input-number>
                             </el-form-item>
                         </el-form>
                     </el-tab-pane>
-                    <el-tab-pane label="自定义开发" name="fourth">
+                    <el-tab-pane label="字段映射" name="colMap">
+                        <el-form ref="form" :inline="true" :model="formOptions.diy" size="mini" label-width="80px">
+                            <el-form-item style="margin-left: 10px;">
+                                <el-button type="primary" plain @click="showColMap = true">编辑</el-button>
+                            </el-form-item>
+                        </el-form>
+                        <el-dialog title="字段映射" :visible.sync="showColMap" width="800px" top="50px"
+                                   :modal="false" :close-on-click-modal="false">
+                            <div class="edit-code">
+                                <el-table
+                                    :data="colOptions"
+                                    style="width: 100%">
+                                    <el-table-column
+                                            prop="colname"
+                                            label="原字段名"
+                                            width="180">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="coldesc"
+                                            label="别名">
+                                        <template slot-scope="scope">
+                                            <el-input v-model="scope.row.coldesc" size="small" style="width: 200px;"></el-input>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </div>
+                            <span slot="footer">
+                                <el-button @click="showColMap = false" size="mini">取 消</el-button>
+                                <el-button type="primary" @click="" size="mini">确 定</el-button>
+                            </span>
+                        </el-dialog>
+                    </el-tab-pane>
+                    <el-tab-pane :disabled="formOptions.chartType !== 'diy'" label="自定义开发" name="fourth">
                         <el-form ref="form" :inline="true" :model="formOptions.diy" size="mini" label-width="80px">
                             <el-form-item style="margin-left: 10px;">
                                 <el-button type="primary" plain @click="showEditCode = true">编辑代码</el-button>
+                            </el-form-item>
+                            <el-form-item label="地图">
+                                <el-input v-model="formOptions.moreConfig.map"
+                                          @blur="genChart"></el-input>
                             </el-form-item>
                         </el-form>
                         <el-dialog title="编辑代码" :visible.sync="showEditCode" width="800px" top="50px"
@@ -381,10 +426,12 @@
                 showDemoCode: false,
                 showEditCode: false,
                 showSourceList: true,
+                showColMap: false,
                 loading: false,
                 themeOptions: options.THEME,
                 filterOptions: options.FILTER,
                 orderOptions: options.ORDER,
+                orderByOptions: options.ORDER_BY,
                 updateOptions: options.UPDATE,
                 sumOptions: options.SUM_TYPE,
                 colOptions: [], //{colname, coldesc, coltype}
@@ -413,7 +460,7 @@
                         max: 100,
                         unit: '',
                     },
-                    moreConfig: {static: '0', sort: 'asc', map: ''},
+                    moreConfig: {static: '0', orderBy: 'col', sort: 'asc', map: '', limit: 0},
                     filter: [{col: '', opt: '', val: '', bgndate: '', enddate: '', filterType: 'val'}],
                     diy: {code: '', diyType: '', js: ''},
                     id: '',
@@ -498,6 +545,9 @@
                 })
             },
             switchCate(cate){
+                if (cate !== 'diy') {
+                    this.defTab = 'first'
+                }
                 this.formOptions.chartCate = cate;
                 if(cate === 'diy') {
                     this.formOptions.chartType = 'diy';

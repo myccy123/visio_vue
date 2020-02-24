@@ -6,8 +6,8 @@ import lodash from 'lodash';
 import axios from 'axios'
 
 // const BASE_URL = 'http://192.168.43.180:8000';
-const BASE_URL = 'http://47.112.213.175:9100';
-// const BASE_URL = 'http://www.janetech.cn:9000';
+// const BASE_URL = 'http://47.112.213.175:9100';
+const BASE_URL = 'http://128.64.97.4:9000';
 
 let themeList = [
     'chalk',

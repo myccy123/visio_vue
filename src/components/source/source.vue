@@ -1,27 +1,28 @@
 <template>
     <div>
         <common-nav></common-nav>
-        <source-list></source-list>
+        <source-list ref="srcList"></source-list>
         <div class="src-info">
             <h2 class="src-name" style="padding-top: 8px;text-align: center;">数据源详情</h2>
             <el-form :model="srcInfo" label-width="120px" size="mini">
                 <el-form-item label="数据源名称">
-                    <el-input v-model="srcInfo.data_name" readonly></el-input>
+                    <el-input v-model="srcInfo.data_name" :readonly="!editable"></el-input>
                 </el-form-item>
                 <el-form-item label="HOST / IP">
-                    <el-input v-model="srcInfo.db_host" readonly></el-input>
+                    <el-input v-model="srcInfo.db_host" :readonly="!editable"></el-input>
                 </el-form-item>
                 <el-form-item label="用户名">
-                    <el-input v-model="srcInfo.db_user" readonly></el-input>
+                    <el-input v-model="srcInfo.db_user" :readonly="!editable"></el-input>
                 </el-form-item>
                 <el-form-item label="密码">
-                    <el-input v-model="srcInfo.db_password" show-password readonly></el-input>
+                    <el-input v-model="srcInfo.db_password" show-password :readonly="!editable"></el-input>
                 </el-form-item>
                 <el-form-item label="端口">
-                    <el-input v-model="srcInfo.db_port" readonly></el-input>
+                    <el-input v-model="srcInfo.db_port" :readonly="!editable"></el-input>
                 </el-form-item>
                 <el-form-item label="库 / 表">
-                    <el-input v-model="dbDotTable" readonly></el-input>
+                    <el-cascader :options="options" filterable :disabled="!editable"
+                                 v-model="srcInfo.dbTable" separator="." style="width: 100%;"></el-cascader>
                 </el-form-item>
                 <el-form-item>
                     <el-alert v-if="srcValid === 'success'"
@@ -46,6 +47,12 @@
                               type="info">
                     </el-alert>
                 </el-form-item>
+                <el-form-item>
+                    <div>
+                        <el-button :disabled="!srcValid" type="danger" @click="updateSource">修改</el-button>
+                        <el-button :disabled="!srcValid" @click="cloneSource" style="margin-left: 35px;">克隆</el-button>
+                    </div>
+                </el-form-item>
             </el-form>
         </div>
         <div class="preview">
@@ -66,6 +73,7 @@
 <script>
     import commonNav from '../common/nav'
     import sourceList from './source_list'
+    import lodash from 'lodash'
 
     export default {
         name: "Source",
@@ -78,25 +86,25 @@
                     db_user: '',
                     db_password: '',
                     db_port: '',
+                    dbTable: [],
                     db_name: '',
                     table_name: '',
                     id: ''
                 },
                 srcValid: false,
+                editable: true,
                 rows: [],
-                colnames: []
-            }
-        },
-        computed: {
-            dbDotTable() {
-                return `${this.srcInfo.db_name}.${this.srcInfo.table_name}`
+                colnames: [],
+                options: [],
             }
         },
         mounted() {
             this.$bus.$on('currSource', (src) => {
-                this.srcInfo = src;
+                this.srcInfo = lodash.cloneDeep(src);
+                this.srcInfo.dbTable = [this.srcInfo.db_name, this.srcInfo.table_name];
                 this.checkSource();
-                this.previewData()
+                this.previewData();
+                this.getDbTable();
             })
         },
         methods: {
@@ -121,6 +129,82 @@
                 this.$axios.post(this.$api.sourceDetail, {id: this.srcInfo.id}).then((res) => {
                     if (res.data.code === '00') {
                         this.colnames = res.data.data
+                    }
+                }).catch((err) => {
+
+                })
+            },
+            getDbTable() {
+                let srcInfo = {
+                    ip: this.srcInfo.db_host,
+                    user: this.srcInfo.db_user,
+                    passWord: this.srcInfo.db_password,
+                    port: this.srcInfo.db_port
+                };
+                this.$axios.post(this.$api.mysqlGetDb, srcInfo).then((res) => {
+                    if (res.data.code === '00') {
+                        for (let db in res.data.data) {
+                            let tmp = {
+                                value: db,
+                                label: db,
+                                children: []
+                            };
+                            for (let table of res.data.data[db]) {
+                                tmp.children.push({
+                                    value: table,
+                                    label: table
+                                })
+                            }
+                            this.options.push(tmp)
+                        }
+                    } else {
+                        this.$message({
+                            message: res.data.message,
+                            type: 'error',
+                            showClose: true,
+                            duration: 3,
+                        });
+                    }
+                }).catch((err) => {
+                    this.$message({
+                        message: '无法连接到数据库！请确认网络通畅,用户名密码正确,且有足够权限。',
+                        type: 'error',
+                        showClose: true,
+                        duration: 3,
+                    });
+                })
+            },
+            updateSource() {
+                this.$confirm('是否修改该数据源?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let params = {
+                        id: this.srcInfo.id,
+                        name: this.srcInfo.data_name,
+                        ip: this.srcInfo.db_host,
+                        user: this.srcInfo.db_user,
+                        passWord: this.srcInfo.db_password,
+                        port: this.srcInfo.db_port,
+                        db: this.srcInfo.db_name,
+                        table: this.srcInfo.table_name,
+                    };
+                    this.$axios.post(this.$api.mysqlEdit, params).then((res) => {
+                        if (res.data.code === '00') {
+                            this.$refs.srcList.getSource()
+                        }
+                    }).catch((err) => {
+
+                    })
+                }).catch(() => {
+
+                });
+            },
+            cloneSource() {
+                this.$axios.post(this.$api.mysqlClone, {id: this.srcInfo.id}).then((res) => {
+                    if (res.data.code === '00') {
+                        this.$refs.srcList.getSource()
                     }
                 }).catch((err) => {
 
