@@ -42,8 +42,8 @@
                             <el-form-item label="分类">
                                 <el-autocomplete v-model="formOptions.baseConfig.cate"
                                                  style="width: 185px;"
-                                          :fetch-suggestions="querySearchAsync" clearable
-                                          placeholder="未分类"></el-autocomplete>
+                                                 :fetch-suggestions="querySearchAsync" clearable
+                                                 placeholder="未分类"></el-autocomplete>
                             </el-form-item>
                             <el-form-item label="主题">
                                 <el-select v-model="formOptions.baseConfig.theme"
@@ -147,8 +147,8 @@
                                    :modal="false" :close-on-click-modal="false">
                             <div class="edit-code">
                                 <el-table
-                                    :data="colOptions"
-                                    style="width: 100%">
+                                        :data="colOptions"
+                                        style="width: 100%">
                                     <el-table-column
                                             prop="colname"
                                             label="原字段名"
@@ -158,7 +158,8 @@
                                             prop="coldesc"
                                             label="别名">
                                         <template slot-scope="scope">
-                                            <el-input v-model="scope.row.coldesc" size="small" style="width: 200px;"></el-input>
+                                            <el-input v-model="scope.row.coldesc" size="small"
+                                                      style="width: 200px;"></el-input>
                                         </template>
                                     </el-table-column>
                                 </el-table>
@@ -174,6 +175,9 @@
                             <el-form-item style="margin-left: 10px;">
                                 <el-button type="primary" plain @click="showEditCode = true">编辑代码</el-button>
                             </el-form-item>
+                            <el-form-item style="margin-left: 10px;">
+                                <el-button type="primary" plain @click="showSQL = true">编辑SQL</el-button>
+                            </el-form-item>
                             <el-form-item label="地图">
                                 <el-input v-model="formOptions.moreConfig.map"
                                           @blur="genChart"></el-input>
@@ -182,12 +186,33 @@
                         <el-dialog title="编辑代码" :visible.sync="showEditCode" width="800px" top="50px"
                                    :modal="false" :close-on-click-modal="false">
                             <div class="edit-code">
-                                <el-input type="textarea" v-model="formOptions.diy.code">{{formOptions.diy.code}}
+                                <el-input style="height: 300px;" type="textarea" v-model="formOptions.diy.code">
                                 </el-input>
                             </div>
                             <span slot="footer">
                                 <el-button @click="showEditCode = false" size="mini">取 消</el-button>
                                 <el-button type="primary" @click="genChart" size="mini">运 行</el-button>
+                            </span>
+                        </el-dialog>
+                        <el-dialog title="编辑SQL" :visible.sync="showSQL" width="800px" top="50px"
+                                   :modal="false" :close-on-click-modal="false">
+                            <div class="edit-code">
+                                <el-input style="height: 150px;" type="textarea" v-model="formOptions.diy.sql">
+                                </el-input>
+                            </div>
+                            <el-table :data="rows" :highlight-current-row="true" :row-style="{cursor: 'pointer'}"
+                                      :cell-style="{padding: '2px 0'}"
+                                      max-height="300" stripe
+                                      style="margin: 10px auto;"
+                                      :border="true">
+                                <template v-for="col in colnames">
+                                    <el-table-column :prop="col" :label="col" align="center"
+                                                     :show-overflow-tooltip="true"></el-table-column>
+                                </template>
+                            </el-table>
+                            <span slot="footer">
+                                <el-button @click="showSQL = false" size="mini">取 消</el-button>
+                                <el-button type="primary" @click="previewData" size="mini">预览数据</el-button>
                             </span>
                         </el-dialog>
                     </el-tab-pane>
@@ -427,6 +452,7 @@
                 showEditCode: false,
                 showSourceList: true,
                 showColMap: false,
+                showSQL: false,
                 loading: false,
                 themeOptions: options.THEME,
                 filterOptions: options.FILTER,
@@ -435,6 +461,8 @@
                 updateOptions: options.UPDATE,
                 sumOptions: options.SUM_TYPE,
                 colOptions: [], //{colname, coldesc, coltype}
+                colnames: [],
+                rows: [],
                 formOptions: {
                     baseConfig: {title: '', subTitle: '', cate: '', theme: '', icon: ''},
                     chartConfig: {
@@ -462,7 +490,7 @@
                     },
                     moreConfig: {static: '0', orderBy: 'col', sort: 'asc', map: '', limit: 0},
                     filter: [{col: '', opt: '', val: '', bgndate: '', enddate: '', filterType: 'val'}],
-                    diy: {code: '', diyType: '', js: ''},
+                    diy: {code: '', diyType: '', sql: ''},
                     id: '',
                     srcid: '',
                     userid: 'yujiahao',
@@ -544,12 +572,12 @@
 
                 })
             },
-            switchCate(cate){
+            switchCate(cate) {
                 if (cate !== 'diy') {
                     this.defTab = 'first'
                 }
                 this.formOptions.chartCate = cate;
-                if(cate === 'diy') {
+                if (cate === 'diy') {
                     this.formOptions.chartType = 'diy';
                     this.defTab = 'fourth';
                 }
@@ -620,14 +648,13 @@
                     this.defTab = 'first';
                     this.formOptions.diy.diyType = '';
                     this.formOptions.diy.code = '';
-                    this.formOptions.diy.js = '';
                     this.genChart()
                 }
             },
-            getCateOfType(){
-                for(let cate in this.types) {
-                    for(let tp of this.types[cate]) {
-                        if(tp.value === this.formOptions.chartType) {
+            getCateOfType() {
+                for (let cate in this.types) {
+                    for (let tp of this.types[cate]) {
+                        if (tp.value === this.formOptions.chartType) {
                             return cate
                         }
                     }
@@ -664,6 +691,28 @@
                 this.formOptions.srcid = newrow.id;
                 this.showSourceList = false;
                 this.getCols()
+            },
+            previewData() {
+                this.$axios.post(this.$api.mysqlPreview, {
+                    id: this.formOptions.srcid,
+                    sql: this.formOptions.diy.sql
+                }).then((res) => {
+                    this.rows = [];
+                    if (res.data.code === '00') {
+                        let columns = res.data.data.columns;
+                        let rows = res.data.data.rows;
+                        this.colnames = columns;
+                        for (let row of rows) {
+                            let tmp = {};
+                            for (let i = 0; i < row.length; i++) {
+                                tmp[columns[i]] = row[i]
+                            }
+                            this.rows.push(tmp)
+                        }
+                    }
+                }).catch((err) => {
+
+                })
             },
             genChart() {
                 this.showEditCode = false;
@@ -928,6 +977,7 @@
     }
 
     .el-textarea__inner {
-        min-height: 300px !important;
+        /*min-height: 300px !important;*/
+        height: 100% !important;
     }
 </style>
