@@ -166,7 +166,7 @@
                             </div>
                             <span slot="footer">
                                 <el-button @click="showColMap = false" size="mini">取 消</el-button>
-                                <el-button type="primary" @click="" size="mini">确 定</el-button>
+                                <el-button type="primary" @click="showColMap = false" size="mini">确 定</el-button>
                             </span>
                         </el-dialog>
                     </el-tab-pane>

@@ -3,7 +3,7 @@
         <common-nav></common-nav>
         <div class="tool-box">
             <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
-                       style="margin: 20px 0" @click="addTemplate">add
+                       style="margin: 20px 0" @click="addTemplate">创建模版
             </el-button>
         </div>
         <div v-loading="loading"

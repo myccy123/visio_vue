@@ -22,7 +22,7 @@
             </el-select>
 
             <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
-                       @click="addChart">add
+                       @click="addChart">新建
             </el-button>
         </div>
         <div v-loading="loading"
