@@ -211,8 +211,8 @@
                 })
             },
             previewData() {
+                this.rows = [];
                 this.$axios.post(this.$api.mysqlPreview, {id: this.srcInfo.id}).then((res) => {
-                    this.rows = [];
                     if (res.data.code === '00') {
                         let columns = res.data.data.columns;
                         let rows = res.data.data.rows;

@@ -458,6 +458,15 @@
                 }
             },
             addBox() {
+                let w = 15;
+                let h = 6;
+                for(let box of this.layout) {
+                    if(this.cols >= (box.x + box.w + w)) {
+
+                    }
+                }
+
+
                 this.maxId++;
                 this.maxChartId++;
                 this.maxRowId++;
