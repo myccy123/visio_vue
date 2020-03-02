@@ -460,19 +460,49 @@
             addBox() {
                 let w = 15;
                 let h = 6;
-                for(let box of this.layout) {
-                    if(this.cols >= (box.x + box.w + w)) {
+                let _this = this;
 
+                function check(x, y) {
+                    let bgnX = x;
+                    let endX = x + w - 1;
+                    let bgnY = y;
+                    let endY = y + h - 1;
+                    let dropHere = true;
+                    for (let box of _this.layout) {
+                        let boxBgnX = box.x;
+                        let boxEndX = box.x + box.w - 1;
+                        let boxBgnY = box.y;
+                        let boxEndY = box.y + box.h - 1;
+                        if (((bgnX >= boxBgnX && bgnX <= boxEndX) ||
+                            (endX >= boxBgnX && endX <= boxEndX)) &&
+                            ((bgnY >= boxBgnY && bgnY <= boxEndY) ||
+                                (endY >= boxBgnY && endY <= boxEndY))) {
+                            dropHere = false;
+                            break;
+                        }
                     }
+                    return dropHere
                 }
 
+                function getXY() {
+                    for (let j = 0; j < 9999; j++) {
+                        for (let i = 0; i <= (_this.cols - w); i++) {
+                            let ok = check(i, j);
+                            if (ok) {
+                                return {i, j}
+                            }
+                        }
+                    }
+                    return {i: 0, j: 0}
+                }
 
+                let dropPos = getXY();
                 this.maxId++;
                 this.maxChartId++;
                 this.maxRowId++;
                 this.layout.push({
-                    "x": 0,
-                    "y": 0,
+                    "x": dropPos.i,
+                    "y": dropPos.j,
                     "w": 15,
                     "h": 6,
                     "i": this.maxId,
@@ -511,8 +541,8 @@
                     type: 'warning'
                 }).then(() => {
 
-                    for(let row of item.charts) {
-                        for(let col of row.cols) {
+                    for (let row of item.charts) {
+                        for (let col of row.cols) {
                             echarts.dispose(document.getElementById(col.domId))
                         }
                     }
@@ -1005,8 +1035,8 @@
         background: #c8ebfb;
     }
 
-    .chart-title{
-        background-color: rgba(0,0,0,0.5);
+    .chart-title {
+        background-color: rgba(0, 0, 0, 0.5);
         color: #fff;
         width: 100%;
         position: absolute;

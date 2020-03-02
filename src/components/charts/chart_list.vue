@@ -30,6 +30,10 @@
             <div v-for="chart in charts" class="chart-box" :id="chart.id">
                 <img class="chart-img" :src="chart.icon">
                 <div class="mask">
+                    <el-tooltip effect="dark" content="克隆图表" placement="top">
+                        <i @click="cloneChart(chart.id)" class="el-icon-document-copy"
+                           style="position: absolute;top: 3px;right: 3px;cursor: pointer;color: #fff;"></i>
+                    </el-tooltip>
                     <div class="btn-box">
                         <p style="font-size: 14px;margin: 0;">{{chart.title?chart.title:'未命名'}}</p>
                         <p style="font-size: 14px;">id : {{chart.id}}</p>
@@ -98,6 +102,15 @@
             },
             editChart(id) {
                 this.$router.push({name: 'chartEdit', query: {id: id}})
+            },
+            cloneChart(id) {
+                this.$axios.post(this.$api.cloneChart, {id: id}).then((res) => {
+                    if (res.data.code === '00') {
+                        this.chartList()
+                    }
+                }).catch((err) => {
+                    console.log(err)
+                })
             },
             delChart(id) {
                 this.$confirm('是否删除该图表?', '提示', {

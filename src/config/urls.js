@@ -16,6 +16,7 @@ const urls = {
     chartList: baseUrl + '/ccb/chart/list/',
     getChart: baseUrl + '/ccb/get/chart/',
     delChart: baseUrl + '/ccb/chart/delete/',
+    cloneChart: baseUrl + '/ccb/clone/chart/',
     publish: baseUrl + '/ccb/publish/',
     templateList: baseUrl + '/ccb/template/list/',
     delTemplate: baseUrl + '/ccb/delete/template/',

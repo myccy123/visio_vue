@@ -516,13 +516,15 @@
                                 this.defTab = 'fourth';
                                 let jsCode = `${res.data.data.diyCode};
                                     var diyChart = echarts.init(document.getElementById('chart'), '${theme}')
-                                    diyChart.setOption(option)`;
+                                    diyChart.setOption(option)
+                                    return diyChart`;
                                 let jsFun = new Function(jsCode);
-                                jsFun();
+                                chartObj = jsFun();
                             } else {
                                 echarts.dispose(document.getElementById('chart'));
                                 let myChart = echarts.init(document.getElementById('chart'), theme);
                                 myChart.setOption(res.data.data.chartOptions);
+                                chartObj = myChart;
                             }
                         })
 
@@ -550,7 +552,7 @@
         },
         destroyed() {
             observer.disconnect();
-            echarts.dispose(chartObj)
+            chartObj.dispose();
         },
         methods: {
             getSource() {
