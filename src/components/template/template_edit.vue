@@ -151,9 +151,14 @@
                             </div>
                         </div>
                         <div class="tool-box">
-                            <el-tooltip effect="dark" content="删除" placement="top">
-                                <i class="el-icon-delete del-btn" @click="delBox(item)"></i>
-                            </el-tooltip>
+                            <el-popconfirm
+                                    icon="el-icon-info"
+                                    iconColor="red"
+                                    @onConfirm="delBox(item)"
+                                    title="确定删除容器吗？"
+                            >
+                                <i class="el-icon-delete del-btn" slot="reference"></i>
+                            </el-popconfirm>
                             <el-tooltip effect="dark" content="刷新" placement="top">
                                 <i class="el-icon-refresh refresh-btn" @click="refreshBox(item)"></i>
                             </el-tooltip>
@@ -474,9 +479,11 @@
                         let boxBgnY = box.y;
                         let boxEndY = box.y + box.h - 1;
                         if (((bgnX >= boxBgnX && bgnX <= boxEndX) ||
-                            (endX >= boxBgnX && endX <= boxEndX)) &&
+                            (endX >= boxBgnX && endX <= boxEndX) ||
+                            (bgnX < boxBgnX && endX > boxEndX)) &&
                             ((bgnY >= boxBgnY && bgnY <= boxEndY) ||
-                                (endY >= boxBgnY && endY <= boxEndY))) {
+                                (endY >= boxBgnY && endY <= boxEndY)) ||
+                            (bgnY < boxBgnY && endY > boxEndY)) {
                             dropHere = false;
                             break;
                         }
@@ -535,22 +542,12 @@
                 this.showEditBorder = false;
             },
             delBox(item) {
-                this.$confirm('确定删除此容器?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning'
-                }).then(() => {
-
-                    for (let row of item.charts) {
-                        for (let col of row.cols) {
-                            echarts.dispose(document.getElementById(col.domId))
-                        }
+                for (let row of item.charts) {
+                    for (let col of row.cols) {
+                        echarts.dispose(document.getElementById(col.domId))
                     }
-
-                    this.layout.splice(this.layout.indexOf(item), 1)
-                }).catch(() => {
-                });
-
+                }
+                this.layout.splice(this.layout.indexOf(item), 1)
             },
             refreshBox(item) {
                 this.$nextTick(() => {
