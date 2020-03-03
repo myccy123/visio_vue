@@ -194,7 +194,7 @@ export default {
     ],
     ASSETS: {
         logo: pre_dir + '/img/logo2-nav.png',
-        bgImg: pre_dir + '/img/bg.png',
+        bgImg: pre_dir + '/img/bg4.png',
         sourceIcon: {
             mysql: pre_dir + '/img/MySQL.png',
             excel: pre_dir + '/img/excel.png',

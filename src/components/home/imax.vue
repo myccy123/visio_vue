@@ -18,14 +18,6 @@
                 bgImg: option.ASSETS.bgImg
             }
         },
-        created() {
-            this.$bus.$emit('switchPage', false)
-        },
-        mounted() {
-            setTimeout(() => {
-                this.$bus.$emit('switchPage', true)
-            }, 2000)
-        }
     }
 </script>
 
