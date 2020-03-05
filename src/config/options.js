@@ -1,3 +1,5 @@
+import {randomInt} from '../utils/useful'
+
 let pre_dir = '/static/vue_vision';
 if (process.env.NODE_ENV === "development") {
     pre_dir = '';
@@ -194,7 +196,7 @@ export default {
     ],
     ASSETS: {
         logo: pre_dir + '/img/logo2-nav.png',
-        bgImg: pre_dir + '/img/bg4.png',
+        bgImg: pre_dir + `/img/bg${randomInt(1, 4)}.png`,
         sourceIcon: {
             mysql: pre_dir + '/img/MySQL.png',
             excel: pre_dir + '/img/excel.png',

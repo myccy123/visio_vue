@@ -802,7 +802,6 @@ function genTemplate(domId, tempId, theme = '') {
             let dom = document.getElementById(domId);
             let container = document.createElement('div');
             container.style.position = 'relative';
-            let title = res.data.data.name ? res.data.data.name : '预览';
             let tempInfo = res.data.data.layout_info.templateInfo;
             let layout = res.data.data.layout_info.layout;
             let bgColor = tempInfo.backgroundColor ? tempInfo.backgroundColor : '#fff';
@@ -811,7 +810,6 @@ function genTemplate(domId, tempId, theme = '') {
                 commonTheme = theme;
             }
             let commonBorderColor = tempInfo.borderColor;
-            document.title = title;
             if (res.data.data.name !== '') {
                 let titleBox = document.createElement('div');
                 titleBox.style.width = tempInfo.width + 'px';
