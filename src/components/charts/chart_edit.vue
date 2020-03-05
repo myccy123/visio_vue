@@ -426,7 +426,6 @@
         </div>
     </div>
 </template>
-qweqwe
 
 <script>
     import CommonNav from "../common/nav";
@@ -445,6 +444,7 @@ qweqwe
         components: {CommonNav},
         data() {
             return {
+                //sdfsadf
                 defTab: 'first',
                 sourceList: [],
                 cates: options.CHART_CATES,
