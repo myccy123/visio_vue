@@ -173,7 +173,7 @@
                     <el-tab-pane :disabled="formOptions.chartType !== 'diy'" label="自定义开发" name="fourth">
                         <el-form ref="form" :inline="true" :model="formOptions.diy" size="mini" label-width="80px">
                             <el-form-item style="margin-left: 10px;">
-                                <el-button type="primary" plain @click="showEditCode = true">编辑代码</el-button>
+                                <el-button type="primary" plain @click="showEditorDialog">编辑代码</el-button>
                             </el-form-item>
                             <el-form-item style="margin-left: 10px;">
                                 <el-button type="primary" plain @click="showSQL = true">编辑SQL</el-button>
@@ -183,15 +183,15 @@
                                           @blur="genChart"></el-input>
                             </el-form-item>
                         </el-form>
-                        <el-dialog title="编辑代码" :visible.sync="showEditCode" width="800px" top="50px"
+                        <el-dialog title="编辑代码" :visible.sync="showEditCode" width="800px" top='50px'
                                    :modal="false" :close-on-click-modal="false">
-                            <div class="edit-code">
-                                <el-input style="height: 300px;" type="textarea" v-model="formOptions.diy.code">
-                                </el-input>
+                            <div id="edit-code" style='height:50vh'>
+                                <!-- <el-input style="height: 300px;" type="textarea" v-model="formOptions.diy.code">
+                                </el-input> -->
                             </div>
                             <span slot="footer">
                                 <el-button @click="showEditCode = false" size="mini">取 消</el-button>
-                                <el-button type="primary" @click="genChart" size="mini">运 行</el-button>
+                                <el-button type="primary" @click="genEidtChart" size="mini">运 行</el-button>
                             </span>
                         </el-dialog>
                         <el-dialog title="编辑SQL" :visible.sync="showSQL" width="800px" top="50px"
@@ -205,7 +205,7 @@
                                       max-height="300" stripe
                                       style="margin: 10px auto;"
                                       :border="true">
-                                <template v-for="col in colnames">
+                                <template v-for="col in colnames" >
                                     <el-table-column :prop="col" :label="col" align="center"
                                                      :show-overflow-tooltip="true"></el-table-column>
                                 </template>
@@ -549,6 +549,8 @@
             });
             observer.observe(document.getElementById('chart'));
             this.getSource()
+
+            
         },
         destroyed() {
             observer.disconnect();
@@ -716,7 +718,7 @@
 
                 })
             },
-            genChart() {
+            genChart() {            
                 this.showEditCode = false;
                 this.loading = true;
                 let data = this.formOptions;
@@ -752,6 +754,10 @@
                     this.loading = false;
                 })
             },
+            genEidtChart(){
+                this.formOptions.diy.code = getEditorData();
+                this.genChart();
+            },
             saveChart() {
                 let chart = echarts.getInstanceByDom(document.getElementById('chart'));
                 if (chart) {
@@ -762,6 +768,13 @@
                 } else {
                     this.$message.error('图片未生成，无法保存！');
                 }
+            },
+            showEditorDialog(){
+                this.showEditCode = true;
+                this.$nextTick(()=>{
+                    initEditor('edit-code',this.formOptions.diy.code);
+                })
+                
             }
         },
         computed: {
