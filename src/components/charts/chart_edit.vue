@@ -444,6 +444,7 @@
         components: {CommonNav},
         data() {
             return {
+                //rxh
                 defTab: 'first',
                 sourceList: [],
                 cates: options.CHART_CATES,
