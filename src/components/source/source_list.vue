@@ -69,7 +69,8 @@
                 }).then(() => {
                     this.$axios.post(this.$api.delSource, {id: srcid}).then((res) => {
                         if (res.data.code === '00') {
-                            this.getSource()
+                            this.getSource();
+                            this.$bus.$emit('cleanSource')
                         }
                     }).catch((err) => {
 
