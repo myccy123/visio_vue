@@ -49,7 +49,7 @@
                 </el-form-item>
                 <el-form-item>
                     <div>
-                        <el-button :disabled="!srcValid" type="danger" @click="updateSource">修改</el-button>
+                        <el-button :disabled="!srcValid" type="danger" @click="updateSource">保存修改</el-button>
                         <el-button :disabled="!srcValid" @click="cloneSource" style="margin-left: 35px;">克隆</el-button>
                     </div>
                 </el-form-item>
@@ -105,7 +105,13 @@
                 this.checkSource();
                 this.previewData();
                 this.getDbTable();
+            });
+            this.$bus.$on('cleanSource', () => {
+                this.cleanSource();
             })
+        },
+        destroyed() {
+            this.$bus.$off(['currSource', 'cleanSource']);
         },
         methods: {
             checkSource() {
@@ -124,6 +130,22 @@
                 }).catch((err) => {
 
                 })
+            },
+            cleanSource() {
+                this.srcInfo = {
+                    data_name: '',
+                    db_host: '',
+                    db_user: '',
+                    db_password: '',
+                    db_port: '',
+                    dbTable: [],
+                    db_name: '',
+                    table_name: '',
+                    id: ''
+                };
+                this.srcValid = false;
+                this.rows = [];
+                this.colnames = [];
             },
             getCols() {
                 this.$axios.post(this.$api.sourceDetail, {id: this.srcInfo.id}).then((res) => {
@@ -175,7 +197,7 @@
                 })
             },
             updateSource() {
-                this.$confirm('是否修改该数据源?', '提示', {
+                this.$confirm('是否修改此数据源?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
