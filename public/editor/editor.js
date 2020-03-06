@@ -498,7 +498,7 @@ function initEditor(domId,mode = 'javascript',data) {
     }
 
     if(arguments[1] && arguments[1] != 'html' && arguments[1] !='javascript'){
-        data = model;
+        data = mode;
     }
 
     if(mode != 'html'){
