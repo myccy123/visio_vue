@@ -62,7 +62,7 @@
                     </el-form-item>
                     <el-form-item>
                         <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
-                                   style="margin-left: 20px;" @click="addBox">add
+                                   style="margin-left: 20px;" @click="addBox">容器
                         </el-button>
                         <el-button :loading="loading2" size="mini" type="primary" @click="publish"
                                    icon="el-icon-upload">发布
