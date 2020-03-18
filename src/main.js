@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
+import router from './routes/router'
 import urls from './config/urls'
 import axios from 'axios'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import echarts from "echarts";
 import lodash from "lodash";
+import store from './store/store';
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
@@ -16,6 +17,7 @@ const globalBus = new Vue();
 window.echarts = echarts;
 window.lodash = lodash;
 window.axios = axios;
+window.chartObj = null;
 
 axios.defaults.withCredentials = false;
 Vue.prototype.$axios = axios;
@@ -42,9 +44,9 @@ router.beforeEach((to, from, next) => {
         next() // 确保一定要调用 next()
     }
 });
-
 new Vue({
     router,
+    store,
     render: function (h) {
         return h(App)
     }

@@ -1,5 +1,5 @@
 function getBaseUrl() {
-    let baseUrl = 'http://192.168.43.180:8000';
+    let baseUrl = 'http://47.96.81.211:9000';
     return baseUrl
 }
 

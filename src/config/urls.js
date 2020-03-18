@@ -24,6 +24,7 @@ const urls = {
     getTemplate: baseUrl + '/ccb/get/template/',
     customCates: baseUrl + '/ccb/cate/list/',
     customCateQuery: baseUrl + '/ccb/cate/query/',
+    drillDown:baseUrl+'/ccb/drill/down/',//表格下钻
 };
 
 export default urls
