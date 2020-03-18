@@ -32,36 +32,51 @@ export default {
             name: '仪表盘', value: 'gauge', icon: pre_dir + '/img/gauge.png'
         },
         {
-            name: '表格', value: 'table', icon: pre_dir + '/img/data-table.png'
+            name: 'HTML', value: 'html', icon: pre_dir + '/img/data-table.png'
         },
         {
             name: '自定义图', value: 'diy', icon: pre_dir + '/img/diy-chart.png'
         },
     ],
+    CHART_DIM:{
+        lineBasic:{component: 'LineBasic'},
+        areaBasic:{component: 'AreaBasic'},
+        barBasic:{component: 'BarBasic'},
+        columnBasic:{component: 'ColumnBasic'},
+        pieBasic:{component: 'PieBasic'},
+        scatterBasic:{component: 'ScatterBasic'},
+        radarBasic:{component: 'RadarBasic'},
+        gaugeBasic:{component: 'GaugeBasic'},
+        tableBasic:{component: 'TableBasic'},
+    },
     CHART_TYPES: {
         line: [
-            {name: '基础折线图', value: 'lineBasic', icon: pre_dir + '/img/line-basic-default.png'},
+            {name: '基础折线图', value: 'lineBasic', icon: pre_dir + '/img/line-basic-default.png',},
         ],
         area: [
-            {name: '基础面积图', value: 'areaBasic', icon: pre_dir + '/img/area-basic.jpg'},
+            {name: '基础面积图', value: 'areaBasic', icon: pre_dir + '/img/area-basic.jpg',},
         ],
         bar: [
-            {name: '水平柱图', value: 'barBasic', icon: pre_dir + '/img/bar-y-category.jpg'},
+            {name: '水平柱图', value: 'barBasic', icon: pre_dir + '/img/bar-y-category.jpg',},
         ],
         column: [
-            {name: '垂直柱图', value: 'columnBasic', icon: pre_dir + '/img/dataset-simple0.jpg'},
+            {name: '垂直柱图', value: 'columnBasic', icon: pre_dir + '/img/dataset-simple0.jpg',},
         ],
         pie: [
-            {name: '基础饼图', value: 'pieBasic', icon: pre_dir + '/img/pie-legend.jpg'},
+            {name: '基础饼图', value: 'pieBasic', icon: pre_dir + '/img/pie-legend.jpg',},
         ],
         scatter: [
-            {name: '基础散点图', value: 'scatterBasic', icon: pre_dir + '/img/scatter-simple.jpg'},
+            {name: '基础散点图', value: 'scatterBasic', icon: pre_dir + '/img/scatter-simple.jpg',},
         ],
         radar: [
-            {name: '基础雷达图', value: 'radarBasic', icon: pre_dir + '/img/radar.jpg'},
+            {name: '基础雷达图', value: 'radarBasic', icon: pre_dir + '/img/radar.jpg',},
         ],
         gauge: [
-            {name: '基础仪表盘', value: 'gaugeBasic', icon: pre_dir + '/img/base-gauge.png'},
+            {name: '基础仪表盘', value: 'gaugeBasic', icon: pre_dir + '/img/base-gauge.png',},
+        ],
+        html: [
+            {name: '表格', value: 'tableBasic', icon: pre_dir + '/img/base-gauge.png',},
+            {name: 'html', value: 'htmlBasic', icon: pre_dir + '/img/base-gauge.png',}
         ],
         diy: [
             {

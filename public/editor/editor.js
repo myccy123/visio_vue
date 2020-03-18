@@ -497,11 +497,11 @@ function initEditor(domId,mode = 'javascript',data) {
         editorDom.style.height = '400px';
     }
 
-    if(arguments[1] && arguments[1] != 'html' && arguments[1] !='javascript'){
+    if(arguments[1] && arguments[1] != 'html' && arguments[1] !='javascript' && arguments[1] != 'sql'){
         data = mode;
     }
 
-    if(mode != 'html'){
+    if(mode != 'html' && mode != 'sql'){
         mode = 'javascript';
     }
 
@@ -516,8 +516,12 @@ function initEditor(domId,mode = 'javascript',data) {
     if(mode == 'javascript'){
         let content = data || "var option = {\n    \n};\n";
         gb.editor.setValue(content);
-    }else{
-        gb.editor.setValue("<div>\n    \n</div>\n");
+    }else if(mode == 'html'){
+        let content = data || "<div>\n    \n</div>\n";
+        gb.editor.setValue(content);
+    }else if(mode == 'sql'){
+        let content = data || "";
+        gb.editor.setValue(content);
     }
     
     gb.editor.selection.setSelectionRange({
