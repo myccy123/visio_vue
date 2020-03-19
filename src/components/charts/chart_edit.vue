@@ -132,7 +132,8 @@ import mixin from "./chart-mixin";
 import CenterTop from "./chart_edit/CenterTop.vue";
 import CenterBottom from "./chart_edit/CenterBottom.vue";
 import RightSide from "./chart_edit/RightSide.vue";
-import chartMixin from './chart-mixin';
+import chartMixin from "./chart-mixin";
+import html2canvas from 'html2canvas';
 export default {
     name: "chartEdit",
     mixins: [mixin],
@@ -262,27 +263,38 @@ export default {
                     this.diy.diyType = type.type;
                     this.genVision();
                 });
-            }else {
+            } else {
                 this.diy.code = "";
                 this.diy.diyType = "";
                 this.genVision();
             }
         },
         //提交数据
-        saveChart() {
-            let chart = echarts.getInstanceByDom(
-                document.getElementById("chart")
-            );
-            if (chart) {
-                this.isSave = true;
-                this.baseConfig.icon = chart.getDataURL();
-                this.setChartCate(this.getCateOfType());
-                this.$nextTick(() => {
-                    this.genVision();
-                });
+        async saveChart() {
+            this.isSave = true;
+            if (this.chartCate == "html") {
+                let canvas = await this.getIcon();
+                this.baseConfig.icon = canvas.toDataURL("image/png");
             } else {
-                this.$message.error("图片未生成，无法保存！");
+                let chart = echarts.getInstanceByDom(
+                    document.getElementById("chart")
+                );
+                if (chart) {
+                    this.baseConfig.icon = chart.getDataURL();
+                    this.setChartCate(this.getCateOfType());
+                } else {
+                    this.isSave = false;
+                    this.$message.error("图片未生成，无法保存！");
+                }
             }
+            await this.$nextTick();
+            this.genVision();
+        },
+        getIcon() {
+            return html2canvas(document.getElementById("html_box"), {
+                width: document.getElementById("html_box").offsetWidth,
+                height: document.getElementById("html_box").offsetHeight
+            })
         },
         getCateOfType() {
             for (let cate in options.CHART_TYPES) {
@@ -300,9 +312,9 @@ export default {
         }
     },
     destroyed() {
-        if(chartObj){
+        if (chartObj) {
             echarts.dispose(chartObj);
-        }   
+        }
     }
 };
 </script>

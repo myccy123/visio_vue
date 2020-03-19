@@ -1,5 +1,5 @@
 <template>
-    <div style='height:100%;overflow:auto'>
+    <div id='html_box' style='height:100%;overflow:auto'>
         <div class="html-chart-down-wrap">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item @click.native='handleCrumbClick(crumbItem)' v-for="crumbItem in breadcrumb" :key='crumbItem.level'>
@@ -66,7 +66,7 @@ export default {
             this.drillIndex = crumbItem.level;
             this.getBackTableData(crumbItem);
         },
-        getBackTableData(crumbItem){
+        getBackTableData(crumbItem = this.breadcrumb[0]){
             const index = this.$store.state.tableConfig[crumbItem.level].tableDownIndex;
             const tableConfig = this.$store.state.tableConfig;
             this.$axios.post(this.$api.drillDown,{
