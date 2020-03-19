@@ -253,10 +253,9 @@
     import lodash from 'lodash';
     import html2canvas from 'html2canvas';
     import draggable from 'vuedraggable'
-    import TableExtend from './template_edit/TableExtend.vue';
-    import Vue from 'vue';
+    
     let chartSet = new Set();
-    let tableComponentSet = new Set();
+
     export default {
         name: "template_edit",
         components: {
@@ -563,9 +562,7 @@
                 })
             },
             dragStart(e, chart) {
-                console.log(chart);
                 e.dataTransfer.setData('chartid', chart.id);
-                e.dataTransfer.setData('chartType', chart.chartType);
             },
             dragEnd(e) {
                 e.dataTransfer.clearData();
@@ -628,16 +625,10 @@
                 }
             },
             dropDown(e) {
-                let chartType = e.dataTransfer.getData('chartType')
                 let chartid = e.dataTransfer.getData('chartid');
                 let obj = this.getChartBox(e.target, chartid);
                 obj.chartId = chartid;
-                if(chartType == 'tableBasic'){
-                    this.renderTable(obj)
-                }else{
-                    this.renderChart(obj)
-                }
-                
+                this.renderChart(obj)
             },
             publish() {
                 this.loading2 = true;
@@ -706,7 +697,6 @@
                 });
 
             },
-
             editMode(item, i, j) {
                 let mode = item.charts[i].cols[j].mode;
                 if (mode === '2') {
@@ -747,18 +737,6 @@
                     this.renderHTML(document.getElementById(this.editingBox.domId), this.htmlCode);
                 }
                 this.showEditCode = false;
-            },
-            renderTable(chartObj){
-                let tableExtend = Vue.extend(TableExtend);
-                console.log('renderTable',chartObj.chartId);
-                let tableComponent = new tableExtend({
-                    propsData:{
-                        chartId:chartObj.chartId
-                    }
-                })
-                tableComponent.$mount(`#${chartObj.domId}`);
-                //组件集合,销毁用
-                tableComponentSet.add(tableComponent);
             },
             renderHTML(dom, html) {
                 if (html) {

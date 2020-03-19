@@ -11,6 +11,7 @@ const defaultState = {
         {
             tableHeader: [],
             tabelDown: "", //下钻字段
+            tableDownIndex:0,
             sql: "",
             colOptions: [],
         }
@@ -99,7 +100,12 @@ export default {
         }),
         genVision(){
             if(this.chartCate == 'html'){
-                this.genHtml();
+                if(this.isSave){
+                    this.saveHtml();
+                }else{
+                    this.genHtml();
+                }
+                
             }else{
                 this.genChart();
             }
@@ -111,7 +117,6 @@ export default {
                     sql: this.tableConfig[index].sql
                 })
                 .then(res => {
-                    // this.rows = [];
                     if (res.data.code === "00") {
                         const resData = res.data.data;
                         let columns = resData.columns;
@@ -122,20 +127,37 @@ export default {
                         if(index == 0){
                             this.$root.$emit('changeTableData',rows);
                         }
-                        
-                        // for (let row of rows) {
-                        //     let tmp = {};
-                        //     for (let i = 0; i < row.length; i++) {
-                        //         tmp[columns[i]] = row[i];
-                        //     }
-                        //     this.rows.push(tmp);
-                        // }
                     }else{
                         this.$message.error(res.data.message);
                     }
                 })
                 .catch(err => {
                     console.log(err);
+                });
+        },
+        saveHtml() {//保存HTML
+            this.showEditCode = false;
+            this.$store.commit('setLoading', true);
+            let data = {};
+            let formOptionsKeys = ['baseConfig', 'tableConfig', 'chartConfig',
+                'moreConfig', 'filter', 'diy', 'id', 'srcid', 'userid', 'chartCate', 'chartType'];
+            for (let key of formOptionsKeys) {
+                data[key] = this.$store.state[key];
+            }
+            data.isSave = this.isSave;
+            this.$axios
+                .post(this.$api.genChart, data)
+                .then(res => {
+                    if(document.getElementById("chart"))
+                        echarts.dispose(document.getElementById("chart"));
+                    if (res.data.code === "00") {
+                        this.$router.push({ name: "ChartList" });
+                    }
+                    this.$store.commit('setLoading', false);
+                })
+                .catch(e => {
+                    console.log(e);
+                    this.$store.commit('setLoading', false);
                 });
         },
         genChart() {//请求echart数据,刷新echart
