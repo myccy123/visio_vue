@@ -303,6 +303,7 @@
                                 id: 10000,
                                 chart: null,
                                 chartId: '',
+                                chartType:'',
                                 domId: 'chartWrapper10000',
                                 html: '',
                                 slider: [],
@@ -522,6 +523,7 @@
                             cols: [{
                                 id: this.maxChartId,
                                 chart: null,
+                                chartType:'',
                                 chartId: '',
                                 domId: 'chartWrapper' + this.maxChartId,
                                 html: '',
@@ -554,7 +556,9 @@
                 this.$nextTick(() => {
                     for (let row of item.charts) {
                         for (let col of row.cols) {
+                            console.log(col.domId,document.getElementById(col.domId));
                             let ct = echarts.getInstanceByDom(document.getElementById(col.domId));
+                            
                             if (ct) {
                                 ct.resize()
                             }
@@ -632,6 +636,7 @@
                 let chartid = e.dataTransfer.getData('chartid');
                 let obj = this.getChartBox(e.target, chartid);
                 obj.chartId = chartid;
+                obj.chartType = chartType
                 if(chartType == 'tableBasic'){
                     this.renderTable(obj)
                 }else{
@@ -750,10 +755,10 @@
             },
             renderTable(chartObj){
                 let tableExtend = Vue.extend(TableExtend);
-                console.log('renderTable',chartObj.chartId);
                 let tableComponent = new tableExtend({
                     propsData:{
-                        chartId:chartObj.chartId
+                        chartId:chartObj.chartId,
+                        domId:chartObj.domId
                     }
                 })
                 tableComponent.$mount(`#${chartObj.domId}`);
