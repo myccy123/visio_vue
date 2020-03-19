@@ -1,5 +1,5 @@
 <template>
-    <div class="table-extend-wrap" style="height:100%;overflow:auto">
+    <div class="table-extend-wrap chartCtnClass"  :id="domId" style="width: 100%;height: 100%;position: absolute" >
         <div class="table-extend-nav-wrap">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item
@@ -39,7 +39,7 @@ let drillTableConfig = null;
 let drillSrcId = '';
 export default {
     name: "TableExtend",
-    props: ["chartId"],
+    props: ["chartId","domId"],
     data() {
         return {
             rows: [],
