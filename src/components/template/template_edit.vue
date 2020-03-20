@@ -133,7 +133,6 @@
                                                 {{cmdMap(item.charts[i].cols[j].mode)}}
                                                 <el-dropdown-menu slot="dropdown">
                                                     <el-dropdown-item command="1">单图模式</el-dropdown-item>
-                                                    <el-dropdown-item command="2">HTML模式</el-dropdown-item>
                                                     <el-dropdown-item command="3">轮播模式</el-dropdown-item>
                                                 </el-dropdown-menu>
                                             </el-dropdown>
@@ -227,7 +226,7 @@
                                    style="height: 100%;display: flex;justify-content: center">
                             <div v-for="(sld, idx) in editingBox.slider" :key="'sld'+idx"
                                  class="slider-icon">
-                                id: {{sld}}
+                                id: {{sld.chartid}}
                                 <i class="el-icon-circle-close"
                                    style="color: red;position: absolute;top: 0;right: 0;cursor: pointer;"
                                    @click="delSlder(idx)"></i>
@@ -256,7 +255,7 @@
     import TableExtend from './template_edit/TableExtend.vue';
     import Vue from 'vue';
     let chartSet = new Set();
-    let tableComponentSet = new Set();
+    let tableComponentMap = new Map();
     export default {
         name: "template_edit",
         components: {
@@ -363,7 +362,12 @@
                             for (let row of item.charts) {
                                 for (let col of row.cols) {
                                     this.$nextTick(() => {
-                                        this.renderChart(col)
+                                        if(col.chartType == 'tableBasic'){
+                                            this.renderTable(col);
+                                        }else{
+                                            this.renderChart(col)
+                                        }
+                                        
                                     })
                                 }
                             }
@@ -379,6 +383,9 @@
             for (let c of chartSet) {
                 echarts.dispose(c)
             }
+            tableComponentMap.forEach(item=>{
+                item.$destroy();
+            })
         },
         methods: {
             startTick() {
@@ -392,14 +399,20 @@
                                     if (col.sliderIndex >= col.slider.length) {
                                         col.sliderIndex = 0
                                     }
-                                    col.chartId = col.slider[col.sliderIndex];
-                                    this.renderChart(col);
+                                    col.chartId = col.slider[col.sliderIndex].chartid;
+                                    col.chartType = col.slider[col.sliderIndex].chartType;
+                                    if(col.chartType == 'tableBasic'){
+                                        this.renderTable(col);
+                                    }else{
+                                        this.renderChart(col);
+                                    }
+                                    
                                     col.sliderIndex++;
                                 }
                             }
                         }
                     }
-                }, 3000)
+                }, getSliderInterval())
             },
             initMap(map) {
                 return new Promise((resolve, reject) => {
@@ -556,7 +569,6 @@
                 this.$nextTick(() => {
                     for (let row of item.charts) {
                         for (let col of row.cols) {
-                            console.log(col.domId,document.getElementById(col.domId));
                             let ct = echarts.getInstanceByDom(document.getElementById(col.domId));
                             
                             if (ct) {
@@ -567,7 +579,6 @@
                 })
             },
             dragStart(e, chart) {
-                console.log(chart);
                 e.dataTransfer.setData('chartid', chart.id);
                 e.dataTransfer.setData('chartType', chart.chartType);
             },
@@ -592,7 +603,6 @@
                                 if (this.templateConfig.theme) {
                                     theme = this.templateConfig.theme
                                 }
-
                                 if (res.data.data.chartType === 'diy') {
                                     let jsCode = `${res.data.data.diyCode};
                                         let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'});
@@ -616,7 +626,7 @@
                     })
                 }
             },
-            getChartBox(el, chartid) {
+            getChartBox(el, chartid,chartType) {
                 if (el.className.indexOf('box-div') !== -1) {
                     let itemid = el.childNodes[0].getAttribute('itemid');
                     let rowid = el.childNodes[0].getAttribute('rowid');
@@ -624,17 +634,19 @@
                     let colObj = this.layout[itemid].charts[rowid].cols[colid];
 
                     if (el.childNodes[0].getAttribute('mode') === '3') {
-                        colObj.slider.push(chartid);
+                        colObj.slider.push({chartid,chartType});
                     }
                     return colObj
                 } else {
-                    return this.getChartBox(el.parentNode, chartid)
+                    return this.getChartBox(el.parentNode, chartid,chartType)
                 }
             },
             dropDown(e) {
+                
                 let chartType = e.dataTransfer.getData('chartType')
                 let chartid = e.dataTransfer.getData('chartid');
-                let obj = this.getChartBox(e.target, chartid);
+                let obj = this.getChartBox(e.target, chartid,chartType);
+                this.disposeBox(obj)
                 obj.chartId = chartid;
                 obj.chartType = chartType
                 if(chartType == 'tableBasic'){
@@ -714,23 +726,20 @@
 
             editMode(item, i, j) {
                 let mode = item.charts[i].cols[j].mode;
-                if (mode === '2') {
-                    this.editHTML(item, i, j)
-                } else if (mode === '3') {
+                if (mode === '3') {
                     this.editSlider(item, i, j)
                 }
             },
             switchMode(cmd, item, i, j) {
                 // item.charts[i].cols[j].mode = cmd
                 this.$set(item.charts[i].cols[j], 'mode', cmd);
-                echarts.dispose(document.getElementById(item.charts[i].cols[j].domId))
+                let col = item.charts[i].cols[j];
+                this.disposeBox(col)
             },
             cmdMap(cmd) {
                 if (cmd === '1') {
                     return '单图'
-                } else if (cmd === '2') {
-                    return '编辑HTML'
-                } else if (cmd === '3') {
+                }else if (cmd === '3') {
                     return '编辑轮播'
                 }
             },
@@ -763,7 +772,20 @@
                 })
                 tableComponent.$mount(`#${chartObj.domId}`);
                 //组件集合,销毁用
-                tableComponentSet.add(tableComponent);
+                tableComponentMap.set(chartObj.domId,tableComponent);
+            },
+            disposeBox(col){
+                if(col.chartType == 'tableBasic'){
+                    let table = tableComponentMap.get(col.domId)
+                    table.$el.innerHTML = '';
+                    if(table)
+                        table.$destroy();                   
+                }else{
+                    let chart = echarts.getInstanceByDom(document.getElementById(col.domId))
+                    if(chart){
+                        chart.dispose();
+                    }
+                }
             },
             renderHTML(dom, html) {
                 if (html) {

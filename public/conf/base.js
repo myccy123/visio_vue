@@ -3,5 +3,9 @@ function getBaseUrl() {
     return baseUrl
 }
 
+function getSliderInterval(){
+    return 6*1000;
+}
+
 
 

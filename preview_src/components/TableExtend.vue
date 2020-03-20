@@ -20,6 +20,7 @@
             :cell-style="{padding: '2px 0'}"
             height="calc(100% - 30px)"
             stripe
+            @row-click="handleRowClick"
             :border="true"
         >
             <template v-for="(col,index) in colnames">
@@ -31,7 +32,7 @@
                     :show-overflow-tooltip="true"
                 >
                     <template slot-scope="scope">
-                        <span @click="handleColumnClick(scope.row,col)">{{scope.row[index]}}</span>
+                        <span>{{scope.row[index]}}</span>
                     </template>
                 </el-table-column>
             </template>
@@ -66,8 +67,6 @@ export default {
         initData() {
             drillTableConfig = this.tableConfig;
             drillSrcId = this.srcid;
-            console.log(api);
-            console.log(getBaseUrl);
             axios.post(api, {
                     srcid: this.srcid,
                     sql: this.tableConfig[this.drillIndex].sql
@@ -85,7 +84,7 @@ export default {
                 })
                 .catch(err => console.log(err));
         },
-        handleColumnClick(rowData) {
+        handleRowClick(rowData, column, event) {
             this.drillDown(rowData);
         },
         handleCrumbClick(crumbItem) {

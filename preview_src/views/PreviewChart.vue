@@ -16,4 +16,7 @@ export default {
 }
 </script>
 <style>
+#preview_chart{
+    height: 100vh !important;
+}
 </style>

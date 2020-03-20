@@ -133,7 +133,7 @@ import CenterTop from "./chart_edit/CenterTop.vue";
 import CenterBottom from "./chart_edit/CenterBottom.vue";
 import RightSide from "./chart_edit/RightSide.vue";
 import chartMixin from "./chart-mixin";
-import html2canvas from 'html2canvas';
+import html2canvas from "html2canvas";
 export default {
     name: "chartEdit",
     mixins: [mixin],
@@ -165,6 +165,7 @@ export default {
     methods: {
         init() {
             this.initState();
+            //编辑chart
             if (this.$route.query.id) {
                 this.showSourceList = false;
                 this.$axios
@@ -183,9 +184,10 @@ export default {
                             this.getCols();
                             this.initMap().then(() => {
                                 let theme = this.baseConfig.theme;
-                                echarts.dispose(
-                                    document.getElementById("chart")
-                                );
+                                if (document.getElementById("chart"))
+                                    echarts.dispose(
+                                        document.getElementById("chart")
+                                    );
                                 if (this.chartType === "diy") {
                                     this.$store.commit("setDefTab", "fourth");
                                     let jsCode = `${res.data.data.diyCode};
@@ -194,6 +196,20 @@ export default {
                                     return diyChart`;
                                     let jsFun = new Function(jsCode);
                                     chartObj = jsFun();
+                                } else if (this.chartType === "tableBasic") {
+                                    //请求表格数据
+                                    axios.post(this.$api.drillDown, {
+                                            srcid: this.srcid,
+                                            sql: this.tableConfig[0].sql
+                                        }).then(res => {
+                                            if (res.data.code == "00") {
+                                                const resData = res.data.data;
+                                                this.$root.$emit('changeTableData',resData.rows)
+                                            } else {
+                                                console.log(res);
+                                            }
+                                        })
+                                        .catch(err => console.log(err));
                                 } else {
                                     echarts.dispose(
                                         document.getElementById("chart")
@@ -242,10 +258,10 @@ export default {
         },
         //切换小图
         switchCate(cate) {
-            if (cate !== "diy" && cate !== "html") {
-                this.$store.commit("setDefTab", "first");
-            } else {
+            if (cate == "diy") {
                 this.$store.commit("setDefTab", "fourth");
+            } else {
+                this.$store.commit("setDefTab", "first");
             }
             this.setChartCate(cate);
         },
@@ -263,7 +279,12 @@ export default {
                     this.diy.diyType = type.type;
                     this.genVision();
                 });
-            } else {
+            }else if(type.value === 'htmlBasic'){
+                this.$store.commit("setDefTab", "fourth");
+            }else if(type.value === 'tableBasic'){
+                this.$store.commit("setDefTab", "first");
+                this.genVision();
+            }else {
                 this.diy.code = "";
                 this.diy.diyType = "";
                 this.genVision();
@@ -273,7 +294,12 @@ export default {
         async saveChart() {
             this.isSave = true;
             if (this.chartCate == "html") {
-                let canvas = await this.getIcon();
+                let canvas = null;
+                if(this.chartType == 'tableBasic'){
+                    canvas = await this.getIcon('table_box');
+                }else{
+                    canvas = await this.getIcon('html_box');
+                }
                 this.baseConfig.icon = canvas.toDataURL("image/png");
             } else {
                 let chart = echarts.getInstanceByDom(
@@ -290,11 +316,11 @@ export default {
             await this.$nextTick();
             this.genVision();
         },
-        getIcon() {
-            return html2canvas(document.getElementById("html_box"), {
-                width: document.getElementById("html_box").offsetWidth,
-                height: document.getElementById("html_box").offsetHeight
-            })
+        getIcon(id) {
+            return html2canvas(document.getElementById(id), {
+                width: document.getElementById(id).offsetWidth,
+                height: document.getElementById(id).offsetHeight
+            });
         },
         getCateOfType() {
             for (let cate in options.CHART_TYPES) {
