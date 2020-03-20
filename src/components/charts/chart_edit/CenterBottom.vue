@@ -5,13 +5,14 @@
 </template>
 <script>
 import BaiduChart from './center_bottom/BaiduChart.vue';
+import TableChart from './center_bottom/TableChart.vue';
 import HtmlChart from './center_bottom/HtmlChart.vue';
 import "echarts-gl";
 import "echarts-liquidfill";
 import "echarts/extension/bmap/bmap";
 export default {
     name:'CenterBottom',
-    components:{BaiduChart,HtmlChart},
+    components:{BaiduChart,HtmlChart,TableChart},
     date(){
         return{
 
@@ -19,7 +20,17 @@ export default {
     },
     computed:{
         chartCate(){
-            return this.$store.state.chartCate === 'html' ? 'HtmlChart' : 'BaiduChart';
+            let componentName = '';
+            if(this.$store.state.chartCate === 'html'){
+                if(this.$store.state.chartType === 'tableBasic'){
+                    componentName = 'TableChart'
+                }else{
+                    componentName = 'HtmlChart'
+                }
+            }else{
+                componentName = 'BaiduChart'
+            }
+            return componentName;
         }
     }
 }

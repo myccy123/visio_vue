@@ -16,6 +16,7 @@
             :cell-style="{padding: '2px 0'}"
             height="calc(100% - 30px)"
             stripe
+            @row-click="handleRowClick"
             :border="true"
         >
             <template v-for="(col,index) in colnames">
@@ -82,17 +83,17 @@ export default {
                     }).catch(err=>console.log(err));
             }
         },
-        handleColumnClick(rowData) {
-            this.getTableData(rowData);
+        handleRowClick(rowData, column, event) {
+            this.drillDown(rowData);
         },
         handleCrumbClick(crumbItem) {
             if (crumbItem.level == this.breadcrumb.length - 1) return;
             this.breadcrumb.splice(crumbItem.level + 1, 999);
             this.drillIndex = crumbItem.level;
-            this.getBackTableData(crumbItem);
+            this.drillUp(crumbItem);
         },
         //面包屑点击
-        getBackTableData(crumbItem){
+        drillUp(crumbItem){
             const index = drillTableConfig[crumbItem.level].tableDownIndex;
             this.$axios.post(this.$api.drillDown,{
                 srcid:drillSrcId,
@@ -109,7 +110,7 @@ export default {
             })
         },
         //行 下钻字段点击
-        getTableData(rowData) {
+        drillDown(rowData) {
             const index = drillTableConfig[this.drillIndex].tableDownIndex;
             this.$axios.post(this.$api.drillDown,{
                 srcid:drillSrcId,
@@ -118,7 +119,7 @@ export default {
             }).then(res=>{
                 if(res.data.code == '00'){
                     const resData = res.data.data;
-                    console.log('getTableData',resData);
+                    console.log('drillDown',resData);
                     this.rows = resData.rows;
                     this.drillIndex++;
                     this.colnames = drillTableConfig[this.drillIndex].tableHeader;

@@ -184,7 +184,7 @@
                     </el-form-item>
                 </el-form>
             </el-tab-pane>
-            <el-tab-pane label="自定义开发" name="fourth" :disabled="chartCate !== 'diy'">
+            <el-tab-pane label="自定义开发" name="fourth" :disabled="customDisable">
                 <el-form
                     ref="form"
                     :inline="true"
@@ -251,7 +251,7 @@
                 </div>
                     
                     <span slot="footer">
-                        <el-button @click="showSQL = false" size="mini">取 消</el-button>
+                        <el-button @click="showSQL = false" size="mini">关 闭</el-button>
                         <el-button type="primary" @click="previewData" size="mini">预览数据</el-button>
                     </span>
                 </el-dialog>
@@ -285,6 +285,9 @@ export default {
             defTab:'defTab',
             colOptions:'colOptions',
         }),
+        customDisable(){
+            return this.chartCate !== 'diy' && this.chartType !== 'htmlBasic'
+        }
     },
     mounted(){
 
@@ -320,7 +323,12 @@ export default {
         showEditorDialog() {
             this.showEditCode = true;
             this.$nextTick(() => {
-                initEditor("edit-code", this.diy.code);
+                if(this.chartCate == 'diy'){
+                    initEditor("edit-code", this.diy.code);
+                }else if(this.chartType == 'htmlBasic'){
+                    initEditor("edit-code",'html',this.diy.code);
+                }
+                
             });
         },
         showEditorSql(){

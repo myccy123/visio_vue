@@ -11,7 +11,7 @@ const defaultState = {
         {
             tableHeader: [],
             tabelDown: "", //下钻字段
-            tableDownIndex:0,
+            tableDownIndex: 0,
             sql: "",
             colOptions: [],
         }
@@ -62,9 +62,9 @@ const defaultState = {
     // isSave: false
 };
 export default {
-    data(){
-        return{
-            isSave:false,
+    data() {
+        return {
+            isSave: false,
         }
     },
     computed: {
@@ -98,19 +98,55 @@ export default {
             setChartType: "setChartType",
             // setIsSave: 'setIsSave'
         }),
-        genVision(){
-            if(this.chartCate == 'html'){
-                if(this.isSave){
-                    this.saveHtml();
-                }else{
-                    this.genHtml();
+        genVision() {
+            if (this.chartCate == 'html') {
+                if (this.isSave) {
+                    if (this.chartType == 'tableBasic') {
+                        this.saveTable();
+                    } else {
+                        this.genHtml();
+                    }
+                } else {
+                    if (this.chartType == 'tableBasic') {
+                        this.genTable();
+                    } else {
+                        this.genHtml();
+                    }
+
                 }
-                
-            }else{
+
+            } else {
                 this.genChart();
             }
         },
-        genHtml(index = 0){//请求html数据,刷新视图
+        genHtml() {
+            this.showEditCode = false;
+            this.$store.commit('setLoading', true);
+            let data = {};
+            let formOptionsKeys = ['baseConfig', 'tableConfig', 'chartConfig',
+                'moreConfig', 'filter', 'diy', 'id', 'srcid', 'userid', 'chartCate', 'chartType'];
+            for (let key of formOptionsKeys) {
+                data[key] = this.$store.state[key];
+            }
+            data.isSave = this.isSave;
+            this.$axios
+                .post(this.$api.genChart, data)
+                .then(res => {
+                    if (res.data.code === "00") { 
+                        if (this.isSave) {
+                            this.$router.push({ name: "ChartList" });
+                            return;
+                        }
+                        this.$root.$emit('htmlCustom',res.data.data);
+                    }
+                    this.$store.commit('setLoading', false);
+                })
+                .catch(e => {
+                    console.log(e);
+                    this.$store.commit('setLoading', false);
+                });
+        },
+        genTable(index = 0) {//请求表格数据,刷新视图
             this.$axios
                 .post(this.$api.mysqlPreview, {
                     id: this.srcid,
@@ -124,10 +160,10 @@ export default {
                         this.colnames = columns;
                         this.tableConfig[index].colOptions = resData.col_option;
                         this.tableConfig[index].tableHeader = resData.columns;
-                        if(index == 0){
-                            this.$root.$emit('changeTableData',rows);
+                        if (index == 0) {
+                            this.$root.$emit('changeTableData', rows);
                         }
-                    }else{
+                    } else {
                         this.$message.error(res.data.message);
                     }
                 })
@@ -135,7 +171,7 @@ export default {
                     console.log(err);
                 });
         },
-        saveHtml() {//保存HTML
+        saveTable() {//保存表格配置参数
             this.showEditCode = false;
             this.$store.commit('setLoading', true);
             let data = {};
@@ -148,7 +184,7 @@ export default {
             this.$axios
                 .post(this.$api.genChart, data)
                 .then(res => {
-                    if(document.getElementById("chart"))
+                    if (document.getElementById("chart"))
                         echarts.dispose(document.getElementById("chart"));
                     if (res.data.code === "00") {
                         this.$router.push({ name: "ChartList" });
