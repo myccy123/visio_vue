@@ -16,6 +16,7 @@ export default {
     computed: {
     },
     mounted() {
+        this.$store.commit("setDefTab", "fourth");
         this.$root.$on('htmlCustom',template=>{
             document.getElementById('style_mount').innerHTML = '';
             let indexOf = template.indexOf('<style');

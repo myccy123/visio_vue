@@ -253,9 +253,11 @@
     import html2canvas from 'html2canvas';
     import draggable from 'vuedraggable'
     import TableExtend from './template_edit/TableExtend.vue';
+    import HtmlExtend from './template_edit/HtmlExtend.vue';
     import Vue from 'vue';
     let chartSet = new Set();
     let tableComponentMap = new Map();
+    let htmlComponentMap = new Map();
     export default {
         name: "template_edit",
         components: {
@@ -364,6 +366,8 @@
                                     this.$nextTick(() => {
                                         if(col.chartType == 'tableBasic'){
                                             this.renderTable(col);
+                                        }else if(col.chartType == 'htmlBasic'){
+                                            this.renderHTML(col);
                                         }else{
                                             this.renderChart(col)
                                         }
@@ -386,6 +390,10 @@
             tableComponentMap.forEach(item=>{
                 item.$destroy();
             })
+
+            htmlComponentMap.forEach(item=>{
+                item.$destroy();
+            })
         },
         methods: {
             startTick() {
@@ -403,6 +411,8 @@
                                     col.chartType = col.slider[col.sliderIndex].chartType;
                                     if(col.chartType == 'tableBasic'){
                                         this.renderTable(col);
+                                    }else if(col.chartType == 'htmlBasic'){
+                                        this.renderHTML(col);
                                     }else{
                                         this.renderChart(col);
                                     }
@@ -587,11 +597,11 @@
             },
             renderChart(col) {
                 let dom = document.getElementById(col.domId);
-                if (col.html) {
-                    this.$nextTick(() => {
-                        this.renderHTML(dom, col.html)
-                    })
-                }
+                // if (col.html) {
+                //     this.$nextTick(() => {
+                //         this.renderHTML(dom, col.html)
+                //     })
+                // }
                 if (col.chartId !== '') {
                     this.$axios.post(this.$api.getChart, {id: col.chartId}).then((res) => {
                         if (res.data.code === '00') {
@@ -649,8 +659,11 @@
                 this.disposeBox(obj)
                 obj.chartId = chartid;
                 obj.chartType = chartType
+                console.log('dropDown',chartType);
                 if(chartType == 'tableBasic'){
                     this.renderTable(obj)
+                }else if(chartType == 'htmlBasic'){
+                    this.renderHTML(obj)
                 }else{
                     this.renderChart(obj)
                 }
@@ -756,11 +769,11 @@
                 this.showEditCode = true;
             },
             confirmHTML() {
-                this.editingBox.html = this.htmlCode;
-                if (this.htmlCode) {
-                    this.renderHTML(document.getElementById(this.editingBox.domId), this.htmlCode);
-                }
-                this.showEditCode = false;
+                // this.editingBox.html = this.htmlCode;
+                // if (this.htmlCode) {
+                //     this.renderHTML(document.getElementById(this.editingBox.domId), this.htmlCode);
+                // }
+                // this.showEditCode = false;
             },
             renderTable(chartObj){
                 let tableExtend = Vue.extend(TableExtend);
@@ -777,9 +790,18 @@
             disposeBox(col){
                 if(col.chartType == 'tableBasic'){
                     let table = tableComponentMap.get(col.domId)
-                    table.$el.innerHTML = '';
-                    if(table)
-                        table.$destroy();                   
+                    if(table){
+                        table.$el.innerHTML = '';
+                        table.$destroy(); 
+                    }
+                                          
+                }else if(col.chartType == 'htmlBasic'){
+                    let html = htmlComponentMap.get(col.domId)
+                    if(html){
+                        html.$el.innerHTML = '';
+                        html.$destroy();
+                    }
+                    
                 }else{
                     let chart = echarts.getInstanceByDom(document.getElementById(col.domId))
                     if(chart){
@@ -787,14 +809,17 @@
                     }
                 }
             },
-            renderHTML(dom, html) {
-                if (html) {
-                    let c = echarts.getInstanceByDom(dom);
-                    if (c) {
-                        c.dispose()
+            renderHTML(chartObj){
+                let htmlExtend = Vue.extend(HtmlExtend);
+                let htmlComponent = new htmlExtend({
+                    propsData:{
+                        chartId:chartObj.chartId,
+                        domId:chartObj.domId
                     }
-                    dom.innerHTML = html
-                }
+                })
+                htmlComponent.$mount(`#${chartObj.domId}`);
+                //组件集合,销毁用
+                htmlComponentMap.set(chartObj.domId,htmlComponent)
             },
             addLeft(item, i, j) {
                 this.maxChartId++;
