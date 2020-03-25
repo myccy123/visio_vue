@@ -9,6 +9,7 @@ import echarts from "echarts";
 import lodash from "lodash";
 import store from './store/store';
 
+
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 

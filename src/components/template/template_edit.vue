@@ -27,6 +27,7 @@
             </div>
             <div v-for="chart in charts" class="chart-box"
                  draggable="true"
+                 :key='chart.id'
                  @dragstart="dragStart($event, chart)"
             >
                 <img :src="chart.icon">
@@ -197,7 +198,7 @@
                     <el-color-picker v-model="templateConfig.borderColor" color-format="hex"
                                      :predefine="predefineColors" size="mini"></el-color-picker>
                     <div class="edit-border" style="display: flex; justify-content: space-around;">
-                        <div v-for="b in borderOptions" class="source-icon" @click="confirmBorder(b.value)">
+                        <div v-for="b in borderOptions" :key='b.value' class="source-icon" @click="confirmBorder(b.value)">
                             <div v-if="b.value == 'border0'"
                                  style="height: 100%;width: 100%;border: 1px dashed #1586ee;position: absolute;z-index: 197">
                             </div>
@@ -659,7 +660,6 @@
                 this.disposeBox(obj)
                 obj.chartId = chartid;
                 obj.chartType = chartType
-                console.log('dropDown',chartType);
                 if(chartType == 'tableBasic'){
                     this.renderTable(obj)
                 }else if(chartType == 'htmlBasic'){
