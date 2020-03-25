@@ -159,7 +159,9 @@ export default {
                         let rows = resData.rows;
                         this.colnames = columns;
                         this.tableConfig[index].colOptions = resData.col_option;
-                        this.tableConfig[index].tableHeader = resData.columns;
+                        if(this.tableConfig[index].tableHeader.length === 0) {
+                            this.tableConfig[index].tableHeader = resData.columns;
+                        }
                         if (index == 0) {
                             this.$root.$emit('changeTableData', rows);
                         }
