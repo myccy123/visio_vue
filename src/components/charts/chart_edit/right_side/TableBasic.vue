@@ -18,7 +18,7 @@
                     </el-form-item>
                     <el-form-item label="表头">
                         <el-select
-                            @blur="genVision"
+                            @change="genVision"
                             v-model="item.tableHeader"
                             multiple
                             placeholder="请选择表头字段"
@@ -33,7 +33,7 @@
                     </el-form-item>
 
                     <el-form-item label="下钻">
-                        <el-select @blur="genVision" v-model="item.tableDown" @change='handleDownChange($event,index)' placeholder="请选择下钻字段">
+                        <el-select v-model="item.tableDown" @change='handleDownChange($event,index)' placeholder="请选择下钻字段">
                             <el-option
                                 v-for="colItem in tableConfig[index].colOptions"
                                 :key="colItem.colname"
@@ -64,26 +64,6 @@
             :close-on-click-modal="false">
             <div style="height:50vh;">
                 <div id="edit-code-sql" style="height:20vh"></div>
-                <!-- <el-table
-                    :data="rows"
-                    :highlight-current-row="true"
-                    :row-style="{cursor: 'pointer'}"
-                    :cell-style="{padding: '2px 0'}"
-                    height="30vh"
-                    stripe
-                    style="margin: 10px auto;"
-                    :border="true"
-                >
-                    <template v-for="col in colnames">
-                        <el-table-column
-                            :prop="col"
-                            :label="col"
-                            align="center"
-                            :key="col"
-                            :show-overflow-tooltip="true"
-                        ></el-table-column>
-                    </template>
-                </el-table> -->
             </div>
 
             <span slot="footer">
@@ -101,8 +81,6 @@ export default {
     data(){
         return{
             showSQL:false,
-            // rows:[],
-            // colnames:[],
             dialogIndex:0,
             isDialogCreated:false,
         }
@@ -142,6 +120,7 @@ export default {
                     break;
                 }
             }
+            this.genVision()
         },
         getSql(){
             this.tableConfig[this.dialogIndex].sql = getEditorData();
