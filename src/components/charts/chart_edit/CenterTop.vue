@@ -185,21 +185,15 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane label="自定义开发" name="fourth" :disabled="customDisable">
-                <el-form
-                    ref="form"
-                    :inline="true"
-                    :model="diy"
-                    size="mini"
-                    label-width="80px"
-                >
+                <el-form ref="form" :inline="true" :model="diy" size="mini" label-width="80px">
                     <el-form-item style="margin-left: 10px;">
-                        <el-button  type="primary" plain @click="showEditorDialog">编辑代码</el-button>
+                        <el-button type="primary" plain @click="showEditorDialog">编辑代码</el-button>
                     </el-form-item>
                     <el-form-item style="margin-left: 10px;">
                         <el-button type="primary" plain @click="showEditorSql">编辑SQL</el-button>
                     </el-form-item>
                     <el-form-item label="地图">
-                        <el-input  v-model="moreConfig.map" @blur="genVision"></el-input>
+                        <el-input v-model="moreConfig.map" @blur="genVision"></el-input>
                     </el-form-item>
                 </el-form>
                 <el-dialog
@@ -210,7 +204,19 @@
                     :modal="false"
                     :close-on-click-modal="false"
                 >
-                    <div id="edit-code" style="height:50vh">
+                    <div style="position:relative">
+                        <div style='text-align:right;position:absolute;right:10px;top:0;z-index:333'>
+                            <el-button
+                                size="mini"
+                                @click="handleShowJsonViewer"
+                            >getVisionData预览</el-button>
+                        </div>
+                        <transition name="el-zoom-in-top">
+                            <div class="json-viewer-wrap" v-show="showJsonViewer">
+                                <json-viewer :value="jsonData" :expand-depth="3" boxed></json-viewer>
+                            </div>
+                        </transition>
+                        <div id="edit-code" style="height:50vh"></div>
                     </div>
                     <span slot="footer">
                         <el-button @click="showEditCode = false" size="mini">取 消</el-button>
@@ -225,31 +231,30 @@
                     :modal="false"
                     :close-on-click-modal="false"
                 >
-                <div style='height:50vh;'>
-                    <div id="edit-code-sql" style="height:20vh">    
-                    </div>
+                    <div style="height:50vh;">
+                        <div id="edit-code-sql" style="height:20vh"></div>
                         <el-table
-                        :data="rows"
-                        :highlight-current-row="true"
-                        :row-style="{cursor: 'pointer'}"
-                        :cell-style="{padding: '2px 0'}"
-                        height="30vh"
-                        stripe
-                        style="margin: 10px auto;"
-                        :border="true"
-                    >
-                        <template v-for="col in colnames">
-                            <el-table-column
-                                :prop="col"
-                                :label="col"
-                                align="center"
-                                :key="col"
-                                :show-overflow-tooltip="true"
-                            ></el-table-column>
-                        </template>
-                    </el-table>                    
-                </div>
-                    
+                            :data="rows"
+                            :highlight-current-row="true"
+                            :row-style="{cursor: 'pointer'}"
+                            :cell-style="{padding: '2px 0'}"
+                            height="30vh"
+                            stripe
+                            style="margin: 10px auto;"
+                            :border="true"
+                        >
+                            <template v-for="col in colnames">
+                                <el-table-column
+                                    :prop="col"
+                                    :label="col"
+                                    align="center"
+                                    :key="col"
+                                    :show-overflow-tooltip="true"
+                                ></el-table-column>
+                            </template>
+                        </el-table>
+                    </div>
+
                     <span slot="footer">
                         <el-button @click="showSQL = false" size="mini">关 闭</el-button>
                         <el-button type="primary" @click="previewData" size="mini">预览数据</el-button>
@@ -260,41 +265,44 @@
     </div>
 </template>
 <script>
-import mixin from '../chart-mixin';
-import {mapState,mapMutations} from 'vuex';
-import options from '../../../config/options';
+import mixin from "../chart-mixin";
+import { mapState, mapMutations } from "vuex";
+import options from "../../../config/options";
+import JsonViewer from "vue-json-viewer";
+import "vue-json-viewer/style.css";
 export default {
     name: "CenterTop",
-    mixins:[mixin],
-    data(){
-        return{
-            themeOptions:options.THEME,
+    mixins: [mixin],
+    components: { JsonViewer },
+    data() {
+        return {
+            themeOptions: options.THEME,
             filterOptions: options.FILTER,
             orderOptions: options.ORDER,
             orderByOptions: options.ORDER_BY,
             updateOptions: options.UPDATE,
             sumOptions: options.SUM_TYPE,
-            showEditCode:false,
-            showSQL:false,
-            rows:[],
-            colnames:[],
-        }
+            showEditCode: false,
+            showSQL: false,
+            rows: [],
+            colnames: [],
+            showJsonViewer: false, //是否显示json
+            jsonData: [["姓名"], ["工资"], ["所在地"], ["AAAA"]]
+        };
     },
-    computed:{
+    computed: {
         ...mapState({
-            defTab:'defTab',
-            colOptions:'colOptions',
+            defTab: "defTab",
+            colOptions: "colOptions"
         }),
-        customDisable(){
-            return this.chartCate !== 'diy' && this.chartType !== 'htmlBasic'
+        customDisable() {
+            return this.chartCate !== "diy" && this.chartType !== "htmlBasic";
         }
     },
-    mounted(){
-
-    },
-    methods:{
+    mounted() {},
+    methods: {
         ...mapMutations({
-            setDefTab:'setDefTab',
+            setDefTab: "setDefTab"
         }),
         //模糊搜索
         querySearchAsync(queryString, cb) {
@@ -304,7 +312,8 @@ export default {
                     if (res.data.code === "00") {
                         cb(res.data.data);
                     }
-                }).catch(err => {});
+                })
+                .catch(err => {});
         },
         addFilter() {
             this.filter.push({
@@ -323,18 +332,17 @@ export default {
         showEditorDialog() {
             this.showEditCode = true;
             this.$nextTick(() => {
-                if(this.chartCate == 'diy'){
+                if (this.chartCate == "diy") {
                     initEditor("edit-code", this.diy.code);
-                }else if(this.chartType == 'htmlBasic'){
-                    initEditor("edit-code",'html',this.diy.code);
+                } else if (this.chartType == "htmlBasic") {
+                    initEditor("edit-code", "html", this.diy.code);
                 }
-                
             });
         },
-        showEditorSql(){
+        showEditorSql() {
             this.showSQL = true;
             this.$nextTick(() => {
-                initEditor("edit-code-sql",'sql',this.moreConfig.sql);
+                initEditor("edit-code-sql", "sql", this.moreConfig.sql);
             });
         },
         previewData() {
@@ -342,7 +350,7 @@ export default {
             this.$axios
                 .post(this.$api.mysqlPreview, {
                     id: this.srcid,
-                    sql: this.moreConfig.sql 
+                    sql: this.moreConfig.sql
                 })
                 .then(res => {
                     this.rows = [];
@@ -357,13 +365,11 @@ export default {
                             }
                             this.rows.push(tmp);
                         }
-                    }else{
+                    } else {
                         this.$message.error(res.data.message);
                     }
                 })
-                .catch(err => {
-
-                });
+                .catch(err => {});
         },
         delFilter(idx) {
             this.filter.splice(idx, 1);
@@ -384,6 +390,20 @@ export default {
                 }
             }
         },
+        handleShowJsonViewer(){
+            this.showJsonViewer = !this.showJsonViewer;
+            if(this.showJsonViewer){
+                let params = {
+                    srcid:this.srcid,
+                    sql:this.moreConfig.sql
+                }
+                this.$axios.post(this.$api.getVisionData,params).then(res=>{
+                    if(res.data.code == '00'){
+                        this.jsonData = res.data.data;
+                    }
+                }).catch(err=>console.log(err))
+            }
+        }
     }
 };
 </script>
@@ -410,5 +430,33 @@ export default {
     color: red;
     position: relative;
     left: -5px;
+}
+
+.json-viewer-wrap {
+    position: absolute;
+    top: 32px;
+    width: 100%;
+    z-index: 666;
+    border:1px solid #aaa;
+    border-radius: 6px;
+    height: 50vh;
+    overflow: auto;
+    background-color: #eee;
+}
+
+.jv-container.boxed {
+    border: none;
+    background-color: #eee;
+    /* height: 56vh; */
+    /* overflow: auto; */
+}
+
+.jv-container.boxed:hover {
+    border: none;
+    background-color: #eee;
+}
+
+.jv-more .jv-toggle{
+    color:#409eff !important;
 }
 </style>
