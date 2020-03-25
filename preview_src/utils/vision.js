@@ -6,12 +6,12 @@ import lodash from 'lodash';
 import axios from 'axios';
 import Vue from 'vue';
 import TableExtend from '../components/TableExtend.vue';
+import HtmlExtend from '../components/HtmlExtend.vue';
 // import url from '../config/urls'
 
 let BASE_URL = getBaseUrl();
 let chartSet = new Set();
 let timerSet = new Set();
-
 let themeList = [
     'chalk',
     'dark',
@@ -728,21 +728,16 @@ function genChart(domId, chartId, html = '',
     let myChart = null;
 
     function getData() {
-        if (html) {
-            dom.innerHTML = html;
-            return
-        }
-
         if (!chartId) {
             return
         }
         axios.post(BASE_URL + '/ccb/get/chart/', { id: chartId }).then((res) => {
-            
             if (!myChart && res.data.data.formOptions.chartCate != 'html') {
                 myChart = echarts.init(dom, res.data.data.theme);
             }
             if (res.data.code === '00') {
                 initMap(res.data.data.formOptions.moreConfig.map).then(() => {
+                    echarts.dispose(dom);
                     if (res.data.data.formOptions.chartType == 'tableBasic') {
                         let tableExtend = Vue.extend(TableExtend);
                         let tableComponent = new tableExtend({
@@ -755,9 +750,17 @@ function genChart(domId, chartId, html = '',
                         })
                         tableComponent.$mount(`#${domId}`);
 
-                    } else {
-                        echarts.dispose(dom);
-
+                    }else if(res.data.data.formOptions.chartType == 'htmlBasic'){
+                        let htmlExtend = Vue.extend(HtmlExtend);
+                        let htmlComponent = new htmlExtend({
+                            propsData: {
+                                chartId: chartId,
+                                domId: domId,
+                                htmlCode:res.data.data.diyCode
+                            }
+                        })
+                        htmlComponent.$mount(`#${domId}`);
+                    }else {
                         let theme = commonTheme ? commonTheme : res.data.data.theme;
                         if (res.data.data.chartType === 'diy') {
                             let jsCode = `${res.data.data.diyCode};
@@ -780,6 +783,7 @@ function genChart(domId, chartId, html = '',
                 dom.innerText = JSON.stringify(res.data, null, 4)
             }
         }).catch((err) => {
+            console.log(11111);
             console.log(err);
         })
     }
@@ -801,7 +805,7 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
                         if (col.sliderIndex >= col.slider.length) {
                             col.sliderIndex = 0
                         }
-                        let chartId = col.slider[col.sliderIndex];
+                        let chartId = col.slider[col.sliderIndex].chartid;
                         genChart(`${rootDomId}_${domId}`, chartId, '',
                             commonTheme, commonBorderColor);
                         col.sliderIndex++;
@@ -814,6 +818,7 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
 
 
 function genTemplate(domId, tempId, theme = '') {
+    console.log('genTemplate',tempId);
     axios.post(BASE_URL + '/ccb/get/template/', { id: tempId }).then((res) => {
         if (res.data.code === '00') {
             let dom = document.getElementById(domId);

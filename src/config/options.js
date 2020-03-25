@@ -75,8 +75,8 @@ export default {
             {name: '基础仪表盘', value: 'gaugeBasic', icon: pre_dir + '/img/base-gauge.png',},
         ],
         html: [
-            {name: '表格', value: 'tableBasic', icon: pre_dir + '/img/base-gauge.png',},
-            {name: 'html', value: 'htmlBasic', icon: pre_dir + '/img/base-gauge.png',}
+            {name: '表格', value: 'tableBasic', icon: pre_dir + '/img/table.jpg',},
+            {name: 'html', value: 'htmlBasic', icon: pre_dir + '/img/html.jpg',}
         ],
         diy: [
             {

@@ -210,6 +210,8 @@ export default {
                                             }
                                         })
                                         .catch(err => console.log(err));
+                                }else if(this.chartType == 'htmlBasic'){
+                                    this.$root.$emit('htmlCustom',res.data.data.diyCode)
                                 } else {
                                     echarts.dispose(
                                         document.getElementById("chart")
