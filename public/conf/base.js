@@ -1,6 +1,10 @@
 function getBaseUrl() {
-    let baseUrl = 'http://127.0.0.1:8000';
+    let baseUrl = 'http://47.96.81.211:9000';
     return baseUrl
+}
+
+function getSliderInterval(){
+    return 6*1000;
 }
 
 

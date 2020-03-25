@@ -27,6 +27,7 @@
             </div>
             <div v-for="chart in charts" class="chart-box"
                  draggable="true"
+                 :key='chart.id'
                  @dragstart="dragStart($event, chart)"
             >
                 <img :src="chart.icon">
@@ -133,7 +134,6 @@
                                                 {{cmdMap(item.charts[i].cols[j].mode)}}
                                                 <el-dropdown-menu slot="dropdown">
                                                     <el-dropdown-item command="1">单图模式</el-dropdown-item>
-                                                    <el-dropdown-item command="2">HTML模式</el-dropdown-item>
                                                     <el-dropdown-item command="3">轮播模式</el-dropdown-item>
                                                 </el-dropdown-menu>
                                             </el-dropdown>
@@ -198,7 +198,7 @@
                     <el-color-picker v-model="templateConfig.borderColor" color-format="hex"
                                      :predefine="predefineColors" size="mini"></el-color-picker>
                     <div class="edit-border" style="display: flex; justify-content: space-around;">
-                        <div v-for="b in borderOptions" class="source-icon" @click="confirmBorder(b.value)">
+                        <div v-for="b in borderOptions" :key='b.value' class="source-icon" @click="confirmBorder(b.value)">
                             <div v-if="b.value == 'border0'"
                                  style="height: 100%;width: 100%;border: 1px dashed #1586ee;position: absolute;z-index: 197">
                             </div>
@@ -227,7 +227,7 @@
                                    style="height: 100%;display: flex;justify-content: center">
                             <div v-for="(sld, idx) in editingBox.slider" :key="'sld'+idx"
                                  class="slider-icon">
-                                id: {{sld}}
+                                id: {{sld.chartid}}
                                 <i class="el-icon-circle-close"
                                    style="color: red;position: absolute;top: 0;right: 0;cursor: pointer;"
                                    @click="delSlder(idx)"></i>
@@ -253,9 +253,12 @@
     import lodash from 'lodash';
     import html2canvas from 'html2canvas';
     import draggable from 'vuedraggable'
-
+    import TableExtend from './template_edit/TableExtend.vue';
+    import HtmlExtend from './template_edit/HtmlExtend.vue';
+    import Vue from 'vue';
     let chartSet = new Set();
-
+    let tableComponentMap = new Map();
+    let htmlComponentMap = new Map();
     export default {
         name: "template_edit",
         components: {
@@ -302,6 +305,7 @@
                                 id: 10000,
                                 chart: null,
                                 chartId: '',
+                                chartType:'',
                                 domId: 'chartWrapper10000',
                                 html: '',
                                 slider: [],
@@ -361,7 +365,14 @@
                             for (let row of item.charts) {
                                 for (let col of row.cols) {
                                     this.$nextTick(() => {
-                                        this.renderChart(col)
+                                        if(col.chartType == 'tableBasic'){
+                                            this.renderTable(col);
+                                        }else if(col.chartType == 'htmlBasic'){
+                                            this.renderHTML(col);
+                                        }else{
+                                            this.renderChart(col)
+                                        }
+                                        
                                     })
                                 }
                             }
@@ -377,6 +388,13 @@
             for (let c of chartSet) {
                 echarts.dispose(c)
             }
+            tableComponentMap.forEach(item=>{
+                item.$destroy();
+            })
+
+            htmlComponentMap.forEach(item=>{
+                item.$destroy();
+            })
         },
         methods: {
             startTick() {
@@ -390,14 +408,22 @@
                                     if (col.sliderIndex >= col.slider.length) {
                                         col.sliderIndex = 0
                                     }
-                                    col.chartId = col.slider[col.sliderIndex];
-                                    this.renderChart(col);
+                                    col.chartId = col.slider[col.sliderIndex].chartid;
+                                    col.chartType = col.slider[col.sliderIndex].chartType;
+                                    if(col.chartType == 'tableBasic'){
+                                        this.renderTable(col);
+                                    }else if(col.chartType == 'htmlBasic'){
+                                        this.renderHTML(col);
+                                    }else{
+                                        this.renderChart(col);
+                                    }
+                                    
                                     col.sliderIndex++;
                                 }
                             }
                         }
                     }
-                }, 3000)
+                }, getSliderInterval())
             },
             initMap(map) {
                 return new Promise((resolve, reject) => {
@@ -521,6 +547,7 @@
                             cols: [{
                                 id: this.maxChartId,
                                 chart: null,
+                                chartType:'',
                                 chartId: '',
                                 domId: 'chartWrapper' + this.maxChartId,
                                 html: '',
@@ -554,6 +581,7 @@
                     for (let row of item.charts) {
                         for (let col of row.cols) {
                             let ct = echarts.getInstanceByDom(document.getElementById(col.domId));
+                            
                             if (ct) {
                                 ct.resize()
                             }
@@ -563,17 +591,18 @@
             },
             dragStart(e, chart) {
                 e.dataTransfer.setData('chartid', chart.id);
+                e.dataTransfer.setData('chartType', chart.chartType);
             },
             dragEnd(e) {
                 e.dataTransfer.clearData();
             },
             renderChart(col) {
                 let dom = document.getElementById(col.domId);
-                if (col.html) {
-                    this.$nextTick(() => {
-                        this.renderHTML(dom, col.html)
-                    })
-                }
+                // if (col.html) {
+                //     this.$nextTick(() => {
+                //         this.renderHTML(dom, col.html)
+                //     })
+                // }
                 if (col.chartId !== '') {
                     this.$axios.post(this.$api.getChart, {id: col.chartId}).then((res) => {
                         if (res.data.code === '00') {
@@ -585,7 +614,6 @@
                                 if (this.templateConfig.theme) {
                                     theme = this.templateConfig.theme
                                 }
-
                                 if (res.data.data.chartType === 'diy') {
                                     let jsCode = `${res.data.data.diyCode};
                                         let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'});
@@ -609,7 +637,7 @@
                     })
                 }
             },
-            getChartBox(el, chartid) {
+            getChartBox(el, chartid,chartType) {
                 if (el.className.indexOf('box-div') !== -1) {
                     let itemid = el.childNodes[0].getAttribute('itemid');
                     let rowid = el.childNodes[0].getAttribute('rowid');
@@ -617,18 +645,29 @@
                     let colObj = this.layout[itemid].charts[rowid].cols[colid];
 
                     if (el.childNodes[0].getAttribute('mode') === '3') {
-                        colObj.slider.push(chartid);
+                        colObj.slider.push({chartid,chartType});
                     }
                     return colObj
                 } else {
-                    return this.getChartBox(el.parentNode, chartid)
+                    return this.getChartBox(el.parentNode, chartid,chartType)
                 }
             },
             dropDown(e) {
+                
+                let chartType = e.dataTransfer.getData('chartType')
                 let chartid = e.dataTransfer.getData('chartid');
-                let obj = this.getChartBox(e.target, chartid);
+                let obj = this.getChartBox(e.target, chartid,chartType);
+                this.disposeBox(obj)
                 obj.chartId = chartid;
-                this.renderChart(obj)
+                obj.chartType = chartType
+                if(chartType == 'tableBasic'){
+                    this.renderTable(obj)
+                }else if(chartType == 'htmlBasic'){
+                    this.renderHTML(obj)
+                }else{
+                    this.renderChart(obj)
+                }
+                
             },
             publish() {
                 this.loading2 = true;
@@ -697,25 +736,23 @@
                 });
 
             },
+
             editMode(item, i, j) {
                 let mode = item.charts[i].cols[j].mode;
-                if (mode === '2') {
-                    this.editHTML(item, i, j)
-                } else if (mode === '3') {
+                if (mode === '3') {
                     this.editSlider(item, i, j)
                 }
             },
             switchMode(cmd, item, i, j) {
                 // item.charts[i].cols[j].mode = cmd
                 this.$set(item.charts[i].cols[j], 'mode', cmd);
-                echarts.dispose(document.getElementById(item.charts[i].cols[j].domId))
+                let col = item.charts[i].cols[j];
+                this.disposeBox(col)
             },
             cmdMap(cmd) {
                 if (cmd === '1') {
                     return '单图'
-                } else if (cmd === '2') {
-                    return '编辑HTML'
-                } else if (cmd === '3') {
+                }else if (cmd === '3') {
                     return '编辑轮播'
                 }
             },
@@ -732,20 +769,57 @@
                 this.showEditCode = true;
             },
             confirmHTML() {
-                this.editingBox.html = this.htmlCode;
-                if (this.htmlCode) {
-                    this.renderHTML(document.getElementById(this.editingBox.domId), this.htmlCode);
-                }
-                this.showEditCode = false;
+                // this.editingBox.html = this.htmlCode;
+                // if (this.htmlCode) {
+                //     this.renderHTML(document.getElementById(this.editingBox.domId), this.htmlCode);
+                // }
+                // this.showEditCode = false;
             },
-            renderHTML(dom, html) {
-                if (html) {
-                    let c = echarts.getInstanceByDom(dom);
-                    if (c) {
-                        c.dispose()
+            renderTable(chartObj){
+                let tableExtend = Vue.extend(TableExtend);
+                let tableComponent = new tableExtend({
+                    propsData:{
+                        chartId:chartObj.chartId,
+                        domId:chartObj.domId
                     }
-                    dom.innerHTML = html
+                })
+                tableComponent.$mount(`#${chartObj.domId}`);
+                //组件集合,销毁用
+                tableComponentMap.set(chartObj.domId,tableComponent);
+            },
+            disposeBox(col){
+                if(col.chartType == 'tableBasic'){
+                    let table = tableComponentMap.get(col.domId)
+                    if(table){
+                        table.$el.innerHTML = '';
+                        table.$destroy(); 
+                    }
+                                          
+                }else if(col.chartType == 'htmlBasic'){
+                    let html = htmlComponentMap.get(col.domId)
+                    if(html){
+                        html.$el.innerHTML = '';
+                        html.$destroy();
+                    }
+                    
+                }else{
+                    let chart = echarts.getInstanceByDom(document.getElementById(col.domId))
+                    if(chart){
+                        chart.dispose();
+                    }
                 }
+            },
+            renderHTML(chartObj){
+                let htmlExtend = Vue.extend(HtmlExtend);
+                let htmlComponent = new htmlExtend({
+                    propsData:{
+                        chartId:chartObj.chartId,
+                        domId:chartObj.domId
+                    }
+                })
+                htmlComponent.$mount(`#${chartObj.domId}`);
+                //组件集合,销毁用
+                htmlComponentMap.set(chartObj.domId,htmlComponent)
             },
             addLeft(item, i, j) {
                 this.maxChartId++;
