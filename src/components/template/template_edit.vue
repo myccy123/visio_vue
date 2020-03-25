@@ -275,7 +275,7 @@
                 showEditSlider: false,
                 editingBox: null,
                 editingItem: null,
-                predefineColors: ['#222974', '#293441', '#FDFCF5', '#323232', '#5B5C6E', '#FEF8EF'],
+                predefineColors: ['#01143e', '#293441', '#FDFCF5', '#323232', '#5B5C6E', '#FEF8EF'],
                 timer: null,
                 htmlCode: '',
                 templateId: '',
