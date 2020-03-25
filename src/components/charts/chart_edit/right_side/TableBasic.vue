@@ -146,7 +146,7 @@ export default {
         getSql(){
             this.tableConfig[this.dialogIndex].sql = getEditorData();
             this.showSQL = false;
-            this.genHtml(this.dialogIndex);
+            this.genTable(this.dialogIndex);
         }
     }
 };
