@@ -10,7 +10,7 @@ const defaultState = {
     tableConfig: [
         {
             tableHeader: [],
-            tabelDown: "", //下钻字段
+            tableDown: "", //下钻字段
             tableDownIndex: 0,
             sql: "",
             colOptions: [],

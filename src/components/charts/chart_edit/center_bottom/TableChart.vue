@@ -59,7 +59,6 @@ export default {
     mounted() {
         this.$root.$on("changeTableData", data => {
             this.rows = data || [];
-            console.log("changeTableData", data);
         });
     },
     methods: {
@@ -67,7 +66,7 @@ export default {
             this.drillDown(rowData);
         },
         handleCrumbClick(crumbItem) {
-            if (crumbItem.level == this.breadcrumb.length - 1) return;
+            if (crumbItem.level === this.breadcrumb.length - 1) return;
             this.breadcrumb.splice(crumbItem.level + 1, 999);
             this.drillIndex = crumbItem.level;
             this.drillUp(crumbItem);
@@ -83,7 +82,7 @@ export default {
                     drillDownData: crumbItem.label
                 })
                 .then(res => {
-                    if (res.data.code == "00") {
+                    if (res.data.code === "00") {
                         const resData = res.data.data;
                         this.rows = resData.rows;
                     } else {
@@ -92,8 +91,11 @@ export default {
                 });
         },
         drillDown(rowData) {
-            const index = this.$store.state.tableConfig[0].tableDownIndex;
+            const index = this.$store.state.tableConfig[this.drillIndex].tableDownIndex;
             const tableConfig = this.$store.state.tableConfig;
+
+            if(tableConfig.length <= this.drillIndex) return;
+            if(this.$store.state.tableConfig[this.drillIndex].tableDown === '') return;
             this.$axios
                 .post(this.$api.drillDown, {
                     srcid: this.$store.state.srcid,
@@ -101,7 +103,7 @@ export default {
                     drillDownData: rowData[index]
                 })
                 .then(res => {
-                    if (res.data.code == "00") {
+                    if (res.data.code === "00") {
                         const resData = res.data.data;
                         this.rows = resData.rows;
                         this.drillIndex++;
