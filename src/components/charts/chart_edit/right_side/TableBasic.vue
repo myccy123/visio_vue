@@ -44,7 +44,7 @@
                     </el-form-item>
 
                     <i
-                        v-if="index!=0"
+                        v-if="index !== 0"
                         class="el-icon-circle-close del-y"
                         @click="delTableConfig(index)"
                     ></i>

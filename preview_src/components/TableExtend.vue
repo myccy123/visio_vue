@@ -88,7 +88,7 @@ export default {
             this.drillDown(rowData);
         },
         handleCrumbClick(crumbItem) {
-            if (crumbItem.level == this.breadcrumb.length - 1) return;
+            if (crumbItem.level === this.breadcrumb.length - 1) return;
             this.breadcrumb.splice(crumbItem.level + 1, 999);
             this.drillIndex = crumbItem.level;
             this.drillUp(crumbItem);
@@ -102,7 +102,7 @@ export default {
                     drillDownData: crumbItem.label
                 })
                 .then(res => {
-                    if (res.data.code == "00") {
+                    if (res.data.code === "00") {
                         const resData = res.data.data;
                         this.rows = resData.rows;
                         this.colnames = resData.columns;
@@ -114,13 +114,15 @@ export default {
         //行 下钻字段点击
         drillDown(rowData) {
             const index = drillTableConfig[this.drillIndex].tableDownIndex;
+            if(drillTableConfig.length <= this.drillIndex) return;
+            if(drillTableConfig[this.drillIndex].tableDown === '') return;
             axios.post(api, {
                     srcid: drillSrcId,
                     sql: drillTableConfig[this.drillIndex + 1].sql,
                     drillDownData: rowData[index]
                 })
                 .then(res => {
-                    if (res.data.code == "00") {
+                    if (res.data.code === "00") {
                         const resData = res.data.data;
                         this.rows = resData.rows;
                         this.drillIndex++;
