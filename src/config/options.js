@@ -8,34 +8,34 @@ if (process.env.NODE_ENV === "development") {
 export default {
     CHART_CATES: [
         {
-            name: '折线图', value: 'line', icon: pre_dir + '/img/line.png'
+            name: '折线图', value: 'line', icon: 'cate-line'
         },
         {
-            name: '面积图', value: 'area', icon: pre_dir + '/img/area.png'
+            name: '面积图', value: 'area', icon: 'cate-area'
         },
         {
-            name: '垂直柱图', value: 'column', icon: pre_dir + '/img/bar-v.png'
+            name: '垂直柱图', value: 'column', icon: 'cate-column'
         },
         {
-            name: '水平柱图', value: 'bar', icon: pre_dir + '/img/bar-h.png'
+            name: '水平柱图', value: 'bar', icon: 'cate-bar'
         },
         {
-            name: '散点图', value: 'scatter', icon: pre_dir + '/img/scatter.png'
+            name: '散点图', value: 'scatter', icon: 'cate-scatter'
         },
         {
-            name: '饼图', value: 'pie', icon: pre_dir + '/img/pie.png'
+            name: '饼图', value: 'pie', icon: 'cate-pie'
         },
         {
-            name: '雷达图', value: 'radar', icon: pre_dir + '/img/radar2.png'
+            name: '雷达图', value: 'radar', icon: 'cate-radar'
         },
         {
-            name: '仪表盘', value: 'gauge', icon: pre_dir + '/img/gauge.png'
+            name: '仪表盘', value: 'gauge', icon: 'cate-gauge'
         },
         {
-            name: 'HTML', value: 'html', icon: pre_dir + '/img/data-table.png'
+            name: 'HTML', value: 'html', icon: 'cate-html'
         },
         {
-            name: '自定义图', value: 'diy', icon: pre_dir + '/img/diy-chart.png'
+            name: '自定义图', value: 'diy', icon: 'cate-diy'
         },
     ],
     CHART_DIM:{
@@ -51,80 +51,80 @@ export default {
     },
     CHART_TYPES: {
         line: [
-            {name: '基础折线图', value: 'lineBasic', icon: pre_dir + '/img/line-basic-default.png',},
+            {name: '基础折线图', value: 'lineBasic', icon: pre_dir + '/img/type-line-basic.jpg',},
         ],
         area: [
-            {name: '基础面积图', value: 'areaBasic', icon: pre_dir + '/img/area-basic.jpg',},
+            {name: '基础面积图', value: 'areaBasic', icon: pre_dir + '/img/type-area-basic.jpg',},
         ],
         bar: [
-            {name: '水平柱图', value: 'barBasic', icon: pre_dir + '/img/bar-y-category.jpg',},
+            {name: '水平柱图', value: 'barBasic', icon: pre_dir + '/img/type-barh-basic.jpg',},
         ],
         column: [
-            {name: '垂直柱图', value: 'columnBasic', icon: pre_dir + '/img/dataset-simple0.jpg',},
+            {name: '垂直柱图', value: 'columnBasic', icon: pre_dir + '/img/type-barv-basic.jpg',},
         ],
         pie: [
-            {name: '基础饼图', value: 'pieBasic', icon: pre_dir + '/img/pie-legend.jpg',},
+            {name: '基础饼图', value: 'pieBasic', icon: pre_dir + '/img/type-pie-basic.jpg',},
         ],
         scatter: [
-            {name: '基础散点图', value: 'scatterBasic', icon: pre_dir + '/img/scatter-simple.jpg',},
+            {name: '基础散点图', value: 'scatterBasic', icon: pre_dir + '/img/type-scatter-basic.jpg',},
         ],
         radar: [
-            {name: '基础雷达图', value: 'radarBasic', icon: pre_dir + '/img/radar.jpg',},
+            {name: '基础雷达图', value: 'radarBasic', icon: pre_dir + '/img/type-radar-basic.jpg',},
         ],
         gauge: [
-            {name: '基础仪表盘', value: 'gaugeBasic', icon: pre_dir + '/img/base-gauge.png',},
+            {name: '基础仪表盘', value: 'gaugeBasic', icon: pre_dir + '/img/type-gauge-basic.jpg',},
         ],
         html: [
-            {name: '表格', value: 'tableBasic', icon: pre_dir + '/img/table.jpg',},
-            {name: 'html', value: 'htmlBasic', icon: pre_dir + '/img/html.jpg',}
+            {name: '表格', value: 'tableBasic', icon: pre_dir + '/img/type-table-basic.jpg',},
+            {name: 'html', value: 'htmlBasic', icon: pre_dir + '/img/type-html-basic.jpg',}
         ],
         diy: [
             {
                 name: '3D柱图',
                 value: 'diy',
-                icon: pre_dir + '/img/transparent-bar3d.jpg',
+                icon: pre_dir + '/img/type-diy-transparent-bar3d.jpg',
                 type: 'bar3d',
                 js: pre_dir + '/diyjs/1.1.js',
             },
             {
                 name: '百度地图',
                 value: 'diy',
-                icon: pre_dir + '/img/effectScatter-bmap.jpg',
+                icon: pre_dir + '/img/type-diy-scatter-bmap1.jpg',
                 type: 'mapPot',
                 js: pre_dir + '/diyjs/example_bmap.js'
             },
             {
                 name: '百度地图',
                 value: 'diy',
-                icon: pre_dir + '/img/map-polygon.jpg',
+                icon: pre_dir + '/img/type-diy-scatter-bmap2.jpg',
                 type: 'mapPot',
                 js: pre_dir + '/diyjs/example_bmap2.js'
             },
             {
                 name: '路线图',
                 value: 'diy',
-                icon: pre_dir + '/img/mapline.png',
+                icon: pre_dir + '/img/type-diy-mapline.jpg',
                 type: 'mapPot',
                 js: pre_dir + '/diyjs/example_mapline.js'
             },
             {
                 name: '热力图(GEO)',
                 value: 'diy',
-                icon: pre_dir + '/img/heatmap-bmap.jpg',
+                icon: pre_dir + '/img/type-diy-heatmap-bmap.jpg',
                 type: 'heatMap',
                 js: pre_dir + '/diyjs/example_heatmap.js'
             },
             {
                 name: '关系图',
                 value: 'diy',
-                icon: pre_dir + '/img/graph-circular-layout.jpg',
+                icon: pre_dir + '/img/type-diy-graph-circular-layout.jpg',
                 type: 'rel',
                 js: pre_dir + '/diyjs/example_relpie.js'
             },
             {
                 name: '气泡图',
                 value: 'diy',
-                icon: pre_dir + '/img/bubble-gradient.jpg',
+                icon: pre_dir + '/img/type-diy-bubble-gradient.jpg',
                 type: 'bubble',
                 js: pre_dir + '/diyjs/example_bubble.js'
             },
