@@ -18,7 +18,8 @@
                                     :class="{selCate: cate.value === chartCate}"
                                     @click="switchCate(cate.value)"
                                 >
-                                    <img :src="cate.icon" />
+                                    <!-- <img :src="cate.icon" /> -->
+                                    <svg-icon :icon-class='cate.icon' class='cate-icon'></svg-icon>
                                 </li>
                             </el-tooltip>
                         </ul>
@@ -134,6 +135,7 @@ import CenterBottom from "./chart_edit/CenterBottom.vue";
 import RightSide from "./chart_edit/RightSide.vue";
 import chartMixin from "./chart-mixin";
 import html2canvas from "html2canvas";
+import SvgIcon from '../common/SvgIcon.vue';
 export default {
     name: "chartEdit",
     mixins: [mixin],
@@ -449,6 +451,19 @@ export default {
     /* width: calc(90% + 20px); */
     margin: 10px auto 0;
     border: 1px solid #79aec8;
+}
+
+.cate-icon{
+    color:#717a82;
+    font-size:20px;
+}
+
+.cate-icon:hover{
+    color:#0c88f9;
+}
+
+.selCate .cate-icon{
+    color:#409eff;
 }
 </style>
 <style >
