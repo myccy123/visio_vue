@@ -8,7 +8,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import echarts from "echarts";
 import lodash from "lodash";
 import store from './store/store';
-
+import './icons';
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
