@@ -264,6 +264,7 @@ export default {
         switchCate(cate) {
             if (cate == "diy") {
                 this.$store.commit("setDefTab", "fourth");
+                this.setChartType('diy')
             } else {
                 this.$store.commit("setDefTab", "first");
             }
