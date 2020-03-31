@@ -14,6 +14,11 @@ export default new VueRouter({
       component: () => import('../components/home/home'),
     },
     {
+      path: '/signin',
+      name: 'signin',
+      component: () => import('../components/signin/Signin.vue')
+    },
+    {
       path: '/source',
       name: 'source',
       // component: Source,
