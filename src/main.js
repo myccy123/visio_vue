@@ -9,6 +9,7 @@ import echarts from "echarts";
 import lodash from "lodash";
 import store from './store/store';
 import './icons';
+import storageMixin from './utils/storage-mixin'
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
@@ -25,32 +26,41 @@ Vue.prototype.$axios = axios;
 Vue.prototype.$bus = globalBus;
 Vue.prototype.$api = urls;
 
+//路由拦截,拦截用户是否登录
 router.beforeEach((to, from, next) => {
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-        // this route requires auth, check if logged in
-        // if not, redirect to login page.
-        axios.get(urls.isLogin).then((res) => {
-            if (!res.data.data.isLogin) {
-                next({
-                    path: '/signin',
-                    query: {redirect: to.fullPath}
-                })
-            } else {
-                next()
-            }
-        }).catch((res) => {
-            next()
-        })
+    let isSignin = sessionStorage.getItem('isSignin')
+    if (to.path == '/signin' || to.path == '/' || isSignin) {
+        next();
     } else {
-        next() // 确保一定要调用 next()
+        sessionStorage.setItem('routerIntercept',to.fullPath);
+        router.replace({ name: 'signin' });
     }
 });
-new Vue({
+
+//响应拦截,拦截用户是否登录超时
+axios.interceptors.response.use(respone => {
+    if(respone.status === 200){
+        //登录超时
+        if(respone.data.code === '99'){
+            sessionStorage.setItem('routerIntercept',router.currentRoute.fullPath);
+            this.$message.error('登录超时');
+            router.replace({ name: 'signin' });
+            return Promise.reject()
+        }
+        return Promise.resolve(respone)
+    }else{
+        return Promise.reject(respone)
+    }
+})
+
+let vm = new Vue({
     router,
     store,
+    mixins: [storageMixin],
     render: function (h) {
         return h(App)
     }
-}).$mount('#app')
+})
+vm.$mount('#app')
 
 
