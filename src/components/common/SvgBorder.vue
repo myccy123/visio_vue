@@ -45,6 +45,7 @@
 </template>
 <script>
 import ResizeObserver from "resize-observer-polyfill";
+let observer = null;
 export default {
     name: "SvgBorder",
     props:{
@@ -75,7 +76,7 @@ export default {
         }
         this.$nextTick(() => {
             this.drawSvg();
-            const observer = new ResizeObserver(entries => {
+            observer = new ResizeObserver(entries => {
                 entries.forEach(entry => {
                     this.drawSvg();
                 });
@@ -193,6 +194,9 @@ export default {
             // }
             
         }
+    },
+    destroyed() {
+        observer.disconnect()
     }
 };
 </script>
