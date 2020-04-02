@@ -53,14 +53,16 @@ axios.interceptors.response.use(respone => {
     }
 })
 
+Vue.mixin(storageMixin);
 let vm = new Vue({
     router,
     store,
-    mixins: [storageMixin],
     render: function (h) {
         return h(App)
     }
 })
 vm.$mount('#app')
+
+
 
 
