@@ -26,6 +26,7 @@
     "@vue/cli-plugin-router": "^4.0.5",
     "@vue/cli-plugin-vuex": "^4.0.5",
     "@vue/cli-service": "^4.0.0",
+    "babel-plugin-equire": "^1.1.1",
     "compression-webpack-plugin": "^3.0.1",
     "svg-sprite-loader": "^4.2.1",
     "vue-template-compiler": "^2.6.10",
