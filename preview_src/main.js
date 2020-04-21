@@ -1,14 +1,11 @@
 import Vue from 'vue'
 import App from './App.vue'
 import axios from 'axios'
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
 import echarts from "echarts";
 import lodash from "lodash";
+import './plugins'
 
 Vue.config.productionTip = false;
-Vue.use(ElementUI);
-
 window.echarts = echarts;
 window.lodash = lodash;
 window.axios = axios;

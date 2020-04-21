@@ -1,5 +1,7 @@
 const CompressionWebpackPlugin = require('compression-webpack-plugin');
 const productionGzipExtensions = ['js', 'css'];
+const webpack = require('webpack') //引入webpack库
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const isProduction = process.env.NODE_ENV === 'production';
 const path = require('path')
 function resolve(dir) {
@@ -17,6 +19,7 @@ module.exports = {
         minRatio: 0.8
       })
       )
+      
     }
   },
   chainWebpack(config) {
@@ -36,6 +39,11 @@ module.exports = {
         symbolId: 'icon-[name]'
       })
       .end()
+
+    config.plugin('ignore')
+      .use(new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/));
+    config.plugin("loadshReplace")
+      .use(new LodashModuleReplacementPlugin());
   },
   pages: {
     index: {

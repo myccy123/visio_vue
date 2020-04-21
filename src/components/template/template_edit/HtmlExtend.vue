@@ -18,9 +18,7 @@ export default {
             .post(this.$api.getChart, { id: this.chartId })
             .then(res => {
                 if (res.data.code == "00") {
-                    console.log(res.data.data)
                     let template = res.data.data.diyCode;
-                    console.log(template)
                     document.getElementById("style_mount").innerHTML = "";
                     let indexOf = template.indexOf("<style");
                     let el = template.substring(0, indexOf);

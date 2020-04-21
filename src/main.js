@@ -3,8 +3,7 @@ import App from './App.vue'
 import router from './routes/router'
 import urls from './config/urls'
 import axios from 'axios'
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+import './plugins';
 import echarts from "echarts";
 import lodash from "lodash";
 import store from './store/store';
@@ -12,7 +11,6 @@ import './icons';
 import storageMixin from './utils/storage-mixin'
 
 Vue.config.productionTip = false;
-Vue.use(ElementUI);
 
 const globalBus = new Vue();
 
@@ -21,7 +19,7 @@ window.lodash = lodash;
 window.axios = axios;
 window.chartObj = null;
 
-axios.defaults.withCredentials = false;
+axios.defaults.withCredentials = true;
 Vue.prototype.$axios = axios;
 Vue.prototype.$bus = globalBus;
 Vue.prototype.$api = urls;
@@ -43,7 +41,7 @@ axios.interceptors.response.use(respone => {
         //登录超时
         if(respone.data.code === '99'){
             sessionStorage.setItem('routerIntercept',router.currentRoute.fullPath);
-            this.$message.error('登录超时');
+            vm.$message.error('登录超时');
             router.replace({ name: 'signin' });
             return Promise.reject()
         }
