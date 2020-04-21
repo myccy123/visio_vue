@@ -1,5 +1,12 @@
 {
+    "presets": [["es2015", { "modules": false }]],
     "plugins": [
-        "equire"
+      [
+        "component",
+        {
+          "libraryName": "element-ui",
+          "styleLibraryName": "theme-chalk"
+        }
+      ]
     ]
-}
+  }
