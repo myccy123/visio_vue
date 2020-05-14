@@ -19,6 +19,11 @@ export default new VueRouter({
       component: () => import('../components/signin/Signin.vue')
     },
     {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('../components/signin/Signup.vue')
+    },
+    {
       path: '/changePwd',
       name: 'changePwd',
       component: () => import('../components/signin/ChangePwd.vue')
