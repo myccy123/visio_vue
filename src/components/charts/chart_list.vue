@@ -24,12 +24,13 @@
             <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
                        @click="addChart">新建
             </el-button>
+            <i class="el-icon-view" style="cursor: pointer;line-height: 28px;" @click="switchView"></i>
         </div>
         <div v-loading="loading"
              style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;min-height: calc(100vh - 120px);">
             <div v-for="chart in charts" class="chart-box" :id="chart.id">
                 <img class="chart-img" :src="chart.icon">
-                <div class="mask">
+                <div class="mask" :class="{'view-mask': look}">
                     <el-tooltip effect="dark" content="克隆图表" placement="top">
                         <i @click="cloneChart(chart.id)" class="el-icon-document-copy"
                            style="position: absolute;top: 3px;right: 3px;cursor: pointer;color: #fff;"></i>
@@ -60,6 +61,7 @@
                 customCate: 'all',
                 charts: [],
                 loading: false,
+                look: false,
                 cates: opts.CATE_OPTIONS,
                 customCates: [],
             }
@@ -128,6 +130,9 @@
                 }).catch(() => {
 
                 });
+            },
+            switchView() {
+                this.look = !this.look
             }
         }
     }
@@ -164,18 +169,23 @@
         width: 100%;
         opacity: 0;
         position: absolute;
-        top: 0px;
-        left: 0px;
+        top: 0;
+        left: 0;
+    }
+
+    .view-mask {
+        background: rgba(0, 0, 0, 0.4)!important;
+        opacity: 1;
     }
 
     .mask:hover {
         height: 100%;
         width: 100%;
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.4)!important;
         opacity: 1;
         position: absolute;
-        top: 0px;
-        left: 0px;
+        top: 0;
+        left: 0;
     }
 
     .btn-box {

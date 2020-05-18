@@ -10,7 +10,7 @@
     export default {
         name: "page1",
         mounted() {
-            genTemplate('temp', 50)
+            genTemplate('temp', getTempId())
         },
         destroyed() {
             disposeAll()
