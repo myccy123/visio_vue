@@ -70,11 +70,11 @@ export default {
                 ],
                 password: [
                     { required: true, message: "请输入密码" },
-                    {
-                        pattern: /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/,
-                        message:
-                            "最少6位，包括至少1个大写字母，1个小写字母，1个数字"
-                    }
+                    // {
+                    //     pattern: /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/,
+                    //     message:
+                    //         "最少6位，包括至少1个大写字母，1个小写字母，1个数字"
+                    // }
                 ],
                 verify:[
                     { required: true,message: "请确认密码" },
