@@ -159,6 +159,9 @@
                             >
                                 <i class="el-icon-delete del-btn" slot="reference"></i>
                             </el-popconfirm>
+                            <el-tooltip effect="dark" :content="item" placement="top">
+                                <i class="el-icon-refresh refresh-btn"></i>
+                            </el-tooltip>
                             <el-tooltip effect="dark" content="刷新" placement="top">
                                 <i class="el-icon-refresh refresh-btn" @click="refreshBox(item)"></i>
                             </el-tooltip>
