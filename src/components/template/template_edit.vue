@@ -159,8 +159,9 @@
                             >
                                 <i class="el-icon-delete del-btn" slot="reference"></i>
                             </el-popconfirm>
-                            <el-tooltip effect="dark" :content="item" placement="top">
-                                <i class="el-icon-refresh refresh-btn"></i>
+                            <el-tooltip effect="dark" placement="top">
+                                <div slot="content">x:{{item.x}} y:{{item.y}} w:{{item.w}} h:{{item.h}}</div>
+                                <i class="el-icon-location-outline refresh-btn"></i>
                             </el-tooltip>
                             <el-tooltip effect="dark" content="刷新" placement="top">
                                 <i class="el-icon-refresh refresh-btn" @click="refreshBox(item)"></i>
@@ -980,7 +981,7 @@
     .tool-box {
         height: 30px;
         line-height: 30px;
-        width: 100px;
+        width: 120px;
         text-align: right;
         position: absolute;
         top: 0;
