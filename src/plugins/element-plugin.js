@@ -4,7 +4,7 @@ import {
     Button, Select, Menu, MenuItem, Submenu, Dialog, Form, FormItem, Input, Cascader,
     Alert, Table, Tag, RadioGroup, RadioButton, Option, Tooltip, Tabs, TabPane, Autocomplete,
     InputNumber, Switch, TableColumn, ColorPicker, Popconfirm, Breadcrumb, BreadcrumbItem,
-    Message, Loading, Checkbox, MessageBox
+    Message, Loading, Checkbox, MessageBox, Dropdown, DropdownItem, DropdownMenu
 } from 'element-ui';
 
 Vue.use(Button);
@@ -35,6 +35,9 @@ Vue.use(Popconfirm);
 Vue.use(Breadcrumb);
 Vue.use(BreadcrumbItem);
 Vue.use(Checkbox);
+Vue.use(Dropdown);
+Vue.use(DropdownItem);
+Vue.use(DropdownMenu);
 
 Vue.prototype.$message = Message;
 Vue.prototype.$confirm = MessageBox.confirm;

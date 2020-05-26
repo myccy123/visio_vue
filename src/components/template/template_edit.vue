@@ -394,7 +394,7 @@
             }
             tableComponentMap.forEach(item=>{
                 item.$destroy();
-            })
+            });
 
             htmlComponentMap.forEach(item=>{
                 item.$destroy();
@@ -406,7 +406,7 @@
                     for (let item of this.layout) {
                         for (let row of item.charts) {
                             for (let col of row.cols) {
-                                if (col.mode === '3' && col.slider.length > 1) {
+                                if (col.mode === '3' && col.slider.length >= 1) {
                                     let domId = col.domId;
                                     let dom = document.getElementById(domId);
                                     if (col.sliderIndex >= col.slider.length) {
@@ -653,20 +653,20 @@
                     }
                     return colObj
                 } else {
-                    return this.getChartBox(el.parentNode, chartid,chartType)
+                    return this.getChartBox(el.parentNode, chartid, chartType)
                 }
             },
             dropDown(e) {
                 
-                let chartType = e.dataTransfer.getData('chartType')
+                let chartType = e.dataTransfer.getData('chartType');
                 let chartid = e.dataTransfer.getData('chartid');
                 let obj = this.getChartBox(e.target, chartid,chartType);
-                this.disposeBox(obj)
+                this.disposeBox(obj);
                 obj.chartId = chartid;
-                obj.chartType = chartType
-                if(chartType == 'tableBasic'){
+                obj.chartType = chartType;
+                if(chartType === 'tableBasic'){
                     this.renderTable(obj)
-                }else if(chartType == 'htmlBasic'){
+                }else if(chartType === 'htmlBasic'){
                     this.renderHTML(obj)
                 }else{
                     this.renderChart(obj)
@@ -748,9 +748,8 @@
                 }
             },
             switchMode(cmd, item, i, j) {
-                // item.charts[i].cols[j].mode = cmd
-                this.$set(item.charts[i].cols[j], 'mode', cmd);
                 let col = item.charts[i].cols[j];
+                this.$set(col, 'mode', cmd);
                 this.disposeBox(col)
             },
             cmdMap(cmd) {
@@ -765,12 +764,11 @@
                 this.showEditSlider = true
             },
             delSlder(idx) {
-                this.editingBox.slider.splice(idx, 1)
-            },
-            editHTML(item, i, j) {
-                this.htmlCode = item.charts[i].cols[j].html;
-                this.editingBox = item.charts[i].cols[j];
-                this.showEditCode = true;
+                if (this.editingBox.slider.length === 1) {
+                    return
+                }
+                this.editingBox.chartid = this.editingBox.slider[this.editingBox.slider.length - 1];
+                this.editingBox.slider.splice(idx, 1);
             },
             confirmHTML() {
                 // this.editingBox.html = this.htmlCode;
@@ -786,28 +784,28 @@
                         chartId:chartObj.chartId,
                         domId:chartObj.domId
                     }
-                })
+                });
                 tableComponent.$mount(`#${chartObj.domId}`);
                 //组件集合,销毁用
                 tableComponentMap.set(chartObj.domId,tableComponent);
             },
             disposeBox(col){
                 if(col.chartType == 'tableBasic'){
-                    let table = tableComponentMap.get(col.domId)
+                    let table = tableComponentMap.get(col.domId);
                     if(table){
                         table.$el.innerHTML = '';
                         table.$destroy(); 
                     }
                                           
                 }else if(col.chartType == 'htmlBasic'){
-                    let html = htmlComponentMap.get(col.domId)
+                    let html = htmlComponentMap.get(col.domId);
                     if(html){
                         html.$el.innerHTML = '';
                         html.$destroy();
                     }
                     
                 }else{
-                    let chart = echarts.getInstanceByDom(document.getElementById(col.domId))
+                    let chart = echarts.getInstanceByDom(document.getElementById(col.domId));
                     if(chart){
                         chart.dispose();
                     }
@@ -820,7 +818,7 @@
                         chartId:chartObj.chartId,
                         domId:chartObj.domId
                     }
-                })
+                });
                 htmlComponent.$mount(`#${chartObj.domId}`);
                 //组件集合,销毁用
                 htmlComponentMap.set(chartObj.domId,htmlComponent)
