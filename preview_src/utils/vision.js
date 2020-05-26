@@ -799,7 +799,7 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
         for (let item of layout) {
             for (let row of item.charts) {
                 for (let col of row.cols) {
-                    if (col.mode === '3' && col.slider.length > 1) {
+                    if (col.mode === '3' && col.slider.length >= 1) {
                         let domId = col.domId;
                         let dom = document.getElementById(domId);
                         if (col.sliderIndex >= col.slider.length) {
