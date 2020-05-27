@@ -11,7 +11,7 @@ function resolve(dir) {
 }
 
 module.exports = {
-    publicPath: isProduction ? getPublicPath() : '/',
+    publicPath: isProduction ? '/static/vue_visio' : '/',
     configureWebpack: config => {
         if (isProduction) {
             config.plugins.push(new CompressionWebpackPlugin({
