@@ -6,6 +6,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 export default {
+    PUBLIC_PATH: pre_dir,
     CHART_CATES: [
         {
             name: '折线图', value: 'line', icon: 'cate-line'
