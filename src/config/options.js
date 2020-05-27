@@ -1,6 +1,6 @@
 import {randomInt} from '../utils/useful'
 
-let pre_dir = '/static/vue_vision';
+let pre_dir = getPublicPath();
 if (process.env.NODE_ENV === "development") {
     pre_dir = '';
 }
