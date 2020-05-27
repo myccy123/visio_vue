@@ -1,12 +1,20 @@
-function getBaseUrl() {
+function getHrefIp() {
     let reg = /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
-    let locationIp = reg.exec(window.location.href)[0];
+    let ip = reg.exec(window.location.href)[0];
+    return 'http://' + ip + ':9000'
+}
+
+function getBaseUrl() {
+    let baseUrl = 'http://183.251.100.172:9000';
     // 如果没有配置ip地址则从浏览器输入的地址中获取ip地址
-    let IC_VUE_IP = 'http://183.251.100.172:9000';
-    if(!IC_VUE_IP){
-        IC_VUE_IP = 'http://' + locationIp + ':9000';
+    if(!baseUrl){
+        return getHrefIp()
     }
-    return IC_VUE_IP
+    return baseUrl
+}
+
+function getPublicPath() {
+    return '/static/vue_vision/'
 }
 
 function getSliderInterval(){
