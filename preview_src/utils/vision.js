@@ -813,7 +813,7 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
                 }
             }
         }
-    }, 3000);
+    }, getSliderInterval());
 }
 
 

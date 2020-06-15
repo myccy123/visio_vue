@@ -23,7 +23,7 @@ export default {
             let el = template.substring(0,indexOf);
             let style = template.substring(indexOf);
             let custom = Vue.extend({
-                template:`<div>${el}</div>`,
+                template:`<div style="height: 100%; width: 100%;">${el}</div>`,
             })
             let mountDom = this.$refs.htmlBoxWrap.childNodes[0];
             new custom().$mount(mountDom)
