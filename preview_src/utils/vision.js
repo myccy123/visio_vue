@@ -783,7 +783,6 @@ function genChart(domId, chartId, html = '',
                 dom.innerText = JSON.stringify(res.data, null, 4)
             }
         }).catch((err) => {
-            console.log(11111);
             console.log(err);
         })
     }
