@@ -818,85 +818,89 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
 
 function genTemplate(domId, tempId, theme = '') {
     console.log('genTemplate',tempId);
-    axios.post(BASE_URL + '/ccb/get/template/', { id: tempId }).then((res) => {
-        if (res.data.code === '00') {
-            let dom = document.getElementById(domId);
-            let container = document.createElement('div');
-            container.style.position = 'relative';
-            let tempInfo = res.data.data.layout_info.templateInfo;
-            let layout = res.data.data.layout_info.layout;
-            let bgColor = tempInfo.backgroundColor ? tempInfo.backgroundColor : '#fff';
-            let commonTheme = tempInfo.theme;
-            if (theme) {
-                commonTheme = theme;
-            }
-            let commonBorderColor = tempInfo.borderColor;
-            if (res.data.data.name !== '') {
-                let titleBox = document.createElement('div');
-                titleBox.style.width = tempInfo.width + 'px';
-                dom.appendChild(titleBox);
-                drawTile(titleBox, res.data.data.name, bgColor)
-            }
-            dom.appendChild(container);
+    return new Promise((resolve, reject)=>{
+        axios.post(BASE_URL + '/ccb/get/template/', { id: tempId }).then((res) => {
+            if (res.data.code === '00') {
+                let dom = document.getElementById(domId);
+                let container = document.createElement('div');
+                container.style.position = 'relative';
+                let tempInfo = res.data.data.layout_info.templateInfo;
+                let layout = res.data.data.layout_info.layout;
+                let bgColor = tempInfo.backgroundColor ? tempInfo.backgroundColor : '#fff';
+                let commonTheme = tempInfo.theme;
+                if (theme) {
+                    commonTheme = theme;
+                }
+                let commonBorderColor = tempInfo.borderColor;
+                if (res.data.data.name !== '') {
+                    let titleBox = document.createElement('div');
+                    titleBox.style.width = tempInfo.width + 'px';
+                    dom.appendChild(titleBox);
+                    drawTile(titleBox, res.data.data.name, bgColor)
+                }
+                dom.appendChild(container);
 
-            if (tempInfo.width) {
-                container.style.width = tempInfo.width + 'px'
-            }
-            if (tempInfo.height) {
-                container.style.height = tempInfo.height + 'px'
-            } else {
-                container.style.height = container.offsetWidth * (tempInfo.offsetHeight / tempInfo.offsetWidth) + 'px'
-            }
+                if (tempInfo.width) {
+                    container.style.width = tempInfo.width + 'px'
+                }
+                if (tempInfo.height) {
+                    container.style.height = tempInfo.height + 'px'
+                } else {
+                    container.style.height = container.offsetWidth * (tempInfo.offsetHeight / tempInfo.offsetWidth) + 'px'
+                }
 
-            container.style.backgroundColor = bgColor;
+                container.style.backgroundColor = bgColor;
 
-            let boxHeigh = container.offsetHeight;
-            let boxWidth = container.offsetWidth;
-            let marginLeft = tempInfo.margin[0];
-            let marginTop = tempInfo.margin[1];
-            let rowHeight = (boxHeigh - marginTop * (tempInfo.rows + 1)) / tempInfo.rows;
-            let colWidth = (boxWidth - marginLeft * (tempInfo.cols + 1)) / tempInfo.cols;
+                let boxHeigh = container.offsetHeight;
+                let boxWidth = container.offsetWidth;
+                let marginLeft = tempInfo.margin[0];
+                let marginTop = tempInfo.margin[1];
+                let rowHeight = (boxHeigh - marginTop * (tempInfo.rows + 1)) / tempInfo.rows;
+                let colWidth = (boxWidth - marginLeft * (tempInfo.cols + 1)) / tempInfo.cols;
 
-            for (let lay of layout) {
-                let layWidth = lay.w * colWidth + (lay.w - 1) * marginLeft;
-                let layHeight = lay.h * rowHeight + (lay.h - 1) * marginTop;
-                let left = lay.x * colWidth + (lay.x + 1) * marginLeft;
-                let top = lay.y * rowHeight + (lay.y + 1) * marginTop;
-                let layHTML = `
+                for (let lay of layout) {
+                    let layWidth = lay.w * colWidth + (lay.w - 1) * marginLeft;
+                    let layHeight = lay.h * rowHeight + (lay.h - 1) * marginTop;
+                    let left = lay.x * colWidth + (lay.x + 1) * marginLeft;
+                    let top = lay.y * rowHeight + (lay.y + 1) * marginTop;
+                    let layHTML = `
                           <div id="${domId}-vision-layout-${lay.i}"
                                style="position: absolute; top: ${top}px; left: ${left}px;width: ${layWidth}px; height: ${layHeight}px;">
                                <div class="box" style="width: 100%;height: 100%;position: absolute; top: 0; z-index: 98;"></div>
                           </div>`;
-                let layEl = document.createRange().createContextualFragment(layHTML);
-                container.appendChild(layEl);
+                    let layEl = document.createRange().createContextualFragment(layHTML);
+                    container.appendChild(layEl);
 
-                if (lay.svgBorder === 'border1' || !lay.svgBorder) {
-                    drawSvg1(document.getElementById(`${domId}-vision-layout-${lay.i}`), bgColor, commonBorderColor);
-                } else if (lay.svgBorder === 'border2') {
-                    drawSvg2(document.getElementById(`${domId}-vision-layout-${lay.i}`), bgColor, commonBorderColor);
-                }
+                    if (lay.svgBorder === 'border1' || !lay.svgBorder) {
+                        drawSvg1(document.getElementById(`${domId}-vision-layout-${lay.i}`), bgColor, commonBorderColor);
+                    } else if (lay.svgBorder === 'border2') {
+                        drawSvg2(document.getElementById(`${domId}-vision-layout-${lay.i}`), bgColor, commonBorderColor);
+                    }
 
-                for (let i = 0; i < lay.charts.length; i++) {
-                    let row = lay.charts[i];
-                    let rowHTML = `<div id="${domId}-vision-layout-${lay.i}-${i}" style="height: ${100 / lay.charts.length}%;display: flex;justify-content:space-around;"></div>`;
-                    let rowEl = document.createRange().createContextualFragment(rowHTML);
-                    document.getElementById(`${domId}-vision-layout-${lay.i}`).querySelector('.box').appendChild(rowEl);
-                    for (let col of row.cols) {
-                        let colHTML = `<div style="width: ${100 / row.cols.length}%; height: 100%;padding: 12px;box-sizing: border-box;">
+                    for (let i = 0; i < lay.charts.length; i++) {
+                        let row = lay.charts[i];
+                        let rowHTML = `<div id="${domId}-vision-layout-${lay.i}-${i}" style="height: ${100 / lay.charts.length}%;display: flex;justify-content:space-around;"></div>`;
+                        let rowEl = document.createRange().createContextualFragment(rowHTML);
+                        document.getElementById(`${domId}-vision-layout-${lay.i}`).querySelector('.box').appendChild(rowEl);
+                        for (let col of row.cols) {
+                            let colHTML = `<div style="width: ${100 / row.cols.length}%; height: 100%;padding: 12px;box-sizing: border-box;">
                                            <div id="${domId}_${col.domId}" style="height: 100%;"></div>
                                        </div>`;
-                        let colEl = document.createRange().createContextualFragment(colHTML);
-                        document.getElementById(`${domId}-vision-layout-${lay.i}-${i}`).appendChild(colEl);
-                        genChart(`${domId}_${col.domId}`, col.chartId, col.html, commonTheme, commonBorderColor);
+                            let colEl = document.createRange().createContextualFragment(colHTML);
+                            document.getElementById(`${domId}-vision-layout-${lay.i}-${i}`).appendChild(colEl);
+                            genChart(`${domId}_${col.domId}`, col.chartId, col.html, commonTheme, commonBorderColor);
 
+                        }
                     }
                 }
+                let t = sliderTimer(domId, layout, commonTheme, commonBorderColor);
+                timerSet.add(t);
+                resolve()
             }
-            let t = sliderTimer(domId, layout, commonTheme, commonBorderColor);
-            timerSet.add(t)
-        }
-    }).catch((err) => {
-
+        }).catch((err) => {
+            reject();
+            console.log(err)
+        })
     })
 }
 
