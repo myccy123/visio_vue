@@ -721,7 +721,7 @@ function initMap(map) {
     })
 }
 
-function genChart(domId, chartId, html = '',
+function genChart(domId, chartId,
     commonTheme = '', commonBorderColor = '', minutes = 0) {
 
     let dom = document.getElementById(domId);
@@ -888,7 +888,7 @@ function genTemplate(domId, tempId, theme = '') {
                                        </div>`;
                             let colEl = document.createRange().createContextualFragment(colHTML);
                             document.getElementById(`${domId}-vision-layout-${lay.i}-${i}`).appendChild(colEl);
-                            genChart(`${domId}_${col.domId}`, col.chartId, col.html, commonTheme, commonBorderColor);
+                            genChart(`${domId}_${col.domId}`, col.chartId, commonTheme, commonBorderColor);
 
                         }
                     }

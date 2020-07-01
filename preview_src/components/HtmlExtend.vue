@@ -14,8 +14,7 @@ export default {
     },
     computed: {},
     mounted() {
-        let template = this.htmlCode
-        console.log(template);
+        let template = this.htmlCode;
         document.getElementById("style_mount").innerHTML = "";
         let indexOf = template.indexOf("<style");
         let el = template.substring(0, indexOf);

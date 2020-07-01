@@ -1,9 +1,11 @@
+import 'babel-polyfill'
 import Vue from 'vue'
 import App from './App.vue'
 import axios from 'axios'
 import echarts from "echarts";
 import lodash from "lodash";
 import './plugins'
+
 
 Vue.config.productionTip = false;
 window.echarts = echarts;
