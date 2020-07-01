@@ -1,12 +1,19 @@
 {
-    "presets": [["es2015", { "modules": false }]],
-    "plugins": [
-      [
-        "component",
-        {
-          "libraryName": "element-ui",
-          "styleLibraryName": "theme-chalk"
-        }
-      ]
+  "presets": [
+    [
+      "@vue/app",
+      {
+        "useBuiltIns": "entry"
+      },"env", "react", "stage-2"
     ]
-  }
+  ],
+  "plugins": [
+    [
+      "component",
+      {
+        "libraryName": "element-ui",
+        "styleLibraryName": "theme-chalk"
+      }
+    ]
+  ]
+}

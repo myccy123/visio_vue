@@ -99,15 +99,15 @@ export default {
             // setIsSave: 'setIsSave'
         }),
         genVision() {
-            if (this.chartCate == 'html') {
+            if (this.chartCate === 'html') {
                 if (this.isSave) {
-                    if (this.chartType == 'tableBasic') {
+                    if (this.chartType === 'tableBasic') {
                         this.saveTable();
                     } else {
                         this.genHtml();
                     }
                 } else {
-                    if (this.chartType == 'tableBasic') {
+                    if (this.chartType === 'tableBasic') {
                         this.genTable();
                     } else {
                         this.genHtml();
@@ -227,6 +227,9 @@ export default {
                                 let jsFun = new Function(jsCode);
                                 let chart = jsFun();
                                 chartObj = chart;
+                                chartObj.on('click', (params)=>{
+                                    console.log(params)
+                                })
                             } else {
                                 let myChart = echarts.init(
                                     document.getElementById("chart"),

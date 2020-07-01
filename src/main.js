@@ -1,3 +1,4 @@
+import 'babel-polyfill'
 import Vue from 'vue'
 import App from './App.vue'
 import router from './routes/router'
@@ -8,7 +9,8 @@ import echarts from "echarts";
 import lodash from "lodash";
 import store from './store/store';
 import './icons';
-import storageMixin from './utils/storage-mixin'
+import storageMixin from './utils/storage-mixin';
+
 
 Vue.config.productionTip = false;
 
