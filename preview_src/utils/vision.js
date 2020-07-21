@@ -7,32 +7,11 @@ import axios from 'axios';
 import Vue from 'vue';
 import TableExtend from '../components/TableExtend.vue';
 import HtmlExtend from '../components/HtmlExtend.vue';
-// import url from '../config/urls'
+import './allThemes.js'
 
 let BASE_URL = getBaseUrl();
 let chartSet = new Set();
 let timerSet = new Set();
-let themeList = [
-    'chalk',
-    'dark',
-    'essos',
-    'halloween',
-    'infographic',
-    'macarons',
-    'purple-passion',
-    'roma',
-    'shine',
-    'vintage',
-    'walden',
-    'westeros',
-    'wonderland',
-];
-
-for (let t of themeList) {
-    let sc = document.createElement("script");
-    sc.src = `${BASE_URL}/static/preview/themes/${t}.js`;
-    document.getElementsByTagName('head')[0].appendChild(sc);
-}
 
 function getParam(name) {
     const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");

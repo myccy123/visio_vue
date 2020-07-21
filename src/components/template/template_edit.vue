@@ -344,9 +344,6 @@
 
         },
         created() {
-            for (let theme of opt.THEME) {
-                require('../../assets/themes/' + theme.value);
-            }
         },
         mounted() {
 

@@ -10,6 +10,7 @@ import lodash from "lodash";
 import store from './store/store';
 import './icons';
 import storageMixin from './utils/storage-mixin';
+import './assets/themes/allThemes.js'
 
 
 Vue.config.productionTip = false;
