@@ -234,10 +234,6 @@ export default {
                         console.log(err);
                     });
             }
-
-            for (let theme of options.THEME) {
-                require("../../assets/themes/" + theme.value);
-            }
         },
         getSource() {
             this.$axios

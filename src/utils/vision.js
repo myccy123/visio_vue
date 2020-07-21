@@ -26,11 +26,11 @@ let themeList = [
     'wonderland',
 ];
 
-for (let t of themeList) {
-    let sc = document.createElement("script");
-    sc.src = `${BASE_URL}/static/preview/themes/${t}.js`;
-    document.getElementsByTagName('head')[0].appendChild(sc);
-}
+// for (let t of themeList) {
+//     let sc = document.createElement("script");
+//     sc.src = `${BASE_URL}/static/preview/themes/${t}.js`;
+//     document.getElementsByTagName('head')[0].appendChild(sc);
+// }
 
 function getParam(name) {
     const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
