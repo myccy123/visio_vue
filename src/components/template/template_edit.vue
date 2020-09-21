@@ -1,7 +1,7 @@
 <template>
     <div>
-        <common-nav
-                style="position: fixed;top: 0;width: calc(100% - 16px);padding-top: 8px;background-color: #fff;z-index: 9999"></common-nav>
+        <!-- <common-nav
+                style="position: fixed;top: 0;width: calc(100% - 16px);padding-top: 8px;background-color: #fff;z-index: 9999"></common-nav> -->
         <div class="left" v-loading="loading">
             <div style="display: flex;justify-content: space-around;margin: 10px 0;">
                 <el-select v-model="chartCate" placeholder="请选择" size="mini"
@@ -707,6 +707,8 @@
                         icon: canvas.toDataURL("image/png"),
                         data: {
                             layout: lo,
+                            params:{},//根据浏览器参数获取动态参数
+                            parkId:"",//浏览器参数，获取园区ID，绑定图表和园区关系
                             templateInfo: {
                                 height: _this.templateConfig.height,
                                 width: _this.templateConfig.width,
@@ -723,6 +725,8 @@
                                 maxId: _this.maxId,
                                 maxChartId: _this.maxChartId,
                                 maxRowId: _this.maxRowId,
+                                
+                                
                             }
                         }
                     };
@@ -925,7 +929,7 @@
         height: calc(100vh - 57px);
         text-align: center;
         position: fixed;
-        top: 49px;
+        top:0px;
         z-index: 1000;
         background-color: #fff;
         overflow: auto;
@@ -934,7 +938,7 @@
     .right {
         float: left;
         margin-left: 300px;
-        margin-top: 41px;
+        margin-top: 0px;
         width: calc(100vw - 320px);
         height: calc(100vh - 57px);
     }

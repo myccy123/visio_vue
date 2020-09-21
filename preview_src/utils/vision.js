@@ -701,7 +701,7 @@ function initMap(map) {
 }
 
 function genChart(domId, chartId,
-    commonTheme = '', commonBorderColor = '', minutes = 0) {
+    commonTheme = '', commonBorderColor = '', minutes = 0,parkId,chartParams={}) {
 
     let dom = document.getElementById(domId);
     let myChart = null;
@@ -710,7 +710,7 @@ function genChart(domId, chartId,
         if (!chartId) {
             return
         }
-        axios.post(BASE_URL + '/ccb/get/chart/', { id: chartId }).then((res) => {
+        axios.post(BASE_URL + '/ccb/get/chart/', { id: chartId,parkId:parkId,chartParams:chartParams }).then((res) => {
             if (!myChart && res.data.data.formOptions.chartCate != 'html') {
                 myChart = echarts.init(dom, res.data.data.theme);
             }
@@ -772,7 +772,7 @@ function genChart(domId, chartId,
     }
 }
 
-function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
+function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor,parkId,chartParams) {
     return setInterval(() => {
         for (let item of layout) {
             for (let row of item.charts) {
@@ -785,7 +785,7 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
                         }
                         let chartId = col.slider[col.sliderIndex].chartid;
                         genChart(`${rootDomId}_${domId}`, chartId, '',
-                            commonTheme, commonBorderColor);
+                            commonTheme, commonBorderColor,parkId,chartParams);
                         col.sliderIndex++;
                     }
                 }
@@ -795,10 +795,10 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
 }
 
 
-function genTemplate(domId, tempId, theme = '') {
+function genTemplate(domId, tempId, parkId,chartParams={},theme = '') {
     console.log('genTemplate',tempId);
     return new Promise((resolve, reject)=>{
-        axios.post(BASE_URL + '/ccb/get/template/', { id: tempId }).then((res) => {
+        axios.post(BASE_URL + '/ccb/get/template/', { id: tempId,chartParams:chartParams,parkId:parkId }).then((res) => {
             if (res.data.code === '00') {
                 let dom = document.getElementById(domId);
                 let container = document.createElement('div');
@@ -867,12 +867,12 @@ function genTemplate(domId, tempId, theme = '') {
                                        </div>`;
                             let colEl = document.createRange().createContextualFragment(colHTML);
                             document.getElementById(`${domId}-vision-layout-${lay.i}-${i}`).appendChild(colEl);
-                            genChart(`${domId}_${col.domId}`, col.chartId, commonTheme, commonBorderColor);
+                            genChart(`${domId}_${col.domId}`, col.chartId, commonTheme, commonBorderColor,parkId,chartParams);
 
                         }
                     }
                 }
-                let t = sliderTimer(domId, layout, commonTheme, commonBorderColor);
+                let t = sliderTimer(domId, layout, commonTheme, commonBorderColor,parkId,chartParams);
                 timerSet.add(t);
                 resolve()
             }

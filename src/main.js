@@ -30,7 +30,7 @@ Vue.prototype.$api = urls;
 //路由拦截,拦截用户是否登录
 router.beforeEach((to, from, next) => {
     let isSignin = sessionStorage.getItem('isSignin')
-    if (to.path == '/signin' || to.path == '/' || isSignin || to.path == '/signup') {
+    if (to.path == '/signin' || to.path == '/' || isSignin || to.path == '/signup'|| to.path == '/template/edit') {
         next();
     } else {
         sessionStorage.setItem('routerIntercept',to.fullPath);
