@@ -13,7 +13,7 @@
     "echarts-liquidfill": "^2.0.5",
     "element-ui": "^2.13.0",
     "html2canvas": "^1.0.0-rc.5",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "resize-observer-polyfill": "^1.5.1",
     "vue": "^2.6.10",
     "vue-grid-layout": "^2.3.6",
