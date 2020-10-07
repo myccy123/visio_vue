@@ -99,7 +99,6 @@ export default {
             this.$axios
                 .post(this.$api.authSignin, params)
                 .then(res => {
-                    console.log(res);
                     const resData = res.data;
                     if (res.status === 200 && resData.code === "00") {
                         let lsUser = "";

@@ -29,8 +29,8 @@ Vue.prototype.$api = urls;
 
 //路由拦截,拦截用户是否登录
 router.beforeEach((to, from, next) => {
-    let isSignin = sessionStorage.getItem('isSignin')
-    if (to.path == '/signin' || to.path == '/' || isSignin || to.path == '/signup') {
+    let isSignin = sessionStorage.getItem('isSignin');
+    if (to.path === '/signin' || to.path === '/' || isSignin || to.path === '/signup') {
         next();
     } else {
         sessionStorage.setItem('routerIntercept',to.fullPath);
@@ -52,7 +52,7 @@ axios.interceptors.response.use(respone => {
     }else{
         return Promise.reject(respone)
     }
-})
+});
 
 Vue.mixin(storageMixin);
 let vm = new Vue({
@@ -61,8 +61,8 @@ let vm = new Vue({
     render: function (h) {
         return h(App)
     }
-})
-vm.$mount('#app')
+});
+vm.$mount('#app');
 
 
 
