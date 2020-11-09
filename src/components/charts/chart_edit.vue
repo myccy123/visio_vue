@@ -192,12 +192,12 @@ export default {
                                     );
                                 if (this.chartType === "diy") {
                                     this.$store.commit("setDefTab", "fourth");
-                                    let jsCode = `${res.data.data.diyCode};
-                                    var diyChart = echarts.init(document.getElementById('chart'), '${theme}')
-                                    diyChart.setOption(option)
-                                    return diyChart`;
-                                    let jsFun = new Function(jsCode);
-                                    chartObj = jsFun();
+                                    let jsCode = `;
+                                    chartObj = echarts.init(document.getElementById('chart'), '${theme}')
+                                    ${res.data.data.diyCode}
+                                    chartObj.setOption(option)
+                                    return chartObj`;
+                                    new Function(jsCode);
                                 } else if (this.chartType === "tableBasic") {
                                     //请求表格数据
                                     axios.post(this.$api.drillDown, {
