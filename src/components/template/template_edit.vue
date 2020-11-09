@@ -616,10 +616,11 @@
                                     theme = this.templateConfig.theme
                                 }
                                 if (res.data.data.chartType === 'diy') {
-                                    let jsCode = `${res.data.data.diyCode};
+                                    let jsCode = `
                                         let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'});
+                                        ${res.data.data.diyCode};
                                         ${domId}.setOption(option);
-                                        return ${domId}`;
+                                        return ${domId}`.replace(/chartObj/, domId);
                                     let jsFun = new Function(jsCode);
                                     let chart = jsFun();
                                     chartSet.add(chart)

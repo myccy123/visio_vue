@@ -742,10 +742,11 @@ function genChart(domId, chartId,
                     }else {
                         let theme = commonTheme ? commonTheme : res.data.data.theme;
                         if (res.data.data.chartType === 'diy') {
-                            let jsCode = `${res.data.data.diyCode};
+                            let jsCode = `
                             var ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'})
+                            ${res.data.data.diyCode};
                             ${domId}.setOption(option);
-                            return ${domId}`.replace('xxxxChart', domId);
+                            return ${domId}`.replace(/chartObj/g, domId);
                             let jsFun = new Function(jsCode);
                             chartSet.add(jsFun());
 
@@ -767,9 +768,6 @@ function genChart(domId, chartId,
     }
 
     getData();
-    if (minutes !== 0) {
-        setInterval(getData, minutes * 1000)
-    }
 }
 
 function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {

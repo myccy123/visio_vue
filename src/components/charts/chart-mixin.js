@@ -220,13 +220,13 @@ export default {
                         this.initMap().then(() => {
                             let theme = this.baseConfig.theme;
                             if (this.chartType === "diy") {
-                                let jsCode = `${res.data.data};
-                                            var diyChart = echarts.init(document.getElementById('chart'), '${theme}');
-                                            diyChart.setOption(option)
-                                            return diyChart`;
+                                let jsCode = `
+                                            chartObj = echarts.init(document.getElementById('chart'), '${theme}');
+                                            ${res.data.data};
+                                            chartObj.setOption(option)
+                                            return chartObj`;
                                 let jsFun = new Function(jsCode);
-                                let chart = jsFun();
-                                chartObj = chart;
+                                chartObj = jsFun();
                                 chartObj.on('click', (params)=>{
                                     console.log(params)
                                 })
