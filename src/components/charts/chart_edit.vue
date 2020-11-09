@@ -197,7 +197,7 @@ export default {
                                     ${res.data.data.diyCode}
                                     chartObj.setOption(option)
                                     return chartObj`;
-                                    new Function(jsCode);
+                                    new Function(jsCode)();
                                 } else if (this.chartType === "tableBasic") {
                                     //请求表格数据
                                     axios.post(this.$api.drillDown, {
