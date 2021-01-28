@@ -253,6 +253,7 @@
     import echarts from "echarts";
     import 'echarts-gl';
     import 'echarts-liquidfill';
+    import "echarts-wordcloud";
     import 'echarts/extension/bmap/bmap'
     import lodash from 'lodash';
     import html2canvas from 'html2canvas';

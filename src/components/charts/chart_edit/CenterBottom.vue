@@ -9,6 +9,7 @@ import TableChart from './center_bottom/TableChart.vue';
 import HtmlChart from './center_bottom/HtmlChart.vue';
 import "echarts-gl";
 import "echarts-liquidfill";
+import "echarts-wordcloud";
 import "echarts/extension/bmap/bmap";
 export default {
     name:'CenterBottom',
