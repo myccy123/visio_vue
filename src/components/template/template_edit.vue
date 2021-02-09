@@ -37,8 +37,11 @@
         <div class="right">
             <div class="temp-setting">
                 <el-form label-width="80px" :model="templateConfig" size="mini" :inline="true">
-                    <el-form-item label="名称">
-                        <el-input v-model="templateConfig.name"></el-input>
+                    <el-form-item label="模板名称">
+                        <el-input v-model="templateConfig.name" style=""/>
+                    </el-form-item>
+                    <el-form-item label="标题">
+                        <el-input v-model="templateConfig.title"/>
                     </el-form-item>
                     <el-form-item label="主题">
                         <el-select v-model="templateConfig.theme"
@@ -289,6 +292,7 @@
                 charts: [],
                 templateConfig: {
                     name: '',
+                    title: '',
                     backgroundColor: '',
                     width: '',
                     height: '',
@@ -367,9 +371,9 @@
                             for (let row of item.charts) {
                                 for (let col of row.cols) {
                                     this.$nextTick(() => {
-                                        if(col.chartType == 'tableBasic'){
+                                        if(col.chartType === 'tableBasic'){
                                             this.renderTable(col);
-                                        }else if(col.chartType == 'htmlBasic'){
+                                        }else if(col.chartType === 'htmlBasic'){
                                             this.renderHTML(col);
                                         }else{
                                             this.renderChart(col)
@@ -412,9 +416,9 @@
                                     }
                                     col.chartId = col.slider[col.sliderIndex].chartid;
                                     col.chartType = col.slider[col.sliderIndex].chartType;
-                                    if(col.chartType == 'tableBasic'){
+                                    if(col.chartType === 'tableBasic'){
                                         this.renderTable(col);
-                                    }else if(col.chartType == 'htmlBasic'){
+                                    }else if(col.chartType === 'htmlBasic'){
                                         this.renderHTML(col);
                                     }else{
                                         this.renderChart(col);
@@ -706,6 +710,7 @@
                         id: _this.templateId,
                         userid: '',
                         name: _this.templateConfig.name,
+                        title: _this.templateConfig.title,
                         icon: canvas.toDataURL("image/png"),
                         data: {
                             layout: lo,
@@ -716,6 +721,7 @@
                                 theme: _this.templateConfig.theme,
                                 borderColor: _this.templateConfig.borderColor,
                                 name: _this.templateConfig.name,
+                                title: _this.templateConfig.title,
                                 offsetHeight: _this.$refs.layout.$el.offsetHeight,
                                 offsetWidth: _this.$refs.layout.$el.offsetWidth,
                                 margin: _this.margin,
@@ -789,14 +795,14 @@
                 tableComponentMap.set(chartObj.domId,tableComponent);
             },
             disposeBox(col){
-                if(col.chartType == 'tableBasic'){
+                if(col.chartType === 'tableBasic'){
                     let table = tableComponentMap.get(col.domId);
                     if(table){
                         table.$el.innerHTML = '';
                         table.$destroy(); 
                     }
                                           
-                }else if(col.chartType == 'htmlBasic'){
+                }else if(col.chartType === 'htmlBasic'){
                     let html = htmlComponentMap.get(col.domId);
                     if(html){
                         html.$el.innerHTML = '';
@@ -958,7 +964,7 @@
     }
 
     .temp-setting {
-        padding: 10px 0;
+        padding-top: 10px;
     }
 
     .draw-box {
@@ -972,7 +978,7 @@
     }
 
     .temp-setting .el-form-item {
-        margin-bottom: 0 !important;
+        margin-bottom: 10px !important;
     }
 
     .tool-box {

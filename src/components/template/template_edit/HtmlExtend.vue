@@ -17,7 +17,7 @@ export default {
         this.$axios
             .post(this.$api.getChart, { id: this.chartId })
             .then(res => {
-                if (res.data.code == "00") {
+                if (res.data.code === "00") {
                     let template = res.data.data.diyCode;
                     document.getElementById("style_mount").innerHTML = "";
                     let indexOf = template.indexOf("<style");

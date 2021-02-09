@@ -812,11 +812,11 @@ function genTemplate(domId, tempId, theme = '') {
                 commonTheme = theme;
             }
             let commonBorderColor = tempInfo.borderColor;
-            if (res.data.data.name !== '') {
+            if (tempInfo.title) {
                 let titleBox = document.createElement('div');
                 titleBox.style.width = tempInfo.width + 'px';
                 dom.appendChild(titleBox);
-                drawTile(titleBox, res.data.data.name, bgColor)
+                drawTile(titleBox, tempInfo.title, bgColor)
             }
             dom.appendChild(container);
 
