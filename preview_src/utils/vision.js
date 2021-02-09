@@ -11,8 +11,8 @@ import HtmlExtend from '../components/HtmlExtend.vue';
 import './allThemes.js'
 
 let BASE_URL = getBaseUrl();
-let chartSet = new Set();
-let timerSet = new Set();
+let chartMap = {};
+let timers = new Set();
 
 function getParam(name) {
     const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -140,8 +140,8 @@ function drawSvg(parentDom, color = '#90a3cf') {
 }
 
 function drawSvg1(parentDom,
-    bgColor = 'transparent',
-    borderColor = '#00c0ff') {
+                  bgColor = 'transparent',
+                  borderColor = '#00c0ff') {
     let svgHTML = `
     <div style="width:100%;height:100%;position: absolute;z-index: 97" class="svgBorderWrap">
         <svg
@@ -299,8 +299,8 @@ function drawSvg1(parentDom,
 }
 
 function drawSvg2(parentDom,
-    bgColor = 'transparent',
-    borderColor = '#00c0ff') {
+                  bgColor = 'transparent',
+                  borderColor = '#00c0ff') {
     let deeperColor = getDarkColor(borderColor, 0.1);
     let svgHTML = `
     <div style="width:100%;height:100%;" class="svgBorderWrap">
@@ -688,7 +688,7 @@ function initMap(map) {
         if (!map) {
             resolve();
         } else {
-            axios.get(BASE_URL + '/ccb/map/', { params: { mapfile: map } }).then((res) => {
+            axios.get(BASE_URL + '/ccb/map/', {params: {mapfile: map}}).then((res) => {
                 echarts.registerMap(map, res.data);
                 console.log(`地图（${map}）初始化成功！`);
                 resolve();
@@ -701,77 +701,80 @@ function initMap(map) {
     })
 }
 
-function genChart(domId, chartId,
-    commonTheme = '', commonBorderColor = '', minutes = 0) {
+function appendChart(domId, chartObj) {
+    if(chartMap.hasOwnProperty(domId)) {
+        chartMap[domId].dispose()
+    }
+    chartMap[domId] = chartObj
+}
+
+function genChart(domId, chartId, commonTheme = '') {
 
     let dom = document.getElementById(domId);
     let myChart = null;
 
-    function getData() {
-        if (!chartId) {
-            return
+    if (!chartId) {
+        return
+    }
+    axios.post(BASE_URL + '/ccb/get/chart/', {id: chartId}).then((res) => {
+        if (!myChart && res.data.data.formOptions.chartCate !== 'html') {
+            myChart = echarts.init(dom, res.data.data.theme);
         }
-        axios.post(BASE_URL + '/ccb/get/chart/', { id: chartId }).then((res) => {
-            if (!myChart && res.data.data.formOptions.chartCate !== 'html') {
-                myChart = echarts.init(dom, res.data.data.theme);
-            }
-            if (res.data.code === '00') {
-                initMap(res.data.data.formOptions.moreConfig.map).then(() => {
-                    echarts.dispose(dom);
-                    if (res.data.data.formOptions.chartType === 'tableBasic') {
-                        let tableExtend = Vue.extend(TableExtend);
-                        let tableComponent = new tableExtend({
-                            propsData: {
-                                chartId: chartId,
-                                domId: domId,
-                                tableConfig:res.data.data.formOptions.tableConfig,
-                                srcid:res.data.data.formOptions.srcid
-                            }
-                        });
-                        tableComponent.$mount(`#${domId}`);
+        if (res.data.code === '00') {
+            initMap(res.data.data.formOptions.moreConfig.map).then(() => {
+                echarts.dispose(dom);
+                if (res.data.data.formOptions.chartType === 'tableBasic') {
+                    let tableExtend = Vue.extend(TableExtend);
+                    let tableComponent = new tableExtend({
+                        propsData: {
+                            chartId: chartId,
+                            domId: domId,
+                            tableConfig: res.data.data.formOptions.tableConfig,
+                            srcid: res.data.data.formOptions.srcid
+                        }
+                    });
+                    tableComponent.$mount(`#${domId}`);
 
-                    }else if(res.data.data.formOptions.chartType === 'htmlBasic'){
-                        let htmlExtend = Vue.extend(HtmlExtend);
-                        let htmlComponent = new htmlExtend({
-                            propsData: {
-                                chartId: chartId,
-                                domId: domId,
-                                htmlCode:res.data.data.diyCode
-                            }
-                        });
-                        htmlComponent.$mount(`#${domId}`);
-                    }else {
-                        let theme = commonTheme ? commonTheme : res.data.data.theme;
-                        if (res.data.data.chartType === 'diy') {
-                            let jsCode = `
+                } else if (res.data.data.formOptions.chartType === 'htmlBasic') {
+                    let htmlExtend = Vue.extend(HtmlExtend);
+                    let htmlComponent = new htmlExtend({
+                        propsData: {
+                            chartId: chartId,
+                            domId: domId,
+                            htmlCode: res.data.data.diyCode
+                        }
+                    });
+                    htmlComponent.$mount(`#${domId}`);
+                } else {
+                    let theme = commonTheme ? commonTheme : res.data.data.theme;
+                    if (res.data.data.chartType === 'diy') {
+                        let jsCode = `
                             var ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'})
                             ${res.data.data.diyCode};
                             ${domId}.setOption(option);
                             return ${domId}`.replace(/chartObj/g, domId);
-                            let jsFun = new Function(jsCode);
-                            chartSet.add(jsFun());
+                        let jsFun = new Function(jsCode);
+                        let myChart = jsFun();
+                        appendChart(domId, myChart)
 
-                        } else {
-                            let myChart = echarts.init(dom, theme);
-                            myChart.setOption(res.data.data.chartOptions);
-                            // chartSet.add(myChart);
-                        }
+                    } else {
+                        let myChart = echarts.init(dom, theme);
+                        myChart.setOption(res.data.data.chartOptions);
+                        appendChart(domId, myChart)
                     }
+                }
 
-                })
+            })
 
-            } else {
-                dom.innerText = JSON.stringify(res.data, null, 4)
-            }
-        }).catch((err) => {
-            console.log(err);
-        })
-    }
-
-    getData();
+        } else {
+            dom.innerText = JSON.stringify(res.data, null, 4)
+        }
+    }).catch((err) => {
+        console.log(err);
+    })
 }
 
-function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
+function sliderTimer(rootDomId, layout, commonTheme) {
     return setInterval(() => {
         for (let item of layout) {
             for (let row of item.charts) {
@@ -783,8 +786,7 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
                             col.sliderIndex = 0
                         }
                         let chartId = col.slider[col.sliderIndex].chartid;
-                        genChart(`${rootDomId}_${domId}`, chartId, '',
-                            commonTheme, commonBorderColor);
+                        genChart(`${rootDomId}_${domId}`, chartId, '', commonTheme);
                         col.sliderIndex++;
                     }
                 }
@@ -795,9 +797,9 @@ function sliderTimer(rootDomId, layout, commonTheme, commonBorderColor) {
 
 
 function genTemplate(domId, tempId, theme = '') {
-    console.log('genTemplate',tempId);
-    return new Promise((resolve, reject)=>{
-        axios.post(BASE_URL + '/ccb/get/template/', { id: tempId }).then((res) => {
+    console.log('genTemplate', tempId);
+    return new Promise((resolve, reject) => {
+        axios.post(BASE_URL + '/ccb/get/template/', {id: tempId}).then((res) => {
             if (res.data.code === '00') {
                 let dom = document.getElementById(domId);
                 let container = document.createElement('div');
@@ -866,13 +868,13 @@ function genTemplate(domId, tempId, theme = '') {
                                        </div>`;
                             let colEl = document.createRange().createContextualFragment(colHTML);
                             document.getElementById(`${domId}-vision-layout-${lay.i}-${i}`).appendChild(colEl);
-                            genChart(`${domId}_${col.domId}`, col.chartId, commonTheme, commonBorderColor);
+                            genChart(`${domId}_${col.domId}`, col.chartId, commonTheme);
 
                         }
                     }
                 }
-                let t = sliderTimer(domId, layout, commonTheme, commonBorderColor);
-                timerSet.add(t);
+                let t = sliderTimer(domId, layout, commonTheme);
+                timers.add(t);
                 resolve()
             }
         }).catch((err) => {
@@ -883,14 +885,14 @@ function genTemplate(domId, tempId, theme = '') {
 }
 
 function disposeAll() {
-    for (let c of chartSet) {
-        echarts.dispose(c)
+    for (let c of chartMap) {
+        chartMap[c].dispose();
     }
-    chartSet.clear();
-    for (let tm of timerSet) {
+    chartMap = null;
+    for (let tm of timers) {
         window.clearInterval(tm)
     }
-    timerSet.clear()
+    timers.clear()
 }
 
 export {

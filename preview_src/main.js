@@ -5,6 +5,7 @@ import axios from 'axios'
 import echarts from "echarts";
 import lodash from "lodash";
 import './plugins'
+import './assets/themes/allThemes.js'
 
 
 Vue.config.productionTip = false;
@@ -17,6 +18,4 @@ new Vue({
     render: function (h) {
         return h(App)
     }
-}).$mount('#app')
-
-
+}).$mount('#app');

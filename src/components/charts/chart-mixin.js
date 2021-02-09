@@ -162,7 +162,7 @@ export default {
                         if(this.tableConfig[index].tableHeader.length === 0) {
                             this.tableConfig[index].tableHeader = resData.columns;
                         }
-                        if (index == 0) {
+                        if (index === 0) {
                             this.$root.$emit('changeTableData', rows);
                         }
                     } else {
@@ -214,6 +214,7 @@ export default {
                     echarts.dispose(document.getElementById("chart"));
                     if (res.data.code === "00") {
                         if (this.isSave) {
+                            this.$store.commit('setLoading', false);
                             this.$router.push({ name: "ChartList" });
                             return;
                         }

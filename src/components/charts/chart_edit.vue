@@ -204,7 +204,7 @@ export default {
                                             srcid: this.srcid,
                                             sql: this.tableConfig[0].sql
                                         }).then(res => {
-                                            if (res.data.code == "00") {
+                                            if (res.data.code === "00") {
                                                 const resData = res.data.data;
                                                 this.$root.$emit('changeTableData',resData.rows)
                                             } else {
@@ -212,7 +212,7 @@ export default {
                                             }
                                         })
                                         .catch(err => console.log(err));
-                                }else if(this.chartType == 'htmlBasic'){
+                                }else if(this.chartType === 'htmlBasic'){
                                     this.$root.$emit('htmlCustom',res.data.data.diyCode)
                                 } else {
                                     echarts.dispose(
@@ -258,7 +258,7 @@ export default {
         },
         //切换小图
         switchCate(cate) {
-            if (cate == "diy") {
+            if (cate === "diy") {
                 this.$store.commit("setDefTab", "fourth");
                 this.setChartType('diy')
             } else {
@@ -294,9 +294,9 @@ export default {
         //提交数据
         async saveChart() {
             this.isSave = true;
-            if (this.chartCate == "html") {
+            if (this.chartCate === "html") {
                 let canvas = null;
-                if(this.chartType == 'tableBasic'){
+                if(this.chartType === 'tableBasic'){
                     canvas = await this.getIcon('table_box');
                 }else{
                     canvas = await this.getIcon('html_box');

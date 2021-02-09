@@ -209,8 +209,8 @@
                         user: this.srcInfo.db_user,
                         passWord: this.srcInfo.db_password,
                         port: this.srcInfo.db_port,
-                        db: this.srcInfo.db_name,
-                        table: this.srcInfo.table_name,
+                        db: this.srcInfo.dbTable[0],
+                        table: this.srcInfo.dbTable[1],
                     };
                     this.$axios.post(this.$api.mysqlEdit, params).then((res) => {
                         if (res.data.code === '00') {
