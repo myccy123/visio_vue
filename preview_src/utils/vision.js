@@ -813,6 +813,7 @@ function genTemplate(domId, tempId, theme = '') {
                 }
                 let commonBorderColor = tempInfo.borderColor;
                 if (tempInfo.title) {
+                    document.title = tempInfo.title;
                     let titleBox = document.createElement('div');
                     titleBox.style.width = tempInfo.width + 'px';
                     dom.appendChild(titleBox);
