@@ -72,7 +72,7 @@ export default {
                     sql: this.tableConfig[this.drillIndex].sql
                 })
                 .then(res => {
-                    if (res.data.code == "00") {
+                    if (res.data.code === "00") {
                         const resData = res.data.data;
                         //数据
                         this.rows = resData.rows;

@@ -783,7 +783,6 @@ function sliderTimer(rootDomId, layout, commonTheme) {
                 for (let col of row.cols) {
                     if (col.mode === '3' && col.slider.length >= 1) {
                         let domId = col.domId;
-                        let dom = document.getElementById(domId);
                         if (col.sliderIndex >= col.slider.length) {
                             col.sliderIndex = 0
                         }

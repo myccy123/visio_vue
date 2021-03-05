@@ -781,12 +781,11 @@ function sliderTimer(rootDomId, layout, commonTheme) {
                 for (let col of row.cols) {
                     if (col.mode === '3' && col.slider.length >= 1) {
                         let domId = col.domId;
-                        let dom = document.getElementById(domId);
                         if (col.sliderIndex >= col.slider.length) {
                             col.sliderIndex = 0
                         }
                         let chartId = col.slider[col.sliderIndex].chartid;
-                        genChart(`${rootDomId}_${domId}`, chartId, '', commonTheme);
+                        genChart(`${rootDomId}_${domId}`, chartId, commonTheme);
                         col.sliderIndex++;
                     }
                 }
