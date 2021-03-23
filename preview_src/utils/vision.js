@@ -517,7 +517,7 @@ function drawSvg2(parentDom,
 function drawTile(parentDom, title, bkColor, color = '#90a3cf') {
     let svgHTML = `
     <div
-        style="position:relative;width:100%;height:80px;font-size:30px;line-height:80px;color:#93EBF8;font-weight:500;text-align:center;background-color: ${bkColor}"
+        style="position:relative;width:100%;height:80px;font-size:30px;line-height:80px;color:#93EBF8;font-weight:500;text-align:center;background-color: transparent"
         class="svgTitleWrap">
         <svg
             class="svgEl"
@@ -708,18 +708,23 @@ function appendChart(domId, chartObj) {
     chartMap[domId] = chartObj
 }
 
-function genChart(domId, chartId, commonTheme = '') {
+function genChart(domId, chartId, options = {}) {
 
     let dom = document.getElementById(domId);
-    let myChart = null;
+    let params = {id: chartId};
+
+    // pass chart params and filters
+    if (options.params) {
+        params.params = options.params
+    }
+    if (options.filters) {
+        params.filters = options.filters
+    }
 
     if (!chartId) {
         return
     }
-    axios.post(BASE_URL + '/ccb/get/chart/', {id: chartId}).then((res) => {
-        if (!myChart && res.data.data.formOptions.chartCate !== 'html') {
-            myChart = echarts.init(dom, res.data.data.theme);
-        }
+    axios.post(BASE_URL + '/ccb/get/chart/', params).then((res) => {
         if (res.data.code === '00') {
             initMap(res.data.data.formOptions.moreConfig.map).then(() => {
                 echarts.dispose(dom);
@@ -746,7 +751,7 @@ function genChart(domId, chartId, commonTheme = '') {
                     });
                     htmlComponent.$mount(`#${domId}`);
                 } else {
-                    let theme = commonTheme ? commonTheme : res.data.data.theme;
+                    let theme = options.theme ? options.theme : res.data.data.theme;
                     if (res.data.data.chartType === 'diy') {
                         let jsCode = `
                             var ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'})
@@ -774,7 +779,7 @@ function genChart(domId, chartId, commonTheme = '') {
     })
 }
 
-function sliderTimer(rootDomId, layout, commonTheme) {
+function sliderTimer(rootDomId, layout, options) {
     return setInterval(() => {
         for (let item of layout) {
             for (let row of item.charts) {
@@ -785,7 +790,7 @@ function sliderTimer(rootDomId, layout, commonTheme) {
                             col.sliderIndex = 0
                         }
                         let chartId = col.slider[col.sliderIndex].chartid;
-                        genChart(`${rootDomId}_${domId}`, chartId, commonTheme);
+                        genChart(`${rootDomId}_${domId}`, chartId, options);
                         col.sliderIndex++;
                     }
                 }
@@ -795,30 +800,33 @@ function sliderTimer(rootDomId, layout, commonTheme) {
 }
 
 
-function genTemplate(domId, tempId, theme = '') {
+function genTemplate(domId, tempId, options = {}) {
     console.log('genTemplate', tempId);
     return new Promise((resolve, reject) => {
         axios.post(BASE_URL + '/ccb/get/template/', {id: tempId}).then((res) => {
             if (res.data.code === '00') {
                 let dom = document.getElementById(domId);
                 let container = document.createElement('div');
+                dom.appendChild(container);
                 container.style.position = 'relative';
                 let tempInfo = res.data.data.layout_info.templateInfo;
                 let layout = res.data.data.layout_info.layout;
                 let bgColor = tempInfo.backgroundColor ? tempInfo.backgroundColor : '#fff';
-                let commonTheme = tempInfo.theme;
-                if (theme) {
-                    commonTheme = theme;
-                }
+                let bgImg = tempInfo.backgroundImg
+
+                options.theme = tempInfo.theme;
                 let commonBorderColor = tempInfo.borderColor;
+
+                let titleHeight = 0;
                 if (tempInfo.title) {
                     document.title = tempInfo.title;
                     let titleBox = document.createElement('div');
-                    titleBox.style.width = tempInfo.width + 'px';
-                    dom.appendChild(titleBox);
-                    drawTile(titleBox, tempInfo.title, bgColor)
+                    // titleBox.style.width = tempInfo.width + 'px';
+                    titleBox.style.height = '80px';
+                    container.appendChild(titleBox);
+                    drawTile(titleBox, tempInfo.title, bgColor);
+                    titleHeight = 80
                 }
-                dom.appendChild(container);
 
                 if (tempInfo.width) {
                     container.style.width = tempInfo.width + 'px'
@@ -826,12 +834,18 @@ function genTemplate(domId, tempId, theme = '') {
                 if (tempInfo.height) {
                     container.style.height = tempInfo.height + 'px'
                 } else {
-                    container.style.height = container.offsetWidth * (tempInfo.offsetHeight / tempInfo.offsetWidth) + 'px'
+                    container.style.height = container.offsetWidth * (tempInfo.offsetHeight / tempInfo.offsetWidth) + titleHeight + 'px'
+                }
+
+                if (bgImg) {
+                    container.style.backgroundImage = `url('${bgImg}')`;
+                    container.style.backgroundSize = 'cover';
+                    container.style.backgroundPosition = 'center';
                 }
 
                 container.style.backgroundColor = bgColor;
 
-                let boxHeigh = container.offsetHeight;
+                let boxHeigh = container.offsetHeight - titleHeight;
                 let boxWidth = container.offsetWidth;
                 let marginLeft = tempInfo.margin[0];
                 let marginTop = tempInfo.margin[1];
@@ -842,7 +856,7 @@ function genTemplate(domId, tempId, theme = '') {
                     let layWidth = lay.w * colWidth + (lay.w - 1) * marginLeft;
                     let layHeight = lay.h * rowHeight + (lay.h - 1) * marginTop;
                     let left = lay.x * colWidth + (lay.x + 1) * marginLeft;
-                    let top = lay.y * rowHeight + (lay.y + 1) * marginTop;
+                    let top = lay.y * rowHeight + (lay.y + 1) * marginTop + titleHeight;
                     let layHTML = `
                           <div id="${domId}-vision-layout-${lay.i}"
                                style="position: absolute; top: ${top}px; left: ${left}px;width: ${layWidth}px; height: ${layHeight}px;">
@@ -868,12 +882,12 @@ function genTemplate(domId, tempId, theme = '') {
                                        </div>`;
                             let colEl = document.createRange().createContextualFragment(colHTML);
                             document.getElementById(`${domId}-vision-layout-${lay.i}-${i}`).appendChild(colEl);
-                            genChart(`${domId}_${col.domId}`, col.chartId, commonTheme);
+                            genChart(`${domId}_${col.domId}`, col.chartId, options);
 
                         }
                     }
                 }
-                let t = sliderTimer(domId, layout, commonTheme);
+                let t = sliderTimer(domId, layout, options);
                 timers.add(t);
                 resolve()
             }

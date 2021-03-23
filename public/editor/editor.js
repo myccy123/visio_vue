@@ -436,6 +436,7 @@ lnTools = ace.require("ace/ext/language_tools"), keywords = {
     onmousedown: 1,
     animationThreshold: 1,
     'getVisionData()':1,
+    'getVisionParams()':1,
     'getDrill()':1,
     'chartObj': 1
 },

@@ -26,6 +26,7 @@ const urls = {
     customCateQuery: baseUrl + '/ccb/cate/query/',
     drillDown: baseUrl + '/ccb/drill/down/',//表格下钻
     getVisionData: baseUrl + '/ccb/get/vision/data/',
+    uploadImg: baseUrl + '/ccb/upload/img/',
     authSignup: baseUrl + '/auth/signup/',
     authSignin: baseUrl + '/auth/signin/',
     authLogout: baseUrl + '/auth/logout/',

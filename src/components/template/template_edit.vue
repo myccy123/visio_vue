@@ -55,8 +55,19 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="背景色" style="height: 28px">
-                        <el-color-picker v-model="templateConfig.backgroundColor" color-format="hex"
-                                         :predefine="predefineColors"></el-color-picker>
+                        <el-color-picker v-model="templateConfig.backgroundColor"
+                                         :predefine="predefineColors" show-alpha></el-color-picker>
+                    </el-form-item>
+                    <el-form-item label="背景图片" style="height: 28px">
+                        <el-upload
+                                class="upload-demo"
+                                :action="$api.uploadImg"
+                                :on-success="onUploaded"
+                                :on-remove="onUploadRemove"
+                                name="file" multiple
+                                :file-list="fileList">
+                            <el-button size="mini" type="primary">点击上传</el-button>
+                        </el-upload>
                     </el-form-item>
                     <el-form-item label="宽">
                         <el-input v-model="templateConfig.width" style="width: 80px;"></el-input>
@@ -93,7 +104,7 @@
                         :auto-size="true"
                         :use-css-transforms="true"
                         style="margin-bottom: 20px;border: 1px dashed #79aec8"
-                        :style="{'background-color': templateConfig.backgroundColor}">
+                        :style="{'background-color': templateConfig.backgroundColor, backgroundImage: 'url('+templateConfig.backgroundImg+')', backgroundSize: 'cover', backgroundPosition: 'center'}">
 
                     <grid-item v-for="(item, idx) in layout" class="box"
                                @resized="refreshBox(item)"
@@ -179,12 +190,12 @@
                         </div>
                         <SvgBorder v-if="item.svgBorder == 'border1' || !item.svgBorder"
                                    style="position: absolute;z-index: 97"
-                                   :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'#fff'"
+                                   :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'transparent'"
                                    :borderColor="templateConfig.borderColor"
                                    :svgKey="'svg-filter-' + item.i"></SvgBorder>
                         <SvgBorder2 v-else-if="item.svgBorder == 'border2'"
                                     style="position: absolute;z-index: 97"
-                                    :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'#fff'"
+                                    :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'transparent'"
                                     :borderColor="templateConfig.borderColor"
                                     :svgKey="'svg-filter2-' + item.i"></SvgBorder2>
                     </grid-item>
@@ -290,10 +301,12 @@
                 chartCate: 'all',
                 customCate: 'all',
                 charts: [],
+                fileList: [],
                 templateConfig: {
                     name: '',
                     title: '',
                     backgroundColor: '',
+                    backgroundImg: '',
                     width: '',
                     height: '',
                     theme: '',
@@ -326,7 +339,7 @@
                 }],
                 cols: 60,
                 rowHeight: 30,
-                margin: [10, 10], //[left-right, top-bottom]
+                margin: [5, 5], //[left-right, top-bottom]
                 maxId: 0,
                 maxChartId: 10000,
                 maxRowId: 20000,
@@ -361,7 +374,7 @@
                         this.templateId = res.data.data.id;
                         this.layout = res.data.data.layout_info.layout;
                         this.templateConfig = res.data.data.layout_info.templateInfo;
-                        this.margin = res.data.data.layout_info.templateInfo.margin;
+                        // this.margin = res.data.data.layout_info.templateInfo.margin;
                         this.cols = res.data.data.layout_info.templateInfo.cols;
                         this.maxId = res.data.data.layout_info.templateInfo.maxId;
                         this.maxChartId = res.data.data.layout_info.templateInfo.maxChartId;
@@ -604,11 +617,6 @@
             },
             renderChart(col) {
                 let dom = document.getElementById(col.domId);
-                // if (col.html) {
-                //     this.$nextTick(() => {
-                //         this.renderHTML(dom, col.html)
-                //     })
-                // }
                 if (col.chartId !== '') {
                     this.$axios.post(this.$api.getChart, {id: col.chartId}).then((res) => {
                         if (res.data.code === '00') {
@@ -625,14 +633,14 @@
                                         let ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'});
                                         ${res.data.data.diyCode};
                                         ${domId}.setOption(option);
-                                        return ${domId}`.replace(/chartObj/, domId);
+                                        return ${domId}`.replace(/chartObj/g, domId);
                                     let jsFun = new Function(jsCode);
                                     let chart = jsFun();
-                                    chartSet.add(chart)
+                                    // chartSet.add(chart)
                                 } else {
                                     let myChart = echarts.init(dom, theme);
                                     myChart.setOption(res.data.data.chartOptions);
-                                    chartSet.add(myChart)
+                                    // chartSet.add(myChart)
                                 }
                             });
 
@@ -672,6 +680,7 @@
                 }else if(chartType === 'htmlBasic'){
                     this.renderHTML(obj)
                 }else{
+                    console.log(obj)
                     this.renderChart(obj)
                 }
                 
@@ -718,6 +727,7 @@
                                 height: _this.templateConfig.height,
                                 width: _this.templateConfig.width,
                                 backgroundColor: _this.templateConfig.backgroundColor,
+                                backgroundImg: _this.templateConfig.backgroundImg,
                                 theme: _this.templateConfig.theme,
                                 borderColor: _this.templateConfig.borderColor,
                                 name: _this.templateConfig.name,
@@ -793,6 +803,16 @@
                 tableComponent.$mount(`#${chartObj.domId}`);
                 //组件集合,销毁用
                 tableComponentMap.set(chartObj.domId,tableComponent);
+            },
+            onUploaded(res, file, fileList) {
+                if(fileList.length > 1) {
+                    fileList.splice(0, 1)
+                }
+                console.log('成功',fileList)
+                this.templateConfig.backgroundImg = res.data.url
+            },
+            onUploadRemove(file, fileList) {
+                this.templateConfig.backgroundImg = '';
             },
             disposeBox(col){
                 if(col.chartType === 'tableBasic'){
@@ -1134,6 +1154,15 @@
 
     .chart-btns .el-button-group .el-button:first-child {
         width: calc(100% - 28px) !important;
+    }
+
+    .upload-demo {
+        display: flex;
+        align-items: center;
+    }
+
+    .upload-demo .el-upload-list__item:first-child{
+        margin-top: 2px;
     }
 
 </style>

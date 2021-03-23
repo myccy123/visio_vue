@@ -712,17 +712,12 @@ function appendChart(domId, chartObj) {
 function genChart(domId, chartId, commonTheme = '') {
 
     let dom = document.getElementById(domId);
-    let myChart = null;
-
 
     if (!chartId) {
         return
     }
     axios.post(BASE_URL + '/ccb/get/chart/', {id: chartId}).then((res) => {
 
-        if (!myChart) {
-            myChart = echarts.init(dom, res.data.data.theme);
-        }
         if (res.data.code === '00') {
             initMap(res.data.data.formOptions.moreConfig.map).then(() => {
                 echarts.dispose(dom);

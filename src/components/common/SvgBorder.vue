@@ -71,7 +71,7 @@ export default {
         }
     },
     mounted() {
-        if(this.animationMode == 'hover'){
+        if(this.animationMode === 'hover'){
             this.animationClass = '';
         }
         this.$nextTick(() => {
