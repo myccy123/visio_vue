@@ -49,8 +49,8 @@
                 </el-form-item>
                 <el-form-item>
                     <div>
-                        <el-button :disabled="!srcValid" type="danger" @click="updateSource">保存修改</el-button>
-                        <el-button :disabled="!srcValid" @click="cloneSource" style="margin-left: 35px;">克隆</el-button>
+                        <el-button :disabled="false" type="danger" @click="updateSource">保存修改</el-button>
+                        <el-button :disabled="false" @click="cloneSource" style="margin-left: 35px;">克隆</el-button>
                     </div>
                 </el-form-item>
             </el-form>
@@ -89,6 +89,7 @@
                     dbTable: [],
                     db_name: '',
                     table_name: '',
+                    data_type: '',
                     id: ''
                 },
                 srcValid: false,
@@ -120,9 +121,10 @@
                     user: this.srcInfo.db_user,
                     passWord: this.srcInfo.db_password,
                     port: this.srcInfo.db_port,
+                    id: this.srcInfo.id
                 };
                 this.$axios.post(this.$api.mysqlCheck, data).then((res) => {
-                    if(res.data.code === '00'){
+                    if(res.data.data.statusCode === '00'){
                         this.srcValid = 'success'
                     } else {
                         this.srcValid = 'fail'
@@ -161,7 +163,8 @@
                     ip: this.srcInfo.db_host,
                     user: this.srcInfo.db_user,
                     passWord: this.srcInfo.db_password,
-                    port: this.srcInfo.db_port
+                    port: this.srcInfo.db_port,
+                    sourceType: this.srcInfo.data_type
                 };
                 this.$axios.post(this.$api.mysqlGetDb, srcInfo).then((res) => {
                     if (res.data.code === '00') {

@@ -1,6 +1,6 @@
 <template>
     <div class="table-extend-wrap chartCtnClass"  :id="domId" style="width: 100%;height: 100%;position: absolute" >
-        <div class="table-extend-nav-wrap">
+        <div class="table-extend-nav-wrap" v-if="isDrillDown">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item
                     @click.native="handleCrumbClick(crumbItem)"
@@ -13,8 +13,9 @@
             :data="rows"
             :highlight-current-row="true"
             :row-style="{cursor: 'pointer'}"
-            :cell-style="{padding: '2px 0'}"
-            height="calc(100% - 30px)"
+            :cell-style="cellStyle"
+            :header-cell-style="headerStyle"
+            :height="tableHeight"
             stripe
             @row-click="handleRowClick"
             :border="true"
@@ -51,10 +52,18 @@ export default {
                     level: 0,
                     label: "首页"
                 }
-            ] //下钻面包屑
+            ], //下钻面包屑
+            cellStyle: {},
+            headerStyle: {},
+            isDrillDown: false,
         };
     },
-    computed: {},
+    computed: {
+        tableHeight() {
+            let h = `calc(100% - ${this.isDrillDown ? 30 : 0}px)`;
+            return h
+        }
+    },
     mounted() {
         this.initData();
     },
@@ -65,6 +74,9 @@ export default {
                 const { tableConfig, srcid } = res.data.data.formOptions;
                 drillTableConfig = tableConfig;
                 drillSrcId = srcid;
+                this.cellStyle = tableConfig[0].cellStyle;
+                this.headerStyle = tableConfig[0].headerStyle;
+                this.isDrillDown = tableConfig[0].isDrillDown;
                 this.$axios
                     .post(this.$api.drillDown, {
                         srcid: srcid,

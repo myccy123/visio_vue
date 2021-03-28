@@ -41,6 +41,12 @@ export default new VueRouter({
       component: () => import('../components/source/add_mysql'),
     },
     {
+      path: '/add/mssql',
+      name: 'addMssql',
+      // component: addMysql,
+      component: () => import('../components/source/add_mssql'),
+    },
+    {
       path: '/chart/list',
       name: 'ChartList',
       // component: chartList,

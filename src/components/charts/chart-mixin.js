@@ -11,9 +11,12 @@ const defaultState = {
         {
             tableHeader: [],
             tableDown: "", //下钻字段
+            isDrillDown: true,
             tableDownIndex: 0,
             sql: "",
             colOptions: [],
+            cellStyle: {},
+            headerStyle: {},
         }
     ],
     chartConfig: {

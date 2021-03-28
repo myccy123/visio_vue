@@ -4,7 +4,7 @@
         :id="domId"
         style="width: 100%;height: 100%;position: relative"
     >
-        <div class="table-extend-nav-wrap">
+        <div class="table-extend-nav-wrap" v-if="isDrillDown">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item
                     @click.native="handleCrumbClick(crumbItem)"
@@ -17,8 +17,9 @@
             :data="rows"
             :highlight-current-row="true"
             :row-style="{cursor: 'pointer'}"
-            :cell-style="{padding: '2px 0'}"
-            height="calc(100% - 30px)"
+            :cell-style="cellStyle"
+            :header-cell-style="headerStyle"
+            :height="tableHeight"
             stripe
             @row-click="handleRowClick"
             :border="true"
@@ -56,16 +57,27 @@ export default {
                     level: 0,
                     label: "首页"
                 }
-            ] //下钻面包屑
+            ], //下钻面包屑
+            cellStyle: {},
+            headerStyle: {},
+            isDrillDown: false,
         };
     },
-    computed: {},
+    computed: {
+        tableHeight() {
+            let h = `calc(100% - ${this.isDrillDown ? 30 : 0}px)`;
+            return h
+        }
+    },
     mounted() {
         this.initData();
     },
     methods: {
         initData() {
             drillTableConfig = this.tableConfig;
+            this.cellStyle = this.tableConfig[0].cellStyle;
+            this.headerStyle = this.tableConfig[0].headerStyle;
+            this.isDrillDown = this.tableConfig[0].isDrillDown;
             drillSrcId = this.srcid;
             axios.post(api, {
                     srcid: this.srcid,

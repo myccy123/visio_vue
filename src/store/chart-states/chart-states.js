@@ -13,6 +13,9 @@ export default {
             tableDownIndex:0,//下钻下标
             sql: "",
             colOptions:[],
+            cellStyle: {},
+            headerStyle: {},
+            isDrillDown: true,
         }
     ],
     chartConfig: {

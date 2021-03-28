@@ -424,6 +424,7 @@ export default {
     height: calc(100vh - 42px);
     width: 280px;
     overflow: auto;
+    flex-shrink: 0;
 }
 
 .selCate {
@@ -434,7 +435,7 @@ export default {
 .chart-main-router-wrap {
     padding: 0 12px;
     height: calc(100vh - 80px);
-    width: calc(100% - 280px);
+    width: calc(100% - 304px);
 }
 .center-top-router {
     height: 140px;

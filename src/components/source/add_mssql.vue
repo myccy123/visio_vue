@@ -2,10 +2,10 @@
     <div>
         <common-nav></common-nav>
         <div style="width: 500px; margin: auto;">
-            <h2 class="thedata-title">创建MySQL数据源</h2>
+            <h2 class="thedata-title">创建SQL Server数据源</h2>
             <el-steps class="steps-title" :active="addMysqlStep" align-center finish-status="success"
                       style="margin: 30px 0;" process-status="process">
-                <el-step title="连接MySQL"></el-step>
+                <el-step title="连接SQL Server"></el-step>
                 <el-step title="选择数据表"></el-step>
             </el-steps>
             <el-form ref="form" v-show="addMysqlStep===0" :model="mysqlInfo" label-width="120px"
@@ -58,13 +58,13 @@
                 addMysqlStep: 0,
                 mysqlInfo: {
                     name: '',
-                    ip: '127.0.0.1',
-                    user: 'root',
-                    passWord: '123456',
-                    port: '3306',
+                    ip: '222.223.101.215',
+                    user: 'sa',
+                    passWord: 'Bjjttec2315',
+                    port: '1433',
                     db: '',
                     table: '',
-                    sourceType: 'mysql',
+                    sourceType: 'mssql',
                     userid: 'yujiahao',
                 },
                 dbTable: [],

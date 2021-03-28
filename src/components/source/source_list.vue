@@ -21,6 +21,9 @@
                 <div class="source-icon" @click="addMySQL">
                     <img :src="sourceIcon.mysql">
                 </div>
+                <div class="source-icon" @click="addMsSQL">
+                    <img :src="sourceIcon.mssql">
+                </div>
                 <div class="source-icon" @click="">
                     <img :src="sourceIcon.excel">
                 </div>
@@ -81,6 +84,9 @@
             },
             addMySQL() {
                 this.$router.push({name: 'addMysql'})
+            },
+            addMsSQL() {
+                this.$router.push({name: 'addMssql'})
             },
         }
     };

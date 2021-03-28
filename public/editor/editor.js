@@ -505,7 +505,7 @@ function initEditor(domId,mode,data) {
     }
 
     if(arguments[1] && arguments[1] != 'html' && arguments[1] !='javascript' && arguments[1] != 'sql'){
-        data = mode;
+        // data = mode;
     }
 
     if(mode != 'html' && mode != 'sql'){
@@ -519,7 +519,7 @@ function initEditor(domId,mode,data) {
         enableSnippets: !0,
         enableLiveAutocompletion: !0
     })
-    
+
     if(mode == 'javascript'){
         let content = data || "var option = {\n    \n};\n";
         gb.editor.setValue(content);
