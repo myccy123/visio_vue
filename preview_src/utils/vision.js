@@ -708,23 +708,14 @@ function appendChart(domId, chartObj) {
     chartMap[domId] = chartObj
 }
 
-function genChart(domId, chartId, options = {}) {
+function genChart(domId, chartId, options = {}, commonTheme) {
 
     let dom = document.getElementById(domId);
-    let params = {id: chartId};
-
-    // pass chart params and filters
-    if (options.params) {
-        params.params = options.params
-    }
-    if (options.filters) {
-        params.filters = options.filters
-    }
 
     if (!chartId) {
         return
     }
-    axios.post(BASE_URL + '/ccb/get/chart/', params).then((res) => {
+    axios.post(BASE_URL + '/ccb/get/chart/', {id: chartId, ...options}).then((res) => {
         if (res.data.code === '00') {
             initMap(res.data.data.formOptions.moreConfig.map).then(() => {
                 echarts.dispose(dom);
@@ -751,7 +742,7 @@ function genChart(domId, chartId, options = {}) {
                     });
                     htmlComponent.$mount(`#${domId}`);
                 } else {
-                    let theme = options.theme ? options.theme : res.data.data.theme;
+                    let theme = commonTheme ? commonTheme : res.data.data.theme;
                     if (res.data.data.chartType === 'diy') {
                         let jsCode = `
                             var ${domId} = echarts.init(document.getElementById('${domId}'), '${theme}', {renderer: 'canvas'})
@@ -779,7 +770,7 @@ function genChart(domId, chartId, options = {}) {
     })
 }
 
-function sliderTimer(rootDomId, layout, options) {
+function sliderTimer(rootDomId, layout, options, commonTheme) {
     return setInterval(() => {
         for (let item of layout) {
             for (let row of item.charts) {
@@ -790,7 +781,7 @@ function sliderTimer(rootDomId, layout, options) {
                             col.sliderIndex = 0
                         }
                         let chartId = col.slider[col.sliderIndex].chartid;
-                        genChart(`${rootDomId}_${domId}`, chartId, options);
+                        genChart(`${rootDomId}_${domId}`, chartId, options, commonTheme);
                         col.sliderIndex++;
                     }
                 }
@@ -812,9 +803,9 @@ function genTemplate(domId, tempId, options = {}) {
                 let tempInfo = res.data.data.layout_info.templateInfo;
                 let layout = res.data.data.layout_info.layout;
                 let bgColor = tempInfo.backgroundColor ? tempInfo.backgroundColor : '#fff';
-                let bgImg = tempInfo.backgroundImg
+                let bgImg = tempInfo.backgroundImg;
 
-                options.theme = tempInfo.theme;
+                let theme = tempInfo.theme;
                 let commonBorderColor = tempInfo.borderColor;
 
                 let titleHeight = 0;
@@ -882,12 +873,12 @@ function genTemplate(domId, tempId, options = {}) {
                                        </div>`;
                             let colEl = document.createRange().createContextualFragment(colHTML);
                             document.getElementById(`${domId}-vision-layout-${lay.i}-${i}`).appendChild(colEl);
-                            genChart(`${domId}_${col.domId}`, col.chartId, options);
+                            genChart(`${domId}_${col.domId}`, col.chartId, options, theme);
 
                         }
                     }
                 }
-                let t = sliderTimer(domId, layout, options);
+                let t = sliderTimer(domId, layout, options, theme);
                 timers.add(t);
                 resolve()
             }
@@ -899,10 +890,10 @@ function genTemplate(domId, tempId, options = {}) {
 }
 
 function disposeAll() {
-    for (let c of chartMap) {
+    for (let c in chartMap) {
         chartMap[c].dispose();
+        delete chartMap[c]
     }
-    chartMap = null;
     for (let tm of timers) {
         window.clearInterval(tm)
     }

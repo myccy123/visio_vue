@@ -23,6 +23,6 @@ function getSliderInterval(){
 }
 
 function getTempId() {
-    return 50
+    return 109
 }
 

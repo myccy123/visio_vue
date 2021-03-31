@@ -1,7 +1,7 @@
 <template>
     <div>
         <common-nav
-                style="position: fixed;top: 0;width: calc(100% - 16px);padding-top: 8px;background-color: #fff;z-index: 9999"></common-nav>
+                style="position: fixed;top: 0;width: calc(100% - 16px);background-color: #fff;z-index: 9999"></common-nav>
         <div class="left" v-loading="loading">
             <div style="display: flex;justify-content: space-around;margin: 10px 0;">
                 <el-select v-model="chartCate" placeholder="请选择" size="mini"
@@ -275,9 +275,11 @@
     import TableExtend from './template_edit/TableExtend.vue';
     import HtmlExtend from './template_edit/HtmlExtend.vue';
     import Vue from 'vue';
-    let chartSet = new Set();
+
+    let chartMap = {};
     let tableComponentMap = new Map();
     let htmlComponentMap = new Map();
+
     export default {
         name: "template_edit",
         components: {
@@ -379,6 +381,13 @@
                         this.maxId = res.data.data.layout_info.templateInfo.maxId;
                         this.maxChartId = res.data.data.layout_info.templateInfo.maxChartId;
                         this.maxRowId = res.data.data.layout_info.templateInfo.maxRowId;
+                        if(this.templateConfig.backgroundImg) {
+                            let li = this.templateConfig.backgroundImg.split('/');
+                            this.fileList = [{
+                                name: li[li.length - 1],
+                                url: this.templateConfig.backgroundImg
+                            }]
+                        }
 
                         for (let item of this.layout) {
                             for (let row of item.charts) {
@@ -404,9 +413,10 @@
         },
         destroyed() {
             window.clearInterval(this.timer);
-            for (let c of chartSet) {
-                echarts.dispose(c)
+            for (let c of chartMap) {
+                chartMap[c].dispose();
             }
+            chartMap = null;
             tableComponentMap.forEach(item=>{
                 item.$destroy();
             });
@@ -460,6 +470,12 @@
                         })
                     }
                 })
+            },
+            appendChart(domId, chartObj) {
+                if(chartMap.hasOwnProperty(domId)) {
+                    chartMap[domId].dispose()
+                }
+                chartMap[domId] = chartObj
             },
             chartList() {
                 this.loading = true;
@@ -636,11 +652,11 @@
                                         return ${domId}`.replace(/chartObj/g, domId);
                                     let jsFun = new Function(jsCode);
                                     let chart = jsFun();
-                                    // chartSet.add(chart)
+                                    this.appendChart(domId, chart)
                                 } else {
                                     let myChart = echarts.init(dom, theme);
                                     myChart.setOption(res.data.data.chartOptions);
-                                    // chartSet.add(myChart)
+                                    this.appendChart(domId, myChart)
                                 }
                             });
 

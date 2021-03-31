@@ -12,8 +12,7 @@
         mounted() {
             genTemplate('temp', getTempId())
         },
-        beforeRouteUpdate() {
-            console.log(11111111111)
+        destroyed() {
             disposeAll()
         }
     }

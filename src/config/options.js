@@ -211,8 +211,11 @@ export default {
         {label: '酷炫边框', value: 'border2', icon: pre_dir + '/img/border1.png'},
     ],
     ASSETS: {
-        logo: pre_dir + '/img/logo2-nav.png',
-        bgImg: pre_dir + `/img/bg${randomInt(1, 4)}.png`,
+        logo: pre_dir + '/img/logo-nav.png',
+        logoBlue: pre_dir + '/img/logo-nav3.png',
+        // bgImg: pre_dir + `/img/bg${randomInt(1, 4)}.png`,
+        bgImg: pre_dir + `/img/home_bg.jpg`,
+        vdo: pre_dir + '/img/ex.mp4',
         sourceIcon: {
             mysql: pre_dir + '/img/MySQL.png',
             mssql: pre_dir + '/img/MsSQL.png',
