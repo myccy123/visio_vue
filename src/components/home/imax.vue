@@ -46,7 +46,7 @@
         margin: 50px auto;
         height: 200px;
         background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 4px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)
     }
 
 </style>

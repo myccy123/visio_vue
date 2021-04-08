@@ -591,7 +591,7 @@ function drawTile(parentDom, title, bkColor, color = '#90a3cf') {
                 <path stroke="#00c0ff" stroke-width="4px" fill="none" class="svgLigthLine" />
             </g>
         </svg>
-        <span class="titleTextWrap" style="position:absolute;left:50%;transform:translateX(-50%)">
+        <span class="titleTextWrap" style="position:absolute;left:50%;transform:translateX(-50%);top:0">
             ${title}
         </span>
         <style>
