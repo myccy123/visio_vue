@@ -4,7 +4,7 @@
         <source-list ref="srcList"></source-list>
         <div class="src-info">
             <h2 class="src-name" style="padding-top: 8px;text-align: center;">数据源详情</h2>
-            <el-form :model="srcInfo" label-width="120px" size="mini">
+            <el-form :model="srcInfo" label-width="120px" size="mini" :disabled="!editable">
                 <el-form-item label="数据源名称">
                     <el-input v-model="srcInfo.data_name" :readonly="!editable"></el-input>
                 </el-form-item>
@@ -93,7 +93,7 @@
                     id: ''
                 },
                 srcValid: false,
-                editable: true,
+                editable: false,
                 rows: [],
                 colnames: [],
                 options: [],
@@ -101,6 +101,7 @@
         },
         mounted() {
             this.$bus.$on('currSource', (src) => {
+                this.editable = true;
                 this.srcInfo = lodash.cloneDeep(src);
                 this.srcInfo.dbTable = [this.srcInfo.db_name, this.srcInfo.table_name];
                 this.checkSource();

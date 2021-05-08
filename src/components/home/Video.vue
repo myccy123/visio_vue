@@ -1,6 +1,6 @@
 <template>
     <div class="vdo-wrap">
-        <video :src="vdo" autoplay="autoplay" width="100%" loop="loop">
+        <video :src="vdo" autoplay="autoplay" muted width="100%" loop="loop">
 
         </video>
     </div>
