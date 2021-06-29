@@ -1,7 +1,7 @@
 <template>
     <div :id="domId" ref="htmlBoxWrap" style="height:100%;overflow:auto">
         <div></div>
-        <div id="style_mount"></div>
+        <div :id="domId + '_style_mount'"></div>
     </div>
 </template>
 <script>
@@ -19,7 +19,7 @@ export default {
             .then(res => {
                 if (res.data.code === "00") {
                     let template = res.data.data.diyCode;
-                    document.getElementById("style_mount").innerHTML = "";
+                    document.getElementById(`${this.domId}_style_mount`).innerHTML = "";
                     let indexOf = template.indexOf("<style");
                     let el = template.substring(0, indexOf);
                     let style = template.substring(indexOf);
@@ -32,7 +32,7 @@ export default {
                         .createRange()
                         .createContextualFragment(style);
                     document
-                        .getElementById("style_mount")
+                        .getElementById(`${this.domId}_style_mount`)
                         .appendChild(styleDom);
                 }
             })
