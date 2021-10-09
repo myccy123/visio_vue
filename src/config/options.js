@@ -157,7 +157,7 @@ export default {
             label: '仪表盘', value: 'gauge'
         },
         {
-            label: '表格', value: 'table'
+            label: 'HTML', value: 'html'
         },
         {
             label: '自定义图', value: 'diy'
