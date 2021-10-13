@@ -11,6 +11,7 @@ import store from './store/store';
 import './icons';
 import storageMixin from './utils/storage-mixin';
 import './assets/themes/allThemes.js'
+import 'echarts-extension-amap';
 
 
 Vue.config.productionTip = false;

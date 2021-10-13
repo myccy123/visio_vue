@@ -88,7 +88,7 @@ export default {
                 js: pre_dir + '/diyjs/1.1.js',
             },
             {
-                name: '百度地图',
+                name: '高德地图',
                 value: 'diy',
                 icon: pre_dir + '/img/type-diy-scatter-bmap1.jpg',
                 type: 'mapPot',
