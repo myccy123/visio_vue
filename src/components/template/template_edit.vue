@@ -133,7 +133,7 @@
                                          :colid="j"
                                          style="height: 100%;position: relative;overflow: hidden">
                                         <div class="chartCtnClass" :id="col.domId"
-                                             style="width: 100%;height: 100%;position: absolute"></div>
+                                             style="width: 100%;height: 100%;position: absolute;overflow: hidden"></div>
                                     </div>
                                     <div v-if="item.showMask" class="arrow-box">
                                         <i @click="addLeft(item, i, j)" class="el-icon-arrow-left arrow-btn"></i>

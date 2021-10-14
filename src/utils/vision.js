@@ -868,7 +868,7 @@ function genTemplate(domId, tempId, options = {}) {
                         document.getElementById(`${domId}-vision-layout-${lay.i}`).querySelector('.box').appendChild(rowEl);
                         for (let col of row.cols) {
                             let colHTML = `<div style="width: ${100 / row.cols.length}%; height: 100%;padding: 12px;box-sizing: border-box;">
-                                           <div id="${domId}_${col.domId}" style="height: 100%;"></div>
+                                           <div id="${domId}_${col.domId}" style="height: 100%;overflow: hidden"></div>
                                        </div>`;
                             let colEl = document.createRange().createContextualFragment(colHTML);
                             document.getElementById(`${domId}-vision-layout-${lay.i}-${i}`).appendChild(colEl);

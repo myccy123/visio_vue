@@ -403,7 +403,7 @@ let option = {
     amap: {
         // enable 3D mode
         viewMode: "3D",
-        // initial options of AMap
+        // initial options o    f AMap
         // See https://lbs.amap.com/api/javascript-api/reference/map#MapOption for details
         // initial map center [lng, lat]
         center: [108.39, 39.9],
@@ -412,7 +412,7 @@ let option = {
         // whether the map and echarts automatically handles browser window resize to update itself.
         resizeEnable: true,
         // customized map style, see https://lbs.amap.com/dev/mapstyle/index for details
-        mapStyle: "amap://styles/dark",
+        mapStyle: "amap://styles/darkblue",
         // whether echarts layer should be rendered when the map is moving. Default is true.
         // if false, it will only be re-rendered after the map `moveend`.
         // It's better to set this option to false if data is large.

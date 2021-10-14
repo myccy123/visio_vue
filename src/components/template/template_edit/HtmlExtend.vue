@@ -1,5 +1,5 @@
 <template>
-    <div :id="domId" ref="htmlBoxWrap" style="height:100%;overflow:auto">
+    <div :id="domId" ref="htmlBoxWrap" style="height:100%;overflow:hidden">
         <div></div>
         <div :id="domId + '_style_mount'"></div>
     </div>
