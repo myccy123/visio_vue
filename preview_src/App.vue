@@ -7,18 +7,21 @@
 import {getParam} from './utils/vision'
 import PreviewTemplate from './views/PreviewTemplate.vue';
 import PreviewChart from './views/PreviewChart.vue';
+import SwitchableTemplate from "./views/SwitchableTemplate";
+
 const componentNameMap = {
-    chart:'PreviewChart',
-    template:'PreviewTemplate'
+    chart: 'PreviewChart',
+    template: 'PreviewTemplate',
+    switch: 'SwitchableTemplate',
 }
 export default {
-    components:{PreviewChart,PreviewTemplate},
-    data(){
-        return{
-            componentName:'',
-        }    
+    components: {PreviewChart, PreviewTemplate, SwitchableTemplate},
+    data() {
+        return {
+            componentName: '',
+        }
     },
-    mounted(){
+    mounted() {
         this.componentName = componentNameMap[getParam('type')];
     },
 }
@@ -39,13 +42,21 @@ export default {
 
 li {
     list-style: none;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
 }
 
 ul {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
+}
+
+.amap-logo {
+    display: none !important;
+}
+
+.amap-copyright {
+    display: none !important;
 }
 
 ::-webkit-scrollbar {
@@ -53,13 +64,16 @@ ul {
     height: 8px;
     position: fixed;
 }
+
 ::-webkit-scrollbar-button {
     display: none;
 }
+
 ::-webkit-scrollbar-thumb {
     background-color: hsla(220, 4%, 58%, 0.5);
     border-radius: 4px;
 }
+
 .anchorBL {
     display: none !important;
 }

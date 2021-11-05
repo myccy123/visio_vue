@@ -216,6 +216,8 @@ export default {
         // bgImg: pre_dir + `/img/bg${randomInt(1, 4)}.png`,
         bgImg: pre_dir + `/img/home_bg.jpg`,
         vdo: pre_dir + '/img/ex.mp4',
+        left: pre_dir + '/img/left.png',
+        right: pre_dir + '/img/right.png',
         sourceIcon: {
             mysql: pre_dir + '/img/MySQL.png',
             mssql: pre_dir + '/img/MsSQL.png',
