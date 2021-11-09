@@ -518,7 +518,7 @@ function drawSvg2(parentDom,
 function drawTile(parentDom, title, bkColor, color = '#90a3cf') {
     let svgHTML = `
     <div
-        style="position:relative;width:100%;height:80px;font-size:30px;line-height:80px;color:#93EBF8;font-weight:500;text-align:center;background-color: transparent"
+        style="position:relative;width:100%;height:60px;font-size:24px;line-height:60px;color:#93EBF8;font-weight:500;text-align:center;background-color: transparent"
         class="svgTitleWrap">
         <svg
             class="svgEl"
@@ -814,10 +814,10 @@ function genTemplate(domId, tempId, options = {}) {
                     document.title = tempInfo.title;
                     let titleBox = document.createElement('div');
                     // titleBox.style.width = tempInfo.width + 'px';
-                    titleBox.style.height = '80px';
+                    titleBox.style.height = '60px';
                     container.appendChild(titleBox);
                     drawTile(titleBox, tempInfo.title, bgColor);
-                    titleHeight = 80
+                    titleHeight = 60
                 }
 
                 if (tempInfo.width) {
