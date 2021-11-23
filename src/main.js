@@ -16,6 +16,23 @@ import 'echarts-extension-amap';
 
 Vue.config.productionTip = false;
 
+const SM4 = require('gm-crypt').sm4
+let sm4Config = {
+    // encrypt/decypt main key; cannot be omitted
+    key: '78FA3AFA7485409A',
+
+    // optional; can be 'cbc' or 'ecb'
+    mode: 'ecb', // default
+
+    // optional; when use cbc mode, it's necessary
+    iv: 'UISwD9fW6cFh9SNS', // default is null
+
+    // optional: this is the cipher data's type; Can be 'base64' or 'text'
+    cipherType: 'base64' // default is base64
+}
+let sm4 = new SM4(sm4Config)
+let securyMode = getSecuryMode()
+
 const globalBus = new Vue();
 
 window.echarts = echarts;
@@ -39,8 +56,19 @@ router.beforeEach((to, from, next) => {
     }
 });
 
+// 加密处理
+axios.interceptors.request.use(request => {
+    if (securyMode) {
+        request.data = {body: sm4.encrypt(JSON.stringify(request.data))}
+        return request
+    }
+})
+
 //响应拦截,拦截用户是否登录超时
 axios.interceptors.response.use(respone => {
+    if (securyMode) {
+        respone.data = JSON.parse(sm4.decrypt(respone.data))
+    }
     if(respone.status === 200){
         //登录超时
         if(respone.data.code === '99'){

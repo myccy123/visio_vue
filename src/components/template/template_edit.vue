@@ -1161,7 +1161,7 @@
 
 <style>
     .vue-resizable-handle {
-        z-index: 99 !important;
+        z-index: 999 !important;
     }
 
     .border-dialog > .el-dialog .el-dialog__body {
