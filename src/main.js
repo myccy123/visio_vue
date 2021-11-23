@@ -66,6 +66,7 @@ axios.interceptors.request.use(request => {
 
 //响应拦截,拦截用户是否登录超时
 axios.interceptors.response.use(respone => {
+    console.log(document.cookie)
     if (securyMode) {
         respone.data = JSON.parse(sm4.decrypt(respone.data))
     }
