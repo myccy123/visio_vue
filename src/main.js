@@ -67,12 +67,6 @@ axios.interceptors.request.use(function(request) {
 		Object.assign(request.headers, {
 			sessionid: sessionid
 		})
-	} else {
-		// sessionid不存在，返回登录页
-		sessionStorage.removeItem('sessionid');
-		router.replace({
-			name: 'signin'
-		});
 	}
 	if (securyMode) {
 		request.data = {
@@ -87,7 +81,6 @@ axios.interceptors.request.use(function(request) {
 
 //响应拦截,拦截用户是否登录超时
 axios.interceptors.response.use(respone => {
-	console.log(document.cookie)
 	if (securyMode) {
 		respone.data = JSON.parse(sm4.decrypt(respone.data))
 	}
