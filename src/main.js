@@ -18,17 +18,17 @@ Vue.config.productionTip = false;
 
 const SM4 = require('gm-crypt').sm4
 let sm4Config = {
-    // encrypt/decypt main key; cannot be omitted
-    key: '78FA3AFA7485409A',
+	// encrypt/decypt main key; cannot be omitted
+	key: '78FA3AFA7485409A',
 
-    // optional; can be 'cbc' or 'ecb'
-    mode: 'ecb', // default
+	// optional; can be 'cbc' or 'ecb'
+	mode: 'ecb', // default
 
-    // optional; when use cbc mode, it's necessary
-    iv: 'UISwD9fW6cFh9SNS', // default is null
+	// optional; when use cbc mode, it's necessary
+	iv: 'UISwD9fW6cFh9SNS', // default is null
 
-    // optional: this is the cipher data's type; Can be 'base64' or 'text'
-    cipherType: 'base64' // default is base64
+	// optional: this is the cipher data's type; Can be 'base64' or 'text'
+	cipherType: 'base64' // default is base64
 }
 let sm4 = new SM4(sm4Config)
 let securyMode = getSecuryMode()
@@ -47,53 +47,75 @@ Vue.prototype.$api = urls;
 
 //路由拦截,拦截用户是否登录
 router.beforeEach((to, from, next) => {
-    let isSignin = sessionStorage.getItem('isSignin');
-    if (to.path === '/signin' || to.path === '/' || isSignin || to.path === '/signup') {
-        next();
-    } else {
-        sessionStorage.setItem('routerIntercept',to.fullPath);
-        router.replace({ name: 'signin' });
-    }
+	let isSignin = sessionStorage.getItem('isSignin');
+	if (to.path === '/signin' || to.path === '/' || isSignin || to.path === '/signup') {
+		next();
+	} else {
+		sessionStorage.setItem('routerIntercept', to.fullPath);
+		router.replace({
+			name: 'signin'
+		});
+	}
 });
 
-// 加密处理
-axios.interceptors.request.use(request => {
-    if (securyMode) {
-        request.data = {body: sm4.encrypt(JSON.stringify(request.data))}
-        return request
-    }
-})
+//请求拦截器,加密处理
+axios.interceptors.request.use(function(request) {
+	// 在header加入sessionid
+	const sessionid = sessionStorage.getItem('sessionid');
+	if (sessionid) {
+		//sessionid存在
+		Object.assign(request.headers, {
+			sessionid: sessionid
+		})
+	} else {
+		// sessionid不存在，返回登录页
+		sessionStorage.removeItem('sessionid');
+		router.replace({
+			name: 'signin'
+		});
+	}
+	if (securyMode) {
+		request.data = {
+			body: sm4.encrypt(JSON.stringify(request.data))
+		}
+	}
+	return request;
+}, function(error) {
+	// 对请求错误做些什么
+	return Promise.reject(error);
+});
 
 //响应拦截,拦截用户是否登录超时
 axios.interceptors.response.use(respone => {
-    console.log(document.cookie)
-    if (securyMode) {
-        respone.data = JSON.parse(sm4.decrypt(respone.data))
-    }
-    if(respone.status === 200){
-        //登录超时
-        if(respone.data.code === '99'){
-            sessionStorage.setItem('routerIntercept',router.currentRoute.fullPath);
-            vm.$message.error('登录超时');
-            router.replace({ name: 'signin' });
-            return Promise.reject()
-        }
-        return Promise.resolve(respone)
-    }else{
-        return Promise.reject(respone)
-    }
+	console.log(document.cookie)
+	if (securyMode) {
+		respone.data = JSON.parse(sm4.decrypt(respone.data))
+	}
+	if (respone.status === 200) {
+		//保存用户token
+		let sessionid = respone.headers.sessionid;
+		if (sessionid) sessionStorage.setItem('sessionid', sessionid);
+		//登录超时
+		if (respone.data.code === '99') {
+			sessionStorage.setItem('routerIntercept', router.currentRoute.fullPath);
+			vm.$message.error('登录超时');
+			router.replace({
+				name: 'signin'
+			});
+			return Promise.reject()
+		}
+		return Promise.resolve(respone)
+	} else {
+		return Promise.reject(respone)
+	}
 });
 
 Vue.mixin(storageMixin);
 let vm = new Vue({
-    router,
-    store,
-    render: function (h) {
-        return h(App)
-    }
+	router,
+	store,
+	render: function(h) {
+		return h(App)
+	}
 });
 vm.$mount('#app');
-
-
-
-
