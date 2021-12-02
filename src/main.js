@@ -5,7 +5,7 @@ import router from './routes/router'
 import urls from './config/urls'
 import axios from 'axios'
 import './plugins';
-import echarts from "echarts";
+import * as echarts from "echarts";
 import lodash from "lodash";
 import store from './store/store';
 import './icons';

@@ -264,7 +264,7 @@
     import SvgBorder2 from '../common/SvgBorder2';
     import opt from '../../config/options';
     import VueGridLayout from 'vue-grid-layout';
-    import echarts from "echarts";
+    import * as echarts from "echarts";
     import 'echarts-gl';
     import 'echarts-liquidfill';
     import "echarts-wordcloud";

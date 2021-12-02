@@ -2,7 +2,7 @@ import 'babel-polyfill'
 import Vue from 'vue'
 import App from './App.vue'
 import axios from 'axios'
-import echarts from "echarts";
+import * as echarts from "echarts";
 import lodash from "lodash";
 import './plugins'
 import './assets/themes/allThemes.js'

@@ -1,4 +1,4 @@
-import "echarts";
+import * as echarts from "echarts";
 import 'echarts-gl';
 import 'echarts-liquidfill'
 import "echarts-wordcloud";
