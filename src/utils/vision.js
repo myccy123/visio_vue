@@ -829,7 +829,7 @@ function genTemplate(domId, tempId, options = {}) {
 
                 if (bgImg) {
                     container.style.backgroundImage = `url('${bgImg}')`;
-                    container.style.backgroundSize = 'cover';
+                    container.style.backgroundSize = '100% 100%';
                     container.style.backgroundPosition = 'center';
                 }
 

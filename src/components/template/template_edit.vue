@@ -104,7 +104,7 @@
                         :auto-size="true"
                         :use-css-transforms="true"
                         style="margin-bottom: 20px;border: 1px dashed #79aec8"
-                        :style="{'background-color': templateConfig.backgroundColor, backgroundImage: 'url('+templateConfig.backgroundImg+')', backgroundSize: 'cover', backgroundPosition: 'center'}">
+                        :style="{'background-color': templateConfig.backgroundColor, backgroundImage: 'url('+templateConfig.backgroundImg+')', backgroundSize: '100% 100%', backgroundPosition: 'center'}">
 
                     <grid-item v-for="(item, idx) in layout" class="box"
                                @resized="refreshBox(item)"
