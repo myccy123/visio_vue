@@ -209,6 +209,7 @@ export default {
         {label: '无边框', value: 'border0', icon: pre_dir + '/img/border0.png'},
         {label: '酷炫边框', value: 'border1', icon: pre_dir + '/img/border1.png'},
         {label: '酷炫边框', value: 'border2', icon: pre_dir + '/img/border1.png'},
+		{label: '酷炫边框', value: 'border3', icon: pre_dir + '/img/border3.jpg'},
     ],
     ASSETS: {
         logo: pre_dir + '/img/logo-nav.png',
