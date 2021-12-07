@@ -198,6 +198,11 @@
                                     :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'transparent'"
                                     :borderColor="templateConfig.borderColor"
                                     :svgKey="'svg-filter2-' + item.i"></SvgBorder2>
+						<SvgBorder3 v-else-if="item.svgBorder == 'border3'"
+						            style="position: absolute;z-index: 97"
+						            :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'transparent'"
+						            :borderColor="templateConfig.borderColor"
+						            :svgKey="'svg-filter3-' + item.i"></SvgBorder3>
                     </grid-item>
                 </grid-layout>
 
@@ -230,6 +235,11 @@
                                         bgColor="transparent"
                                         :borderColor="templateConfig.borderColor"
                                         :svgKey="'svg-filter-demo2-' + b.value"></SvgBorder2>
+							<SvgBorder3 v-else-if="b.value == 'border3' && showEditBorder"
+							            style="position: absolute;z-index: 197"
+							            bgColor="transparent"
+							            :borderColor="templateConfig.borderColor"
+							            :svgKey="'svg-filter-demo3-' + b.value"></SvgBorder3>
                             <span>{{b.label}}</span>
                         </div>
                     </div>
@@ -262,6 +272,7 @@
     import commonNav from '../common/nav';
     import SvgBorder from '../common/SvgBorder';
     import SvgBorder2 from '../common/SvgBorder2';
+	import SvgBorder3 from '../common/SvgBorder3';
     import opt from '../../config/options';
     import VueGridLayout from 'vue-grid-layout';
     import * as echarts from "echarts";
@@ -286,7 +297,7 @@
             commonNav,
             GridLayout: VueGridLayout.GridLayout,
             GridItem: VueGridLayout.GridItem,
-            SvgBorder, SvgBorder2,
+            SvgBorder, SvgBorder2, SvgBorder3,
             draggable,
         },
         data() {
