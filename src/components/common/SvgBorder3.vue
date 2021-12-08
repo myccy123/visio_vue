@@ -1,5 +1,5 @@
 <template>
-    <div style="width:100%;height:100%;" ref="svgBorderWrap" @mouseover="handleOver" @mouseout="handleOut">
+    <div style="width:100%;height:100%;" ref="svgBorderWrap">
         <svg 
 			ref="svgEl"
 			width="100%"
@@ -10,8 +10,6 @@
 			<!-- 渐变背景色 -->
         	<radialGradient id="a" cx="50%" cy="50%"
         		gradientTransform="matrix(-.62431276 .59712637 -.46474465 -.80214718 1.044529 .60251)" r="80.088076%">
-        		<stop offset="0" :stop-color="bgColor" stop-opacity="0.6" />
-        		<stop offset=".52305507" :stop-color="bgColor" stop-opacity="0.9" />
         		<stop offset="1" :stop-color="bgColor" stop-opacity="1" />
         	</radialGradient>
 			
@@ -35,9 +33,11 @@
         	
 			<!-- 路径绘制 -->
 			<g fill="none" fill-rule="evenodd">
+				
 				<!-- 边框 -->
         		<path ref="outLine" d="m211.5 .5 v164 h-211 v-164 z" fill="url(#a)" :stroke="borderColor" />
-        		<g fill-rule="nonzero">
+        		
+				<g fill-rule="nonzero">
 					<!-- 左上角 -->
         			<path d="m70 0v1h-38.5v2h-28.5v28.5h-2v17h-1v-48.5zm4.6 0v1h-2.6v-1zm5.2 0v1h-2.6v-1zm5.2 0v1h-2.6v-1z"
         				fill="url(#c)" />
@@ -99,15 +99,7 @@ export default {
             observer.observe(this.$refs.svgBorderWrap);
         });
     },
-    methods: {
-        handleOver(){
-            if(this.animationMode=='auto') return;
-            this.animationClass = 'border-animation';
-        },
-        handleOut(){
-            if(this.animationMode=='auto') return;
-            this.animationClass = '';
-        },
+    methods: {      
         drawSvg() {
             let svgWrap = this.$refs.svgBorderWrap;
             if (!svgWrap) return;
@@ -163,7 +155,7 @@ export default {
 			svgLB.setAttribute("d", svgLBD);	
 			svgLB.setAttribute("transform", svgLBT);
 			
-			//右下角：212,165
+			//右下角
 			let svgRB = this.$refs.svgRB;
 			let svgRBD = `
 			m${svgWidth-53.629241} ${svgHeight-44}
@@ -206,17 +198,5 @@ export default {
 };
 </script>
 <style>
-.border-animation {
-    stroke-dasharray: 50%;
-    stroke-dashoffset: 0;
-    animation: borderAnimation 3s linear infinite;
-}
-@keyframes borderAnimation {
-    from {
-        stroke-dashoffset: 0%;
-    }
-    to {
-        stroke-dashoffset: 100%;
-    }
-}
+
 </style>>
