@@ -669,7 +669,7 @@ function drawSvg3(parentDom,
 	svgRB.setAttribute("transform", svgRBT);
 }
 
-function drawTile(parentDom, title, bkColor, color = '#90a3cf') {
+function drawTitle(parentDom, title, bkColor, color = '#90a3cf') {
     let svgHTML = `
     <div
         style="position:relative;width:100%;height:80px;font-size:30px;line-height:80px;color:#93EBF8;font-weight:500;text-align:center;background-color: transparent"
@@ -969,7 +969,7 @@ function genTemplate(domId, tempId, options = {}) {
                     // titleBox.style.width = tempInfo.width + 'px';
                     titleBox.style.height = '80px';
                     container.appendChild(titleBox);
-                    drawTile(titleBox, tempInfo.title, bgColor);
+                    drawTitle(titleBox, tempInfo.title, bgColor);
                     titleHeight = 80
                 }
 
