@@ -10,10 +10,74 @@ import Vue from 'vue';
 import TableExtend from '../components/TableExtend.vue';
 import HtmlExtend from '../components/HtmlExtend.vue';
 import './allThemes.js'
+import router from "../../src/routes/router";
 
 let BASE_URL = getBaseUrl();
 let chartMap = {};
 let timers = new Set();
+
+const SM4 = require('gm-crypt').sm4
+let sm4Config = {
+    // encrypt/decypt main key; cannot be omitted
+    key: '78FA3AFA7485409A',
+
+    // optional; can be 'cbc' or 'ecb'
+    mode: 'ecb', // default
+
+    // optional; when use cbc mode, it's necessary
+    iv: 'UISwD9fW6cFh9SNS', // default is null
+
+    // optional: this is the cipher data's type; Can be 'base64' or 'text'
+    cipherType: 'base64' // default is base64
+}
+let sm4 = new SM4(sm4Config)
+let securyMode = getSecuryMode()
+
+
+//请求拦截器,加密处理
+axios.interceptors.request.use(function(request) {
+    // 在header加入sessionid
+    const sessionid = sessionStorage.getItem('sessionid');
+    if (sessionid) {
+        //sessionid存在
+        Object.assign(request.headers, {
+            sessionid: sessionid
+        })
+    }
+    if (securyMode) {
+        request.data = {
+            body: sm4.encrypt(JSON.stringify(request.data))
+        }
+    }
+    return request;
+}, function(error) {
+    // 对请求错误做些什么
+    return Promise.reject(error);
+});
+
+//响应拦截,拦截用户是否登录超时
+axios.interceptors.response.use(respone => {
+    if (securyMode) {
+        respone.data = JSON.parse(sm4.decrypt(respone.data))
+    }
+    if (respone.status === 200) {
+        //保存用户token
+        let sessionid = respone.headers.sessionid;
+        if (sessionid) sessionStorage.setItem('sessionid', sessionid);
+        //登录超时
+        if (respone.data.code === '99') {
+            sessionStorage.setItem('routerIntercept', router.currentRoute.fullPath);
+            vm.$message.error('登录超时');
+            router.replace({
+                name: 'signin'
+            });
+            return Promise.reject()
+        }
+        return Promise.resolve(respone)
+    } else {
+        return Promise.reject(respone)
+    }
+});
 
 function getParam(name) {
     const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");

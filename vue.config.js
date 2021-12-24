@@ -1,6 +1,6 @@
 const CompressionWebpackPlugin = require('compression-webpack-plugin');
 const productionGzipExtensions = ['js', 'css'];
-//引入webpack库
+// 引入webpack库
 const webpack = require('webpack');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const isProduction = process.env.NODE_ENV === 'production';

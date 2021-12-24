@@ -16,7 +16,7 @@ function getBaseUrl() {
 }
 
 function getPublicPath() {
-    return '/static/vue_vision/'
+    return '/static/vue_vision'
 }
 
 function getSliderInterval(){
