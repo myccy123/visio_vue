@@ -26,12 +26,10 @@
             </el-button>
             <i class="el-icon-view" style="cursor: pointer;line-height: 28px;" @click="switchView"></i>
         </div>
-        <div v-loading="loading"
-             v-infinite-scroll="chartList"
-             infinite-scroll-disabled="isEnd"
-             infinite-scroll-distance="0"
+        <div v-infinite-scroll="chartList"
+             infinite-scroll-disabled="disabled"
              style="margin-top: 20px;overflow: auto; clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;height: calc(100vh - 110px);">
-            <div v-for="chart in charts" class="chart-box" :id="chart.id">
+            <div v-for="chart in charts" class="chart-box" :id="chart.id" style="">
                 <img class="chart-img" :src="chart.icon">
                 <div class="mask" :class="{'view-mask': look}">
                     <el-tooltip effect="dark" content="克隆图表" placement="top">
@@ -47,8 +45,9 @@
                     </div>
                 </div>
             </div>
+			<p v-if="loading" class="load-msg">加载中...</p>
+			<p v-if="isEnd" class="load-msg">―我是有底线的哦―</p>
         </div>
-        <p v-if="loading">加载中...</p>
     </div>
 </template>
 
@@ -74,15 +73,20 @@
             }
         },
         mounted() {
-            this.initList();
+            // this.initList();
             this.customCateList();
         },
+		computed: {
+			disabled() {
+				return this.loading || this.isEnd
+			},
+		},
         methods: {
             initList() {
                 this.page = 0
                 this.isEnd = false
                 this.charts = []
-                // this.chartList()
+                this.chartList()
             },
             chartList() {
                 this.loading = true;
@@ -229,5 +233,10 @@
         margin: 4px auto 4px auto !important;
         z-index: 100;
     }
-
+	
+	.load-msg {
+		flex: 100vw;
+		color: #909399;
+		text-align: center;
+	}
 </style>
