@@ -4,7 +4,8 @@ import {
     Button, Select, Menu, MenuItem, Submenu, Dialog, Form, FormItem, Input, Cascader,
     Alert, Table, Tag, RadioGroup, RadioButton, Option, Tooltip, Tabs, TabPane, Autocomplete,
     InputNumber, Switch, TableColumn, ColorPicker, Popconfirm, Breadcrumb, BreadcrumbItem,
-    Message, Loading, Checkbox, MessageBox, Dropdown, DropdownItem, DropdownMenu, Upload
+    Message, Loading, Checkbox, MessageBox, Dropdown, DropdownItem, DropdownMenu, Upload,
+    InfiniteScroll
 } from 'element-ui';
 
 Vue.use(Button);
@@ -39,8 +40,9 @@ Vue.use(Dropdown);
 Vue.use(DropdownItem);
 Vue.use(DropdownMenu);
 Vue.use(Upload);
+Vue.use(Loading.directive);
+Vue.use(InfiniteScroll);
 
 Vue.prototype.$message = Message;
 Vue.prototype.$confirm = MessageBox.confirm;
-Vue.use(Loading.directive);
 Vue.prototype.$loading = Loading.service;

@@ -3,7 +3,7 @@
         <common-nav></common-nav>
         <div style="display: flex;justify-content: space-around;width: 950px;margin: 20px auto 0 auto">
             <el-radio-group v-model="chartCate" size="mini"
-                            @change="chartList">
+                            @change="initList">
                 <el-radio-button v-for="cate in cates" :label="cate.value" :key="cate.value">{{cate.label}}
                 </el-radio-button>
             </el-radio-group>
@@ -11,7 +11,7 @@
             <el-select v-model="customCate"
                        placeholder="请选择"
                        style="width: 130px;"
-                       @change="chartList"
+                       @change="initList"
                        size="mini">
                 <el-option
                         v-for="item in customCates"
@@ -27,7 +27,10 @@
             <i class="el-icon-view" style="cursor: pointer;line-height: 28px;" @click="switchView"></i>
         </div>
         <div v-loading="loading"
-             style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;min-height: calc(100vh - 120px);">
+             v-infinite-scroll="chartList"
+             infinite-scroll-disabled="isEnd"
+             infinite-scroll-distance="0"
+             style="margin-top: 20px;overflow: auto; clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;height: calc(100vh - 110px);">
             <div v-for="chart in charts" class="chart-box" :id="chart.id">
                 <img class="chart-img" :src="chart.icon">
                 <div class="mask" :class="{'view-mask': look}">
@@ -45,6 +48,7 @@
                 </div>
             </div>
         </div>
+        <p v-if="loading">加载中...</p>
     </div>
 </template>
 
@@ -64,22 +68,36 @@
                 look: false,
                 cates: opts.CATE_OPTIONS,
                 customCates: [],
+                page: 0,
+                pageSize: 20,
+                isEnd: false,
             }
         },
         mounted() {
-            this.chartList();
+            this.initList();
             this.customCateList();
         },
         methods: {
+            initList() {
+                this.page = 0
+                this.isEnd = false
+                this.charts = []
+                // this.chartList()
+            },
             chartList() {
                 this.loading = true;
+                this.page++
                 this.$axios.post(this.$api.chartList, {
                     cate: this.chartCate,
                     customCate: this.customCate,
-                    userid: 'yujiahao'
+                    page: this.page,
+                    pageSize: this.pageSize,
                 }).then((res) => {
                     if (res.data.code === '00') {
-                        this.charts = res.data.data;
+                        this.charts = this.charts.concat(res.data.data.list);
+                        if (res.data.data.total === this.page) {
+                            this.isEnd = true
+                        }
                     }
                     this.loading = false
                 }).catch((err) => {
@@ -108,7 +126,7 @@
             cloneChart(id) {
                 this.$axios.post(this.$api.cloneChart, {id: id}).then((res) => {
                     if (res.data.code === '00') {
-                        this.chartList()
+                        this.initList()
                     }
                 }).catch((err) => {
                     console.log(err)
@@ -122,7 +140,7 @@
                 }).then(() => {
                     this.$axios.post(this.$api.delChart, {id: id}).then((res) => {
                         if (res.data.code === '00') {
-                            this.chartList()
+                            this.initList()
                         }
                     }).catch((err) => {
                         console.log(err)
