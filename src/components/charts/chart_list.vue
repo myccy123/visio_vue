@@ -28,7 +28,7 @@
         </div>
         <div v-infinite-scroll="chartList"
              infinite-scroll-disabled="disabled"
-             style="margin-top: 20px;overflow: auto; clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;height: calc(100vh - 110px);">
+             style="margin-top: 20px;overflow: auto; display: flex;flex-wrap: wrap;justify-content:space-around;height: calc(100vh - 110px);">
             <div v-for="chart in charts" class="chart-box" :id="chart.id" style="">
                 <img class="chart-img" :src="chart.icon">
                 <div class="mask" :class="{'view-mask': look}">
@@ -73,7 +73,6 @@
             }
         },
         mounted() {
-            // this.initList();
             this.customCateList();
         },
 		computed: {
@@ -90,7 +89,7 @@
             },
             chartList() {
                 this.loading = true;
-                this.page++
+                this.page++;
                 this.$axios.post(this.$api.chartList, {
                     cate: this.chartCate,
                     customCate: this.customCate,
@@ -237,6 +236,7 @@
 	.load-msg {
 		flex: 100vw;
 		color: #909399;
+		font-size: 14px;
 		text-align: center;
 	}
 </style>

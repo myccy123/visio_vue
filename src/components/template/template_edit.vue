@@ -2,10 +2,10 @@
     <div>
         <common-nav
                 style="position: fixed;top: 0;width: calc(100% - 16px);background-color: #fff;z-index: 9999"></common-nav>
-        <div class="left" v-loading="loading">
+        <div class="left">
             <div style="display: flex;justify-content: space-around;margin: 10px 0;">
                 <el-select v-model="chartCate" placeholder="请选择" size="mini"
-                           @change="chartList"
+                           @change="initList"
                            style="width: 45%">
                     <el-option
                             v-for="item in cateOptions"
@@ -15,7 +15,7 @@
                     </el-option>
                 </el-select>
                 <el-select v-model="customCate" placeholder="请选择" size="mini"
-                           @change="chartList"
+                           @change="initList"
                            style="width: 45%">
                     <el-option
                             v-for="item in customCates"
@@ -25,14 +25,19 @@
                     </el-option>
                 </el-select>
             </div>
-            <div v-for="chart in charts" class="chart-box"
-                 draggable="true"
-                 :key='chart.id'
-                 @dragstart="dragStart($event, chart)"
-            >
-                <img :src="chart.icon">
-                <div class="chart-title">{{chart.title?chart.title:'未命名'}}</div>
-            </div>
+			<div v-infinite-scroll="chartList"
+			     infinite-scroll-disabled="disabled"
+			     style="overflow: auto; height: calc(100vh - 110px);">
+				<div v-for="chart in charts" class="chart-box"
+					 draggable="true"
+					 :key='chart.id'
+					 @dragstart="dragStart($event, chart)">
+					<img :src="chart.icon">
+					<div class="chart-title">{{chart.title?chart.title:'未命名'}}</div>
+				</div>
+				<p v-if="loading" class="load-msg">加载中...</p>
+				<p v-if="isEnd" class="load-msg">―我是有底线的哦―</p>
+			</div>
         </div>
         <div class="right">
             <div class="temp-setting">
@@ -314,6 +319,10 @@
                 chartCate: 'all',
                 customCate: 'all',
                 charts: [],
+				page: 0,
+				pageSize: 6,
+				loading: false,
+				isEnd: false,
                 fileList: [],
                 templateConfig: {
                     name: '',
@@ -372,13 +381,14 @@
                     return (parseInt(this.templateConfig.height) - this.margin[1]) / (this.rowHeight + this.margin[1])
                 }
             },
-
+			disabled() {
+				return this.loading || this.isEnd
+			},
         },
         created() {
         },
         mounted() {
-
-            this.chartList();
+            // this.chartList();
             this.customCateList();
             this.startTick();
             if (this.$route.query.id) {
@@ -437,6 +447,12 @@
             })
         },
         methods: {
+			initList() {
+			    this.page = 0
+			    this.isEnd = false
+			    this.charts = []
+			    this.chartList()
+			},
             startTick() {
                 this.timer = setInterval(() => {
                     for (let item of this.layout) {
@@ -490,14 +506,18 @@
             },
             chartList() {
                 this.loading = true;
+				this.page++;
                 this.$axios.post(this.$api.chartList, {
                     cate: this.chartCate,
                     customCate: this.customCate,
-                    userid: 'yujiahao'
+                    page: this.page,
+                    pageSize: this.pageSize,
                 }).then((res) => {
-                    this.charts = [];
                     if (res.data.code === '00') {
-                        this.charts = res.data.data;
+                        this.charts = this.charts.concat(res.data.data.list);
+                        if (res.data.data.total === this.page) {
+                            this.isEnd = true
+                        }
                     }
                     this.loading = false
                 }).catch((err) => {
@@ -1167,7 +1187,11 @@
         position: absolute;
         bottom: 0;
     }
-
+	
+	.load-msg {
+		color: #909399;
+		font-size: 14px;
+	}
 </style>
 
 <style>

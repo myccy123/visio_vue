@@ -6,8 +6,9 @@
                        style="margin: 20px 0" @click="addTemplate">创建模版
             </el-button>
         </div>
-        <div v-loading="loading"
-             style="margin-top: 20px;clear: both;display: flex;flex-wrap: wrap;justify-content:space-around;min-height: calc(100vh - 120px);">
+        <div v-infinite-scroll="templateList"
+             infinite-scroll-disabled="disabled"
+             style="margin-top: 20px;overflow: auto;display: flex;flex-wrap: wrap;justify-content:space-around;height: calc(100vh - 130px);">
             <div v-for="temp in templates" class="temp-box" :id="temp.id">
                 <img class="temp-img" :src="temp.icon">
                 <div class="mask">
@@ -26,6 +27,8 @@
                     </div>
                 </div>
             </div>
+			<p v-if="loading" class="load-msg">加载中...</p>
+			<p v-if="isEnd" class="load-msg">―我是有底线的哦―</p>
         </div>
     </div>
 </template>
@@ -39,21 +42,36 @@
         data() {
             return {
                 templates: [],
-                loading: false
+                loading: false,
+				page: 0,
+				pageSize: 6,
+				isEnd: false,
             }
         },
         mounted() {
             this.templateList()
         },
+		computed: {
+			disabled() {
+				return this.loading || this.isEnd
+			},
+		},
         methods: {
             addTemplate() {
                 this.$router.push({name: 'templateEdit'})
             },
             templateList() {
                 this.loading = true;
-                this.$axios.post(this.$api.templateList, {userid: ''}).then((res) => {
+				this.page++;
+                this.$axios.post(this.$api.templateList, {
+					page: this.page,
+					pageSize: this.pageSize,
+				}).then((res) => {
                     if (res.data.code === '00') {
-                        this.templates = res.data.data
+                        this.templates = this.templates.concat(res.data.data.list)
+						if (res.data.data.total === this.page) {
+						    this.isEnd = true
+						}
                     }
                     this.loading = false
                 }).catch((err) => {
@@ -167,4 +185,11 @@
         margin: 4px auto 4px auto !important;
         z-index: 100;
     }
+	
+	.load-msg {
+		flex: 100vw;
+		color: #909399;
+		font-size: 14px;
+		text-align: center;
+	}
 </style>
