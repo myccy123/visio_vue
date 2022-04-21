@@ -60,6 +60,11 @@
             addTemplate() {
                 this.$router.push({name: 'templateEdit'})
             },
+            templateInit() {
+                this.page = 0
+                this.templates = []
+                this.templateList()
+            },
             templateList() {
                 this.loading = true;
 				this.page++;
@@ -88,7 +93,7 @@
             cloneTemplate(id) {
                 this.$axios.post(this.$api.cloneTemplate, {id: id}).then((res) => {
                     if (res.data.code === '00') {
-                        this.templateList()
+                        this.templateInit()
                     }
                 }).catch((err) => {
                     console.log(err)
@@ -102,7 +107,7 @@
                 }).then(() => {
                     this.$axios.post(this.$api.delTemplate, {id: id}).then((res) => {
                         if (res.data.code === '00') {
-                            this.templateList()
+                            this.templateInit()
                         }
                     }).catch((err) => {
                         console.log(err)
