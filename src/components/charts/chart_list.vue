@@ -118,7 +118,7 @@
                 })
             },
             preview(id) {
-                window.open(`${this.$api.baseUrl}/preview/?type=chart&id=${id}`, "_blank");
+                window.open(`${this.$api.baseUrl}/preview/#/?type=chart&id=${id}`, "_blank");
             },
             addChart() {
                 this.$router.push({name: 'chartEdit'})

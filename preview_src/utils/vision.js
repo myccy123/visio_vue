@@ -80,12 +80,26 @@ axios.interceptors.response.use(respone => {
 });
 
 function getParam(name) {
-    const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-    const r = window.location.search.substr(1).match(reg);
+    const reg = new RegExp("(&|\\?)" + name + "=([^&]*)(&|$)");
+    const r = window.location.href.substr(0).match(reg);
     if (r != null) {
         return unescape(r[2]);
     }
     return null;
+}
+
+function getParams() {
+    let url = document.location.toString();
+    let arrObj = url.split("?");
+    let params = Object.create(null)
+    if (arrObj.length > 1) {
+        arrObj = arrObj[1].split("&");
+        arrObj.forEach(item => {
+            item = item.split("=");
+            params[item[0]] = item[1]
+        })
+    }
+    return params;
 }
 
 function HexToRgb(str) {
@@ -1121,5 +1135,5 @@ function disposeAll() {
 }
 
 export {
-    genTemplate, genChart, disposeAll, getParam
+    genTemplate, genChart, disposeAll, getParam, getParams
 }

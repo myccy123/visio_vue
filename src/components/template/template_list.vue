@@ -85,7 +85,7 @@
                 })
             },
             preview(id) {
-                window.open(`${this.$api.baseUrl}/preview/?type=template&id=${id}`, "_blank");
+                window.open(`${this.$api.baseUrl}/preview/#/?type=template&id=${id}`, "_blank");
             },
             editTemplate(id) {
                 this.$router.push({name: 'templateEdit', query: {id: id}})
