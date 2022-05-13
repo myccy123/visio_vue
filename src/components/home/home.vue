@@ -8,10 +8,10 @@
 </template>
 
 <script>
-    import CommonNavBlue from "../common/nav_blue";
     import imax from "./imax";
     import page1 from "./page1";
     import Video from "./Video";
+    import CommonNavBlue from "../common/nav_blue";
 
     export default {
         name: "home",

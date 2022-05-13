@@ -65,6 +65,12 @@ export default new VueRouter({
       // component: templateEdit,
       component: () => import('../components/template/template_edit'),
     },
+    {
+      path: '/test',
+      name: 'test',
+      // component: Home,
+      component: () => import('../components/home/Test'),
+    },
     chartEdit,
   ]
 })
