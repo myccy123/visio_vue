@@ -27,8 +27,8 @@
             <i class="el-icon-view" style="cursor: pointer;line-height: 28px;" @click="switchView"></i>
         </div>
         <div v-infinite-scroll="chartList"
-             infinite-scroll-disabled="disabled"
-             style="margin-top: 20px;overflow: auto; display: flex;flex-wrap: wrap;justify-content:space-around;height: calc(100vh - 110px);">
+             :infinite-scroll-disabled="disabled"
+             style="margin-top: 20px;overflow: auto; display: flex;flex-wrap: wrap;justify-content:space-around;">
             <div v-for="chart in charts" class="chart-box" :id="chart.id" style="">
                 <img class="chart-img" :src="chart.icon">
                 <div class="mask" :class="{'view-mask': look}">

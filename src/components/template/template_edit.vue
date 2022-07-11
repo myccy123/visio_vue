@@ -26,13 +26,13 @@
                 </el-select>
             </div>
 			<div v-infinite-scroll="chartList"
-			     infinite-scroll-disabled="disabled"
-			     style="overflow: auto; height: calc(100vh - 110px);">
+			     :infinite-scroll-disabled="disabled"
+			     style="overflow: auto;">
 				<div v-for="chart in charts" class="chart-box"
 					 draggable="true"
 					 :key='chart.id'
 					 @dragstart="dragStart($event, chart)">
-					<img :src="chart.icon">
+					<img :src="chart.icon" alt="">
 					<div class="chart-title">{{chart.title?chart.title:'未命名'}}</div>
 				</div>
 				<p v-if="loading" class="load-msg">加载中...</p>
@@ -67,6 +67,7 @@
                         <el-upload
                                 class="upload-demo"
                                 :action="$api.uploadImg"
+                                :headers="{'sessionid': sessionid}"
                                 :on-success="onUploaded"
                                 :on-remove="onUploadRemove"
                                 name="file" multiple
@@ -307,6 +308,7 @@
         },
         data() {
             return {
+                sessionid: sessionStorage.getItem('sessionid'),
                 showEditCode: false,
                 showEditBorder: false,
                 showEditSlider: false,

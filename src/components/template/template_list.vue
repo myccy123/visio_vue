@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style="height: 100vh">
         <common-nav></common-nav>
         <div class="tool-box">
             <el-button size="mini" type="primary" plain icon="el-icon-circle-plus-outline"
@@ -7,8 +7,8 @@
             </el-button>
         </div>
         <div v-infinite-scroll="templateList"
-             infinite-scroll-disabled="disabled"
-             style="margin-top: 20px;overflow: auto;display: flex;flex-wrap: wrap;justify-content:space-around;height: calc(100vh - 130px);">
+             :infinite-scroll-disabled="disabled"
+             style="margin-top: 20px;overflow: auto;display: flex;flex-wrap: wrap;justify-content:space-around;">
             <div v-for="temp in templates" class="temp-box" :id="temp.id">
                 <img class="temp-img" :src="temp.icon">
                 <div class="mask">
