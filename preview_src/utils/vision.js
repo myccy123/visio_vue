@@ -1034,8 +1034,10 @@ function genTemplate(domId, tempId, options = {}) {
                 container.style.position = 'relative';
                 let tempInfo = res.data.data.layout_info.templateInfo;
                 let layout = res.data.data.layout_info.layout;
-                let bgColor = tempInfo.backgroundColor ? tempInfo.backgroundColor : '#fff';
+                let bgColor = tempInfo.backgroundColor ? tempInfo.backgroundColor : 'transparent';
+                let boxBgColor = tempInfo.boxBackgroundColor ? tempInfo.boxBackgroundColor : 'transparent';
                 let bgImg = tempInfo.backgroundImg;
+                let bgVideo = tempInfo.backgroundVideo;
 
                 let theme = tempInfo.theme;
                 let commonBorderColor = tempInfo.borderColor;
@@ -1065,6 +1067,22 @@ function genTemplate(domId, tempId, options = {}) {
                     container.style.backgroundSize = '100% 100%';
                     container.style.backgroundPosition = 'center';
                 }
+                if (bgVideo) {
+                    let vdo = document.createElement('video');
+                    vdo.style.position = 'absolute'
+                    vdo.style.zIndex = '-1'
+                    vdo.style.objectFit = 'cover'
+                    vdo.style.width = '100%'
+                    vdo.style.height = '100%'
+                    vdo.setAttribute('muted', 'muted')
+                    vdo.setAttribute('autoplay', 'autoplay')
+                    vdo.setAttribute('loop', 'loop')
+                    vdo.src = bgVideo
+                    container.appendChild(vdo)
+                    document.body.addEventListener('click', ()=> {
+                        vdo.play()
+                    })
+                }
 
                 container.style.backgroundColor = bgColor;
 
@@ -1089,11 +1107,11 @@ function genTemplate(domId, tempId, options = {}) {
                     container.appendChild(layEl);
 
                     if (lay.svgBorder === 'border1' || !lay.svgBorder) {
-                        drawSvg1(document.getElementById(`${domId}-vision-layout-${lay.i}`), bgColor, commonBorderColor);
+                        drawSvg1(document.getElementById(`${domId}-vision-layout-${lay.i}`), boxBgColor, commonBorderColor);
                     } else if (lay.svgBorder === 'border2') {
-                        drawSvg2(document.getElementById(`${domId}-vision-layout-${lay.i}`), bgColor, commonBorderColor);
+                        drawSvg2(document.getElementById(`${domId}-vision-layout-${lay.i}`), boxBgColor, commonBorderColor);
                     } else if (lay.svgBorder === 'border3') {
-                        drawSvg3(document.getElementById(`${domId}-vision-layout-${lay.i}`), bgColor, commonBorderColor);
+                        drawSvg3(document.getElementById(`${domId}-vision-layout-${lay.i}`), boxBgColor, commonBorderColor);
                     }
 
                     for (let i = 0; i < lay.charts.length; i++) {

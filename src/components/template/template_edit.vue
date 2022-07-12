@@ -63,6 +63,10 @@
                         <el-color-picker v-model="templateConfig.backgroundColor"
                                          :predefine="predefineColors" show-alpha></el-color-picker>
                     </el-form-item>
+                    <el-form-item label="box背景色" style="height: 28px">
+                        <el-color-picker v-model="templateConfig.boxBackgroundColor"
+                                         :predefine="predefineColors" show-alpha></el-color-picker>
+                    </el-form-item>
                     <el-form-item label="背景图片" style="height: 28px">
                         <el-upload
                                 class="upload-demo"
@@ -72,6 +76,18 @@
                                 :on-remove="onUploadRemove"
                                 name="file" multiple
                                 :file-list="fileList">
+                            <el-button size="mini" type="primary">点击上传</el-button>
+                        </el-upload>
+                    </el-form-item>
+                    <el-form-item label="背景视频" style="height: 28px">
+                        <el-upload
+                                class="upload-demo"
+                                :action="$api.uploadImg"
+                                :headers="{'sessionid': sessionid}"
+                                :on-success="onUploadedVideo"
+                                :on-remove="onUploadRemoveVideo"
+                                name="file" multiple
+                                :file-list="videoList">
                             <el-button size="mini" type="primary">点击上传</el-button>
                         </el-upload>
                     </el-form-item>
@@ -94,6 +110,7 @@
 
             <div class="draw-box"
                  :style="{width: templateConfig.width != ''?templateConfig.width+'px':'', height: templateConfig.height != ''?templateConfig.height+'px':'', paddingRight: templateConfig.width != ''?'20px':''}">
+
                 <grid-layout
                         id="draw-win"
                         ref="layout"
@@ -111,7 +128,9 @@
                         :use-css-transforms="true"
                         style="margin-bottom: 20px;border: 1px dashed #79aec8"
                         :style="{'background-color': templateConfig.backgroundColor, backgroundImage: 'url('+templateConfig.backgroundImg+')', backgroundSize: '100% 100%', backgroundPosition: 'center'}">
-
+                    <video :src="templateConfig.backgroundVideo" v-if="templateConfig.backgroundVideo"
+                           autoplay="autoplay" muted width="100%" height="100%" loop="loop"
+                           style="position: absolute; z-index: -1;object-fit: cover"></video>
                     <grid-item v-for="(item, idx) in layout" class="box"
                                @resized="refreshBox(item)"
                                dragAllowFrom=".move-btn"
@@ -194,19 +213,19 @@
                             </el-tooltip>
                             <i class="el-icon-rank move-btn"></i>
                         </div>
-                        <SvgBorder v-if="item.svgBorder == 'border1' || !item.svgBorder"
+                        <SvgBorder v-if="item.svgBorder === 'border1' || !item.svgBorder"
                                    style="position: absolute;z-index: 97"
-                                   :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'transparent'"
+                                   :bgColor="templateConfig.boxBackgroundColor?templateConfig.boxBackgroundColor:'transparent'"
                                    :borderColor="templateConfig.borderColor"
                                    :svgKey="'svg-filter-' + item.i"></SvgBorder>
-                        <SvgBorder2 v-else-if="item.svgBorder == 'border2'"
+                        <SvgBorder2 v-else-if="item.svgBorder === 'border2'"
                                     style="position: absolute;z-index: 97"
-                                    :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'transparent'"
+                                    :bgColor="templateConfig.boxBackgroundColor?templateConfig.boxBackgroundColor:'transparent'"
                                     :borderColor="templateConfig.borderColor"
                                     :svgKey="'svg-filter2-' + item.i"></SvgBorder2>
-						<SvgBorder3 v-else-if="item.svgBorder == 'border3'"
+						<SvgBorder3 v-else-if="item.svgBorder === 'border3'"
 						            style="position: absolute;z-index: 97"
-						            :bgColor="templateConfig.backgroundColor?templateConfig.backgroundColor:'transparent'"
+						            :bgColor="templateConfig.boxBackgroundColor?templateConfig.boxBackgroundColor:'transparent'"
 						            :borderColor="templateConfig.borderColor"
 						            :svgKey="'svg-filter3-' + item.i"></SvgBorder3>
                     </grid-item>
@@ -228,20 +247,20 @@
                                      :predefine="predefineColors" size="mini"></el-color-picker>
                     <div class="edit-border" style="display: flex; justify-content: space-around;">
                         <div v-for="b in borderOptions" :key='b.value' class="source-icon" @click="confirmBorder(b.value)">
-                            <div v-if="b.value == 'border0'"
+                            <div v-if="b.value === 'border0'"
                                  style="height: 100%;width: 100%;border: 1px dashed #1586ee;position: absolute;z-index: 197">
                             </div>
-                            <SvgBorder v-else-if="b.value == 'border1' && showEditBorder"
+                            <SvgBorder v-else-if="b.value === 'border1' && showEditBorder"
                                        style="position: absolute;z-index: 197"
                                        bgColor="transparent"
                                        :borderColor="templateConfig.borderColor"
                                        :svgKey="'svg-filter-demo-' + b.value"></SvgBorder>
-                            <SvgBorder2 v-else-if="b.value == 'border2' && showEditBorder"
+                            <SvgBorder2 v-else-if="b.value === 'border2' && showEditBorder"
                                         style="position: absolute;z-index: 197"
                                         bgColor="transparent"
                                         :borderColor="templateConfig.borderColor"
                                         :svgKey="'svg-filter-demo2-' + b.value"></SvgBorder2>
-							<SvgBorder3 v-else-if="b.value == 'border3' && showEditBorder"
+							<SvgBorder3 v-else-if="b.value === 'border3' && showEditBorder"
 							            style="position: absolute;z-index: 197"
 							            bgColor="transparent"
 							            :borderColor="templateConfig.borderColor"
@@ -292,6 +311,7 @@
     import TableExtend from './template_edit/TableExtend.vue';
     import HtmlExtend from './template_edit/HtmlExtend.vue';
     import Vue from 'vue';
+    import Video from "../home/Video";
 
     let chartMap = {};
     let tableComponentMap = new Map();
@@ -300,6 +320,7 @@
     export default {
         name: "template_edit",
         components: {
+            Video,
             commonNav,
             GridLayout: VueGridLayout.GridLayout,
             GridItem: VueGridLayout.GridItem,
@@ -323,14 +344,16 @@
                 charts: [],
 				page: 0,
 				pageSize: 6,
-				loading: false,
 				isEnd: false,
                 fileList: [],
+                videoList: [],
                 templateConfig: {
                     name: '',
                     title: '',
                     backgroundColor: '',
+                    boxBackgroundColor: '',
                     backgroundImg: '',
+                    backgroundVideo: '',
                     width: '',
                     height: '',
                     theme: '',
@@ -776,7 +799,9 @@
                                 height: _this.templateConfig.height,
                                 width: _this.templateConfig.width,
                                 backgroundColor: _this.templateConfig.backgroundColor,
+                                boxBackgroundColor: _this.templateConfig.boxBackgroundColor,
                                 backgroundImg: _this.templateConfig.backgroundImg,
+                                backgroundVideo: _this.templateConfig.backgroundVideo,
                                 theme: _this.templateConfig.theme,
                                 borderColor: _this.templateConfig.borderColor,
                                 name: _this.templateConfig.name,
@@ -860,8 +885,18 @@
                 console.log('成功',fileList)
                 this.templateConfig.backgroundImg = res.data.url
             },
+            onUploadedVideo(res, file, fileList) {
+                if(fileList.length > 1) {
+                    fileList.splice(0, 1)
+                }
+                console.log('成功',fileList)
+                this.templateConfig.backgroundVideo = res.data.url
+            },
             onUploadRemove(file, fileList) {
                 this.templateConfig.backgroundImg = '';
+            },
+            onUploadRemoveVideo(file, fileList) {
+                this.templateConfig.backgroundVideo = '';
             },
             disposeBox(col){
                 if(col.chartType === 'tableBasic'){
@@ -1039,6 +1074,7 @@
     .draw-box {
         min-height: calc(100vh - 115px);
         margin: 0 8px 8px 8px;
+        position: relative;
         /*border: 1px dashed #79aec8;*/
     }
 
