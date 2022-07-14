@@ -6,11 +6,10 @@
                        style="margin: 20px 0" @click="addTemplate">创建模版
             </el-button>
         </div>
-        <div v-infinite-scroll="templateList"
-             :infinite-scroll-disabled="disabled"
+        <div ref="items"
              style="margin-top: 20px;overflow: auto;display: flex;flex-wrap: wrap;justify-content:space-around;">
             <div v-for="temp in templates" class="temp-box" :id="temp.id">
-                <img class="temp-img" :src="temp.icon">
+                <img class="temp-img" :src="temp.icon" alt="">
                 <div class="mask">
                     <el-tooltip effect="dark" content="克隆模版" placement="top">
                         <i @click="cloneTemplate(temp.id)" class="el-icon-document-copy"
@@ -44,12 +43,21 @@
                 templates: [],
                 loading: false,
 				page: 0,
-				pageSize: 6,
+				pageSize: 9,
 				isEnd: false,
             }
         },
         mounted() {
             this.templateList()
+
+            window.onscroll = ()=> {
+                let clientHeight = document.documentElement.clientHeight
+                let scrollTop = document.documentElement.scrollTop
+                let scrollHeight = document.documentElement.scrollHeight
+                if (clientHeight + scrollTop + 3 >= scrollHeight && !this.loading && !this.isEnd) {
+                    this.templateList()
+                }
+            }
         },
 		computed: {
 			disabled() {

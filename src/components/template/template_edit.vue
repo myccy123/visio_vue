@@ -2,7 +2,7 @@
     <div>
         <common-nav
                 style="position: fixed;top: 0;width: calc(100% - 16px);background-color: #fff;z-index: 9999"></common-nav>
-        <div class="left">
+        <div ref="cs" class="left">
             <div style="display: flex;justify-content: space-around;margin: 10px 0;">
                 <el-select v-model="chartCate" placeholder="请选择" size="mini"
                            @change="initList"
@@ -25,9 +25,7 @@
                     </el-option>
                 </el-select>
             </div>
-			<div v-infinite-scroll="chartList"
-			     :infinite-scroll-disabled="disabled"
-			     style="overflow: auto;">
+			<div style="overflow: auto;">
 				<div v-for="chart in charts" class="chart-box"
 					 draggable="true"
 					 :key='chart.id'
@@ -343,7 +341,7 @@
                 customCate: 'all',
                 charts: [],
 				page: 0,
-				pageSize: 6,
+				pageSize: 12,
 				isEnd: false,
                 fileList: [],
                 videoList: [],
@@ -413,7 +411,18 @@
         created() {
         },
         mounted() {
-            // this.chartList();
+            this.chartList();
+            this.$nextTick(()=>{
+                this.$refs.cs.addEventListener('scroll', ()=> {
+                    let clientHeight = this.$refs.cs.clientHeight
+                    let scrollTop = this.$refs.cs.scrollTop
+                    let scrollHeight = this.$refs.cs.scrollHeight
+                    if (clientHeight + scrollTop + 3 >= scrollHeight && !this.loading && !this.isEnd) {
+                        this.chartList()
+                    }
+                })
+            })
+
             this.customCateList();
             this.startTick();
             if (this.$route.query.id) {
@@ -459,9 +468,12 @@
         },
         destroyed() {
             window.clearInterval(this.timer);
-            for (let c of chartMap) {
-                chartMap[c].dispose();
+            if (Object.keys(chartMap).length > 0) {
+                for (let c of chartMap) {
+                    chartMap[c].dispose();
+                }
             }
+
             chartMap = null;
             tableComponentMap.forEach(item=>{
                 item.$destroy();
@@ -484,8 +496,6 @@
                         for (let row of item.charts) {
                             for (let col of row.cols) {
                                 if (col.mode === '3' && col.slider.length >= 1) {
-                                    let domId = col.domId;
-                                    let dom = document.getElementById(domId);
                                     if (col.sliderIndex >= col.slider.length) {
                                         col.sliderIndex = 0
                                     }

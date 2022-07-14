@@ -26,11 +26,9 @@
             </el-button>
             <i class="el-icon-view" style="cursor: pointer;line-height: 28px;" @click="switchView"></i>
         </div>
-        <div v-infinite-scroll="chartList"
-             :infinite-scroll-disabled="disabled"
-             style="margin-top: 20px;overflow: auto; display: flex;flex-wrap: wrap;justify-content:space-around;">
+        <div style="margin-top: 20px;overflow: auto; display: flex;flex-wrap: wrap;justify-content:space-around;">
             <div v-for="chart in charts" class="chart-box" :id="chart.id" style="">
-                <img class="chart-img" :src="chart.icon">
+                <img class="chart-img" :src="chart.icon" alt="">
                 <div class="mask" :class="{'view-mask': look}">
                     <el-tooltip effect="dark" content="克隆图表" placement="top">
                         <i @click="cloneChart(chart.id)" class="el-icon-document-copy"
@@ -74,6 +72,16 @@
         },
         mounted() {
             this.customCateList();
+            this.initList()
+
+            window.onscroll = ()=> {
+                let clientHeight = document.documentElement.clientHeight
+                let scrollTop = document.documentElement.scrollTop
+                let scrollHeight = document.documentElement.scrollHeight
+                if (clientHeight + scrollTop + 3 >= scrollHeight && !this.loading && !this.isEnd) {
+                    this.chartList()
+                }
+            }
         },
 		computed: {
 			disabled() {
