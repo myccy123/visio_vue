@@ -10,7 +10,6 @@ export default new VueRouter({
     {
       path: '/',
       name: 'index',
-      // component: Home,
       component: () => import('../components/home/home'),
     },
     {
@@ -31,39 +30,38 @@ export default new VueRouter({
     {
       path: '/source',
       name: 'source',
-      // component: Source,
       component: () => import('../components/source/source'),
     },
     {
       path: '/add/mysql',
       name: 'addMysql',
-      // component: addMysql,
       component: () => import('../components/source/add_mysql'),
     },
     {
       path: '/add/mssql',
       name: 'addMssql',
-      // component: addMysql,
       component: () => import('../components/source/add_mssql'),
     },
     {
       path: '/chart/list',
       name: 'ChartList',
-      // component: chartList,
       component: () => import('../components/charts/chart_list'),
     },
 
     {
       path: '/template/list',
       name: 'templateList',
-      // component: templateList,
       component: () => import('../components/template/template_list'),
     },
     {
       path: '/template/edit',
       name: 'templateEdit',
-      // component: templateEdit,
       component: () => import('../components/template/template_edit'),
+    },
+    {
+      path: '/mapbox',
+      name: 'mapbox',
+      component: () => import('../components/mapbox/TestMap'),
     },
     chartEdit,
   ]

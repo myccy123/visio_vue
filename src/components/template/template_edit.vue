@@ -443,6 +443,13 @@
                                 url: this.templateConfig.backgroundImg
                             }]
                         }
+                        if(this.templateConfig.backgroundVideo) {
+                            let li = this.templateConfig.backgroundVideo.split('/');
+                            this.videoList = [{
+                                name: li[li.length - 1],
+                                url: this.templateConfig.backgroundVideo
+                            }]
+                        }
 
                         for (let item of this.layout) {
                             for (let row of item.charts) {

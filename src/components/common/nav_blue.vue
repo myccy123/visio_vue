@@ -4,7 +4,7 @@
                  text-color="#d8d3d3" active-text-color="#fff" background-color="#3C789D">
             <el-menu-item index="logo" @click="goTo" class="logo-wrap">
                 <div class="logo">
-                    <img :src="logo"/>
+                    <img :src="logo" alt=""/>
                 </div>
             </el-menu-item>
             <el-menu-item index="/" @click="goTo">首页</el-menu-item>
@@ -14,7 +14,7 @@
                 <el-menu-item index="/chart/list/" @click="goTo">Chart管理</el-menu-item>
                 <el-menu-item index="/template/list/" @click="goTo">模版管理</el-menu-item>
             </el-submenu>
-            <!--            <el-menu-item index="3">关于我们</el-menu-item>-->
+            <el-menu-item index="mapbox" @click="goTo">mapbox</el-menu-item>
             <el-menu-item
                     v-if="!$store.state.isSignin"
                     class="right-item"
