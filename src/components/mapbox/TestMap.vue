@@ -25,9 +25,17 @@ export default {
             accessToken: 'pk.eyJ1IjoibXljY3kxMjMiLCJhIjoiY2l6cWQyMXpmMDE5MDMzcDdhbDYwbXZqNyJ9.Wi-g8bPcn3dCxbKVEIZVNg'
         });
 
-        map.on('load', function() {
-            let layers = map.getStyle().layers;
+        function rotateCamera(timestamp) {
+            // clamp the rotation between 0 -360 degrees
+            // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
+            map.rotateTo((timestamp / 100) % 360, {duration: 0});
+            // Request the next frame of the animation.
+            requestAnimationFrame(rotateCamera);
+        }
 
+        map.on('load', function() {
+            rotateCamera(0);
+            let layers = map.getStyle().layers;
             let labelLayerId;
             for (let i = 0; i < layers.length; i++) {
                 if (layers[i].type === 'symbol' && layers[i].layout['text-field']) {
