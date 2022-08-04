@@ -228,6 +228,8 @@ export default {
                                     chartObj = myChart;
                                 }
                             });
+                        } else {
+                            this.$message.error(res.data.message);
                         }
                     })
                     .catch(err => {

@@ -68,7 +68,7 @@ axios.interceptors.request.use(function(request) {
 			sessionid: sessionid
 		})
 	}
-	if (securyMode) {
+	if (securyMode && request.method === 'post') {
 		request.data = {
 			body: sm4.encrypt(JSON.stringify(request.data))
 		}
@@ -81,7 +81,7 @@ axios.interceptors.request.use(function(request) {
 
 //响应拦截,拦截用户是否登录超时
 axios.interceptors.response.use(respone => {
-	if (securyMode) {
+	if (securyMode && respone.config.method === 'post') {
 		respone.data = JSON.parse(sm4.decrypt(respone.data))
 	}
 	if (respone.status === 200) {

@@ -13,7 +13,7 @@
                 <el-menu-item index="/chart/list/" @click="goTo">Chart管理</el-menu-item>
                 <el-menu-item index="/template/list/" @click="goTo">模版管理</el-menu-item>
             </el-submenu>
-            <el-menu-item index="/mapbox">mapbox</el-menu-item>
+            <el-menu-item index="/mapbox" @click="goTo">mapbox</el-menu-item>
             <el-menu-item
                     v-if="!$store.state.isSignin"
                     class="right-item"
