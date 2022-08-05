@@ -39,6 +39,13 @@
                               :closable="false"
                               type="error">
                     </el-alert>
+                    <el-alert v-else-if="srcValid === 'checking'"
+                              style="width: 180px; margin: auto; padding: 0;"
+                              title="连接中..."
+                              show-icon
+                              :closable="false"
+                              type="info">
+                    </el-alert>
                     <el-alert v-else
                               style="width: 180px; margin: auto; padding: 0;"
                               title="未选择数据源"
@@ -124,6 +131,7 @@
                     port: this.srcInfo.db_port,
                     id: this.srcInfo.id
                 };
+                this.srcValid = 'checking'
                 this.$axios.post(this.$api.mysqlCheck, data).then((res) => {
                     if(res.data.data.statusCode === '00'){
                         this.srcValid = 'success'
@@ -131,7 +139,7 @@
                         this.srcValid = 'fail'
                     }
                 }).catch((err) => {
-
+                    this.srcValid = 'fail'
                 })
             },
             cleanSource() {
@@ -238,6 +246,7 @@
             },
             previewData() {
                 this.rows = [];
+                this.colnames = [];
                 this.$axios.post(this.$api.mysqlPreview, {id: this.srcInfo.id}).then((res) => {
                     if (res.data.code === '00') {
                         let columns = res.data.data.columns;
