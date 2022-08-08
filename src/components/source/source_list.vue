@@ -19,13 +19,13 @@
                 width="50%">
             <div style="display: flex; justify-content: space-around;">
                 <div class="source-icon" @click="addMySQL">
-                    <img :src="sourceIcon.mysql">
+                    <img :src="sourceIcon.mysql" alt="">
                 </div>
                 <div class="source-icon" @click="addMsSQL">
-                    <img :src="sourceIcon.mssql">
+                    <img :src="sourceIcon.mssql" alt="">
                 </div>
                 <div class="source-icon" @click="">
-                    <img :src="sourceIcon.excel">
+                    <img :src="sourceIcon.excel" alt="">
                 </div>
             </div>
         </el-dialog>
@@ -42,7 +42,7 @@
                 sources: [],
                 showDialog: false,
                 sourceIcon: opt.ASSETS.sourceIcon,
-            };
+            }
         },
         mounted() {
             this.getSource()
@@ -53,9 +53,12 @@
                     if (res.data.code === '00') {
                         this.sources = [];
                         this.sources = res.data.data
+                        console.log(res.data)
+                    } else {
+                        this.$message.error(res.data.message)
                     }
                 }).catch((err) => {
-
+                    this.$message.error(err)
                 })
             },
             addSource() {
@@ -76,7 +79,7 @@
                             this.$bus.$emit('cleanSource')
                         }
                     }).catch((err) => {
-
+                        console.log(err)
                     })
                 }).catch(() => {
 
