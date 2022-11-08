@@ -23,6 +23,22 @@
                         @keyup.enter.native="handleSubmit"
                     ></el-input>
                 </el-form-item>
+                <el-form-item prop="capt">
+                    <el-input
+                        clearable style="width: 150px"
+                        v-model="signModel.capt"
+                        type=""
+                        placeholder="验证码"
+                        @keyup.enter.native="handleSubmit">
+                        <i
+                            class="el-icon-refresh el-input__icon"
+                            slot="suffix" style="cursor: pointer"
+                            @click="initCaptcha">
+                        </i>
+                    </el-input>
+                    <img ref="capt" src="" alt="" @click="initCaptcha"
+                         style="cursor: pointer; height: 40px; float: right; margin-right: 40px;">
+                </el-form-item>
                 <el-form-item>
                     <el-button type="primary" style="width:100%" @click="handleSubmit">登录</el-button>
                 </el-form-item>
@@ -46,7 +62,9 @@ export default {
         return {
             signModel: {
                 user: "",
-                password: ""
+                password: "",
+                captId: '',
+                capt: ''
             },
             isRememberPwd: false,
             isSignup: false,
@@ -60,11 +78,9 @@ export default {
                 ],
                 password: [
                     { required: true, message: "请输入密码" },
-                    // {
-                    //     pattern: /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/,
-                    //     message:
-                    //         "最少6位，包括至少1个大写字母，1个小写字母，1个数字"
-                    // }
+                ],
+                capt: [
+                    { required: true, message: "请输入验证码" },
                 ]
             }
         };
@@ -78,8 +94,15 @@ export default {
         this.isRememberPwd = this.getLsItem(KEY_REMEMBER);
         this.signModel.user = this.getLsItem(KEY_USER);
         this.signModel.password = this.getLsItem(KEY_PASSWORD);
+        this.initCaptcha()
     },
     methods: {
+        initCaptcha() {
+            this.$axios.post(this.$api.getCaptcha).then(res=>{
+                this.signModel.captId = res.data.data.cid
+                this.$refs.capt.src = res.data.data.data
+            })
+        },
         handleSubmit() {
             this.$refs.ruleForm.validate(valid => {
                 if (valid) {
@@ -91,10 +114,12 @@ export default {
         },
         //登录
         signin() {
-            const { user, password } = this.signModel;
+            const { user, password, captId, capt } = this.signModel;
             let params = {
                 userid: user,
-                passWord: password
+                passWord: password,
+                captId: captId,
+                capt: capt
             };
             this.$axios
                 .post(this.$api.authSignin, params)
@@ -122,6 +147,9 @@ export default {
                         //保存用户信息
                         this.$store.commit("setUserInfo", resData.data);
                     } else {
+                        if (resData.code === "01" || resData.code === "02") {
+                            this.initCaptcha()
+                        }
                         this.$message.error(resData.message);
                         this.$store.commit("setIsSignin", false);
                     }

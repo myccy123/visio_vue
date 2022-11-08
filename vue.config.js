@@ -9,7 +9,7 @@ function resolve(dir) {
     return path.join(__dirname, dir)
 }
 module.exports = {
-    publicPath: isProduction ? '/static/vue_vision' : '/',
+    publicPath: isProduction ? '/DPdisplay/static/vue_vision' : '/',
     configureWebpack: config => {
         if (isProduction) {
             config.plugins.push(new CompressionWebpackPlugin({

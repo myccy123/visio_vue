@@ -27,6 +27,7 @@ const urls = {
     drillDown: baseUrl + '/ccb/drill/down/',//表格下钻
     getVisionData: baseUrl + '/ccb/get/vision/data/',
     uploadImg: baseUrl + '/ccb/upload/img/',
+    getCaptcha: baseUrl + '/ccb/get/captcha/',
     authSignup: baseUrl + '/auth/signup/',
     authSignin: baseUrl + '/auth/signin/',
     authLogout: baseUrl + '/auth/logout/',
