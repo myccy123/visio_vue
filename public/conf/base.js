@@ -35,5 +35,5 @@ function getTempList() {
 }
 
 function getSecuryMode() {
-    return true
+    return false
 }

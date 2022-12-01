@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="temp-edit">
         <common-nav
                 style="position: fixed;top: 0;width: calc(100% - 16px);background-color: #fff;z-index: 9999"></common-nav>
         <div ref="cs" class="left">
@@ -1262,12 +1262,12 @@
         width: calc(100% - 28px) !important;
     }
 
-    .upload-demo {
+    .temp-edit .upload-demo {
         display: flex;
         align-items: center;
     }
 
-    .upload-demo .el-upload-list__item:first-child{
+    .temp-edit .upload-demo .el-upload-list__item:first-child{
         margin-top: 2px;
     }
 

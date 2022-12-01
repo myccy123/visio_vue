@@ -6,6 +6,7 @@
         <el-tag v-for="src in sources"
                 :key="src.id"
                 closable
+                :type="src.tp"
                 style="text-align: center;"
                 @close="delSource(src.id)"
                 @click="selectSource(src)"
@@ -24,7 +25,7 @@
                 <div class="source-icon" @click="addMsSQL">
                     <img :src="sourceIcon.mssql" alt="">
                 </div>
-                <div class="source-icon" @click="">
+                <div class="source-icon" @click="addExcel">
                     <img :src="sourceIcon.excel" alt="">
                 </div>
             </div>
@@ -52,8 +53,10 @@
                 this.$axios.post(this.$api.sourceList, {userid: 'yujiahao'}).then((res) => {
                     if (res.data.code === '00') {
                         this.sources = [];
-                        this.sources = res.data.data
-                        console.log(res.data)
+                        this.sources = res.data.data.map(item=>{
+                            item.tp = item.data_type === 'excel' ? 'success' : ''
+                            return item
+                        })
                     } else {
                         this.$message.error(res.data.message)
                     }
@@ -90,6 +93,9 @@
             },
             addMsSQL() {
                 this.$router.push({name: 'addMssql'})
+            },
+            addExcel() {
+                this.$router.push({name: 'addExcel'})
             },
         }
     };

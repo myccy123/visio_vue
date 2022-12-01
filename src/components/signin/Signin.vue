@@ -1,5 +1,7 @@
 <template>
     <div class="signin-wrap">
+        <vue-particles color="#97846C" linesColor="#97846C" :particlesNumber="120" :linesWidth="1"
+                       style="position: absolute; width: 100vw; height: 100vh;overflow: hidden"></vue-particles>
         <div style='position:absolute;top:24px;left:24px'>
             <el-button style='font-size:24px' type="primary" icon="el-icon-s-home" circle @click="$router.replace('/')"></el-button>
         </div>
@@ -45,7 +47,8 @@
             </el-form>
             <div style="display:flex;justify-content:space-between">
                 <el-checkbox :disabled="isSignup" label="记住密码" v-model="isRememberPwd"></el-checkbox>
-                <span class="btn-to-signup" @click="$router.push({ name: 'signup' })">注册</span>
+                <el-button type="text" style="z-index: 99;padding: 0"
+                           @click="$router.push({ name: 'signup' })">注册</el-button>
             </div>
         </div>
     </div>
@@ -169,13 +172,16 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 .signin-input-wrap {
+    background-color: rgba(0, 0, 0, 0.1);
     width: 320px;
     padding: 24px;
-    border-radius: 12px;
+    border-radius: 2px;
     border: 1px solid #eee;
+    box-shadow: 0 2px 50px 0 rgba(0, 0, 0, 0.1)
 }
 
 .btn-to-signup {

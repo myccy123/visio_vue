@@ -66,11 +66,7 @@ axios.interceptors.response.use(respone => {
         if (sessionid) sessionStorage.setItem('sessionid', sessionid);
         //登录超时
         if (respone.data.code === '99') {
-            sessionStorage.setItem('routerIntercept', router.currentRoute.fullPath);
-            vm.$message.error('登录超时');
-            router.replace({
-                name: 'signin'
-            });
+            console.log(respone.data)
             return Promise.reject()
         }
         return Promise.resolve(respone)
@@ -83,7 +79,7 @@ function getParam(name) {
     const reg = new RegExp("(&|\\?)" + name + "=([^&]*)(&|$)");
     const r = window.location.href.substr(0).match(reg);
     if (r != null) {
-        return unescape(r[2]);
+        return unescape(r[2]).replace('#/', '');
     }
     return null;
 }
@@ -93,7 +89,7 @@ function getParams() {
     let arrObj = url.split("?");
     let params = Object.create(null)
     if (arrObj.length > 1) {
-        arrObj = arrObj[1].split("&");
+        arrObj = arrObj[1].replace('#/', '').split("&");
         arrObj.forEach(item => {
             item = item.split("=");
             params[item[0]] = item[1]
@@ -1133,6 +1129,8 @@ function genTemplate(domId, tempId, options = {}) {
                 let t = sliderTimer(domId, layout, options, theme);
                 timers.add(t);
                 resolve()
+            } else {
+                alert(res.data.message)
             }
         }).catch((err) => {
             reject();

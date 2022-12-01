@@ -45,6 +45,7 @@
 				page: 0,
 				pageSize: 9,
 				isEnd: false,
+                sessionid: sessionStorage.getItem('sessionid'),
             }
         },
         mounted() {
@@ -93,7 +94,7 @@
                 })
             },
             preview(id) {
-                window.open(`${this.$api.baseUrl}/preview/#/?type=template&id=${id}`, "_blank");
+                window.open(`${this.$api.baseUrl}/preview/?type=template&id=${id}&sessionid=${this.sessionid}`, "_blank");
             },
             editTemplate(id) {
                 this.$router.push({name: 'templateEdit', query: {id: id}})

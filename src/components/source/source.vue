@@ -4,7 +4,8 @@
         <source-list ref="srcList"></source-list>
         <div class="src-info">
             <h2 class="src-name" style="padding-top: 8px;text-align: center;">数据源详情</h2>
-            <el-form :model="srcInfo" label-width="120px" size="mini" :disabled="!editable">
+            <el-form :model="srcInfo" label-width="120px" size="mini"
+                     :disabled="!editable" v-if="srcInfo.data_type==='mysql'">
                 <el-form-item label="数据源名称">
                     <el-input v-model="srcInfo.data_name" :readonly="!editable"></el-input>
                 </el-form-item>
@@ -61,6 +62,48 @@
                     </div>
                 </el-form-item>
             </el-form>
+            <el-form :model="srcInfo" label-width="120px" size="mini"
+                     :disabled="!editable" v-if="srcInfo.data_type==='excel'">
+                <el-form-item label="数据源名称">
+                    <el-input v-model="srcInfo.data_name" :readonly="true"></el-input>
+                </el-form-item>
+                <el-form-item label="文件">
+                    <el-button type="text" @click="downloadFile">{{ srcInfo.xlsName }}</el-button>
+                </el-form-item>
+                <el-form-item label="数据表">
+                    <el-input v-model="srcInfo.table_name" :readonly="true"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-alert v-if="srcValid === 'success'"
+                              style="width: 180px; margin: auto; padding: 0;"
+                              title="数据源可用"
+                              show-icon
+                              :closable="false"
+                              type="success">
+                    </el-alert>
+                    <el-alert v-else-if="srcValid === 'fail'"
+                              style="width: 180px; margin: auto; padding: 0;"
+                              title="数据源不可用"
+                              show-icon
+                              :closable="false"
+                              type="error">
+                    </el-alert>
+                    <el-alert v-else-if="srcValid === 'checking'"
+                              style="width: 180px; margin: auto; padding: 0;"
+                              title="连接中..."
+                              show-icon
+                              :closable="false"
+                              type="info">
+                    </el-alert>
+                    <el-alert v-else
+                              style="width: 180px; margin: auto; padding: 0;"
+                              title="未选择数据源"
+                              show-icon
+                              :closable="false"
+                              type="info">
+                    </el-alert>
+                </el-form-item>
+            </el-form>
         </div>
         <div class="preview">
             <h2 class="src-name" style="padding-top: 8px;text-align: center;">数据预览</h2>
@@ -108,9 +151,19 @@
         },
         mounted() {
             this.$bus.$on('currSource', (src) => {
+                console.log(src)
                 this.editable = true;
                 this.srcInfo = lodash.cloneDeep(src);
                 this.srcInfo.dbTable = [this.srcInfo.db_name, this.srcInfo.table_name];
+                this.options = [{
+                    value: this.srcInfo.db_name,
+                    label: this.srcInfo.db_name,
+                    children: [{
+                        value: this.srcInfo.table_name,
+                        label: this.srcInfo.table_name,
+                    }]
+                }]
+
                 this.checkSource();
                 this.previewData();
                 this.getDbTable();
@@ -168,6 +221,9 @@
                 })
             },
             getDbTable() {
+                if (this.srcInfo.data_type === 'excel') {
+                    return
+                }
                 let srcInfo = {
                     ip: this.srcInfo.db_host,
                     user: this.srcInfo.db_user,
@@ -176,7 +232,9 @@
                     sourceType: this.srcInfo.data_type
                 };
                 this.$axios.post(this.$api.mysqlGetDb, srcInfo).then((res) => {
+
                     if (res.data.code === '00') {
+                        this.this.options = []
                         for (let db in res.data.data) {
                             let tmp = {
                                 value: db,
@@ -196,7 +254,7 @@
                             message: res.data.message,
                             type: 'error',
                             showClose: true,
-                            duration: 3,
+                            duration: 3000,
                         });
                     }
                 }).catch((err) => {
@@ -207,6 +265,9 @@
                         duration: 3,
                     });
                 })
+            },
+            downloadFile() {
+                window.open(this.srcInfo.xls)
             },
             updateSource() {
                 this.$confirm('是否修改此数据源?', '提示', {

@@ -43,6 +43,11 @@ export default new VueRouter({
       component: () => import('../components/source/add_mssql'),
     },
     {
+      path: '/add/excel',
+      name: 'addExcel',
+      component: () => import('../components/source/add_excel'),
+    },
+    {
       path: '/chart/list',
       name: 'ChartList',
       component: () => import('../components/charts/chart_list'),

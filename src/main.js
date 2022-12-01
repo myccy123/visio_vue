@@ -12,6 +12,7 @@ import './icons';
 import storageMixin from './utils/storage-mixin';
 import './assets/themes/allThemes.js'
 import 'echarts-extension-amap';
+import VueParticles from 'vue-particles'
 
 
 Vue.config.productionTip = false;
@@ -44,6 +45,7 @@ axios.defaults.withCredentials = true;
 Vue.prototype.$axios = axios;
 Vue.prototype.$bus = globalBus;
 Vue.prototype.$api = urls;
+Vue.use(VueParticles)
 
 //路由拦截,拦截用户是否登录
 router.beforeEach((to, from, next) => {

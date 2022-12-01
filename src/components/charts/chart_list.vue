@@ -68,6 +68,7 @@
                 page: 0,
                 pageSize: 20,
                 isEnd: false,
+                sessionid: sessionStorage.getItem('sessionid'),
             }
         },
         mounted() {
@@ -126,7 +127,7 @@
                 })
             },
             preview(id) {
-                window.open(`${this.$api.baseUrl}/preview/#/?type=chart&id=${id}`, "_blank");
+                window.open(`${this.$api.baseUrl}/preview/?type=chart&id=${id}&sessionid=${this.sessionid}`, "_blank");
             },
             addChart() {
                 this.$router.push({name: 'chartEdit'})
