@@ -234,7 +234,7 @@
                 this.$axios.post(this.$api.mysqlGetDb, srcInfo).then((res) => {
 
                     if (res.data.code === '00') {
-                        this.this.options = []
+                        this.options = []
                         for (let db in res.data.data) {
                             let tmp = {
                                 value: db,
