@@ -77,7 +77,8 @@ export default {
         ],
         html: [
             {name: '表格', value: 'tableBasic', icon: pre_dir + '/img/type-table-basic.jpg',},
-            {name: 'html', value: 'htmlBasic', icon: pre_dir + '/img/type-html-basic.jpg',}
+            {name: 'html', value: 'htmlBasic', icon: pre_dir + '/img/type-html-basic.jpg',},
+            {name: 'ccb', value: 'ccbBasic', icon: pre_dir + '/img/type-html-basic.jpg',}
         ],
         diy: [
             {
